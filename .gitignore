@@ -60,3 +60,4 @@ venv/
 credentials.json
 service-account.json
 moto-secrets.txt
+CLAUDE.md
