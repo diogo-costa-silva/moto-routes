@@ -59,3 +59,4 @@ venv/
 *.key
 credentials.json
 service-account.json
+moto-secrets.txt
