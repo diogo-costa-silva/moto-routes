@@ -25,9 +25,9 @@ export function HomePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gray-950 p-8 text-white">
       <h1 className="mb-2 text-4xl font-bold tracking-tight">Moto Routes</h1>
-      <p className="mb-8 text-gray-400">v4 — Phase 1 Foundation</p>
+      <p className="mb-8 text-gray-400">v4 — Phase 3 Routes</p>
 
-      <div className="rounded-lg border border-gray-800 bg-gray-900 p-6 text-sm">
+      <div className="rounded-lg border border-gray-800 bg-gray-900 p-6 text-sm mb-6">
         <p className="mb-1 font-medium text-gray-300">Supabase connection</p>
         {status === 'checking' && <p className="text-yellow-400">Checking…</p>}
         {status === 'ok' && (
@@ -39,6 +39,13 @@ export function HomePage() {
           <p className="text-red-400">Connection failed — check console</p>
         )}
       </div>
+
+      <a
+        href="/routes"
+        className="rounded-lg bg-orange-500 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-orange-600"
+      >
+        Explore Routes →
+      </a>
     </main>
   )
 }
