@@ -1,0 +1,77 @@
+#!/usr/bin/env sh
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$STAGED" ] && exit 0
+
+echo "Verificando secrets nos ficheiros staged..."
+
+FOUND=0
+
+# Ficheiros .env staged directamente
+ENV_FILES=$(echo "$STAGED" | grep -E '^\.env(\.[^.]+)?$' | grep -v '\.env\.example$')
+if [ -n "$ENV_FILES" ]; then
+  echo "ERRO: Ficheiro .env staged: $ENV_FILES"
+  FOUND=1
+fi
+
+# Verificar conteúdo staged de cada ficheiro
+for FILE in $STAGED; do
+  [ -f "$FILE" ] || continue
+  CONTENT=$(git show ":$FILE" 2>/dev/null)
+
+  echo "$CONTENT" | grep -qE 'SUPABASE_SERVICE_ROLE_KEY\s*=\s*.+' && {
+    echo "ERRO: SUPABASE_SERVICE_ROLE_KEY detectado em $FILE"; FOUND=1; }
+
+  echo "$CONTENT" | grep -qE 'VITE_SUPABASE_ANON_KEY\s*=\s*eyJ[A-Za-z0-9+/]+' && {
+    echo "ERRO: Supabase JWT key detectado em $FILE"; FOUND=1; }
+
+  echo "$CONTENT" | grep -qE 'VITE_MAPBOX_ACCESS_TOKEN\s*=\s*pk\.[A-Za-z0-9._-]{20,}' && {
+    echo "ERRO: Mapbox public token detectado em $FILE"; FOUND=1; }
+
+  echo "$CONTENT" | grep -qE 'sk\.[A-Za-z0-9_-]{20,}' && {
+    echo "ERRO: Mapbox secret token (sk.*) detectado em $FILE"; FOUND=1; }
+
+  echo "$CONTENT" | grep -qE 'sk_(live|test)_[A-Za-z0-9]{20,}' && {
+    echo "ERRO: Stripe secret key detectado em $FILE"; FOUND=1; }
+
+  echo "$CONTENT" | grep -qE 'pk_live_[A-Za-z0-9]{20,}' && {
+    echo "ERRO: Stripe live public key detectado em $FILE"; FOUND=1; }
+done
+
+if [ "$FOUND" -ne 0 ]; then
+  echo ""
+  echo "Commit bloqueado: secrets detectados nos ficheiros staged."
+  echo "Secrets pertencem ao .env (que está no .gitignore), não ao código-fonte."
+  exit 1
+fi
+
+# Debug code detection (WARNING only, non-blocking)
+WARNED=0
+JS_TS_FILES=$(echo "$STAGED" | grep -E '\.(js|jsx|ts|tsx)$')
+PY_FILES=$(echo "$STAGED" | grep -E '\.py$')
+
+for FILE in $JS_TS_FILES; do
+  [ -f "$FILE" ] || continue
+  CONTENT=$(git show ":$FILE" 2>/dev/null)
+  echo "$CONTENT" | grep -qE 'console\.log\(' && {
+    echo "AVISO: console.log() detectado em $FILE"; WARNED=1; }
+  echo "$CONTENT" | grep -qE '^\s*debugger;' && {
+    echo "AVISO: debugger; detectado em $FILE"; WARNED=1; }
+done
+
+for FILE in $PY_FILES; do
+  [ -f "$FILE" ] || continue
+  CONTENT=$(git show ":$FILE" 2>/dev/null)
+  echo "$CONTENT" | grep -qE 'print\(f?["'"'"']DEBUG' && {
+    echo "AVISO: print(DEBUG...) detectado em $FILE"; WARNED=1; }
+done
+
+if [ "$WARNED" -ne 0 ]; then
+  echo ""
+  echo "Aviso: código de debug nos ficheiros staged."
+  echo "Se é intencional, usa: git commit --no-verify"
+  echo ""
+fi
+
+echo "Pre-commit OK."
+exit 0

@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+COMMIT_MSG_FILE="$1"
+COMMIT_SOURCE="$2"
+
+# Skip for merge, squash, and amend commits
+case "$COMMIT_SOURCE" in
+  merge|squash|commit) exit 0 ;;
+esac
+
+cat >> "$COMMIT_MSG_FILE" << 'TEMPLATE'
+
+# Format:  type: description              (scope optional)
+#          type(scope): description       (scope when it adds clarity)
+#
+# Types: feat  fix  docs  style  refactor  test  chore  ci  perf  revert
+#
+# Examples:
+#   feat: add route animation on map load
+#   fix: correct coordinate order in GPX parser
+#   feat(map): add fly-to transition on route select
+#   docs: update schema for journey table
+#
+# Rules: English · lowercase · no trailing period · max 72 chars
+#        no AI mentions · no WIP (use fixup! or git stash)
+TEMPLATE

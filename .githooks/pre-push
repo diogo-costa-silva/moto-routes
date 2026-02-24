@@ -1,0 +1,48 @@
+#!/usr/bin/env sh
+
+set -e
+
+FRONTEND_DIR="$(git rev-parse --show-toplevel)/frontend"
+
+if [ ! -d "$FRONTEND_DIR" ]; then
+  echo "No frontend to check."
+  exit 0
+fi
+
+PACKAGE_JSON="$FRONTEND_DIR/package.json"
+
+if [ ! -f "$PACKAGE_JSON" ]; then
+  echo "No frontend/package.json found, skipping checks."
+  exit 0
+fi
+
+echo "Running frontend checks before push..."
+
+# Run typecheck if script exists
+if grep -q '"typecheck"' "$PACKAGE_JSON"; then
+  echo "  Running typecheck..."
+  npm run typecheck --prefix "$FRONTEND_DIR" || {
+    echo ""
+    echo "  ERROR: TypeScript typecheck failed."
+    echo "  Fix type errors before pushing."
+    echo ""
+    exit 1
+  }
+  echo "  Typecheck passed."
+fi
+
+# Run lint if script exists
+if grep -q '"lint"' "$PACKAGE_JSON"; then
+  echo "  Running lint..."
+  npm run lint --prefix "$FRONTEND_DIR" || {
+    echo ""
+    echo "  ERROR: Lint check failed."
+    echo "  Fix lint errors before pushing."
+    echo ""
+    exit 1
+  }
+  echo "  Lint passed."
+fi
+
+echo "Frontend checks passed."
+exit 0
