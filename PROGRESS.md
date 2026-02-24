@@ -73,7 +73,11 @@
 
 ---
 
-## Fase Atual: 1 - Fundação (Em Progresso)
+## Fase Atual: 2 - Pipeline de Dados (Pendente)
+
+---
+
+## Fase 1 - Fundação ✓ COMPLETA
 
 ### Concluído
 - [x] Criar projeto Supabase (epaxdcbvbysjrnwuffay)
@@ -100,12 +104,18 @@
 - [x] Actualizar react-builder (foco em lógica, delega UI)
 - [x] Actualizar ui-designer (design system guardian)
 
-### Pendente
+### Concluído (continuação)
 - [x] Executar schema.sql no Supabase ✓
-- [ ] Inicializar frontend com Vite + React + TypeScript
-- [ ] Configurar Tailwind CSS
-- [ ] Configurar variáveis de ambiente (.env)
-- [ ] Definir error handling pattern (error boundaries, toasts)
+- [x] Inicializar frontend com Vite 7 + React 19 + TypeScript
+- [x] Configurar Tailwind CSS v4 (via @tailwindcss/vite plugin)
+- [x] Configurar variáveis de ambiente (.env com credenciais reais)
+- [x] Definir error handling pattern (ErrorBoundary + Sonner toasts)
+- [x] Criar supabase client tipado (Database types gerados do schema)
+- [x] Criar HomePage com teste de conexão Supabase
+- [x] `npm run build` passa sem erros
+
+### Pendente
+- (nenhum — Fase 1 completa)
 
 Ver critérios completos em [docs/ROADMAP.md](./docs/ROADMAP.md)
 
@@ -131,7 +141,7 @@ Ver critérios completos em [docs/ROADMAP.md](./docs/ROADMAP.md)
 | Fase | Nome | Estado | Data Início | Data Fim |
 |------|------|--------|-------------|----------|
 | 0 | Preparação | ✓ Completa | 2026-01-26 | 2026-01-26 |
-| 1 | Fundação | Em Progresso | 2026-01-26 | - |
+| 1 | Fundação | ✓ Completa | 2026-01-26 | 2026-02-24 |
 | 2 | Pipeline de Dados | Pendente | - | - |
 | 3 | Frontend - Routes | Pendente | - | - |
 | 4 | Frontend - POIs | Pendente | - | - |
@@ -145,4 +155,4 @@ Ver critérios completos em [docs/ROADMAP.md](./docs/ROADMAP.md)
 ---
 
 ## Última Actualização
-2026-01-28 (Schema executado no Supabase: 11 tabelas, 2 ENUMs, RLS activo)
+2026-02-24 (Fase 1 completa: frontend Vite+React+TS inicializado, Tailwind v4, Supabase client tipado, build sem erros)

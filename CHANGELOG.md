@@ -8,6 +8,29 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-02-24
+
+### Adicionado
+- **Frontend inicializado** — Vite 7 + React 19 + TypeScript
+- `frontend/src/lib/supabase.ts` — Client Supabase tipado com `Database` types
+- `frontend/src/types/database.ts` — TypeScript types gerados do schema (11 tabelas, 2 ENUMs)
+- `frontend/src/components/ErrorBoundary.tsx` — Classe React com fallback UI
+- `frontend/src/pages/HomePage.tsx` — Placeholder com teste de conexão Supabase ao vivo
+- `frontend/.env` — Variáveis de ambiente com credenciais reais (coberto por .gitignore)
+- **Dependências de produção**: `@supabase/supabase-js`, `react-router`, `mapbox-gl`, `sonner`
+- **Tailwind CSS v4** via `@tailwindcss/vite` plugin (sem `tailwind.config.js`)
+
+### Alterado
+- `frontend/vite.config.ts` — Adicionado plugin `@tailwindcss/vite`
+- `frontend/src/index.css` — Substituído por `@import "tailwindcss"`
+- `frontend/src/App.tsx` — `BrowserRouter` + `Routes` + `Toaster` (sonner)
+- `frontend/src/main.tsx` — Envolvido em `ErrorBoundary`
+
+### Verificado
+- `npm run build` passa sem erros TypeScript
+
+---
+
 ### Adicionado
 - **Skill `/commit`** - Atomic commit helper: inspecciona git state, propõe mensagem bem formada seguindo convenções do projecto, lista ficheiros staged e executa apenas após confirmação explícita do utilizador
 - `.githooks/commit-msg` - Valida formato `tipo(scope): descrição` com bypass para commits automáticos
