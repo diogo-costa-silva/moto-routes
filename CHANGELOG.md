@@ -8,6 +8,19 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-02-24
+
+### Adicionado
+- `hooks/useRoutes.ts` — Hook Supabase com estado (routes, selectedRoute, hoveredRouteId)
+- `components/Map/mapLayers.ts` — Definição de 3 layers Mapbox (base, hover, selected)
+- `components/Map/RouteMap.tsx` — Mapa Mapbox GL JS com click, hover e fly-to (1.5s)
+- `components/Map/RouteAnimation.tsx` — Animação `line-dasharray` via requestAnimationFrame (1.8s)
+- `components/Routes/RouteList.tsx` — Lista de rotas com skeleton loading e estados hover/selected
+- `components/Routes/RouteDetails.tsx` — Painel lateral (desktop) / bottom sheet (mobile) com download GPX
+- `pages/RoutesPage.tsx` — Layout orchestrador responsivo (mobile-first, 375px–1920px)
+- Rota `/routes` adicionada ao React Router
+- Link "Explore Routes →" na HomePage
+
 ## [0.4.0] - 2026-02-24
 
 ### Adicionado
