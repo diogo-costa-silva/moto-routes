@@ -2,7 +2,22 @@
 
 > Actualizar este ficheiro sempre que uma tarefa é concluída.
 
-## Fase Atual: 0 - Preparação ✓ COMPLETA
+## Fase Atual: 3 - Frontend Routes (próxima)
+
+### Phase 2 ✓ COMPLETA (2026-02-24)
+- [x] `scripts/import_gpx.py` — pipeline GPX completo (390 LOC)
+- [x] 7 rotas inseridas com métricas + geometria PostGIS
+- [x] 2 journeys com stages ordenados
+- [x] 3 destinations com bounding boxes
+- [x] 5 POIs com links às rotas
+- [x] 48 translations PT + EN
+- [x] Validação automática: todos os critérios passados
+- [x] Frontend confirma: "Connected — 7 routes in database"
+
+---
+
+## Phase 1 ✓ COMPLETA
+## Phase 0 ✓ COMPLETA - Preparação
 
 ### Concluído
 - [x] Estrutura de pastas criada

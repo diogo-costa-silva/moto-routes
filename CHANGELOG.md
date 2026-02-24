@@ -8,6 +8,24 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-02-24
+
+### Adicionado
+- `scripts/import_gpx.py` — Pipeline de importação de dados GPX (~430 LOC)
+  - Parsing de 7 ficheiros GPX com gpxpy
+  - Cálculo de métricas: distância, elevação gain/loss, min/max
+  - Análise de curvas: resample a 50m + classificação por ângulo (gentle/moderate/sharp)
+  - Downsampling para tracks grandes (N2: 17k → 3k pontos) para respeitar limite REST
+  - Formato EWKT `SRID=4326;...` para colunas PostGIS via PostgREST
+  - Inserção idempotente: upsert em routes/journeys/destinations, check-then-upsert em POIs
+  - 2 journeys com stages ordenados
+  - 3 destinations com bounding boxes e featured routes
+  - 5 POIs com links route-POI
+  - 42+ translations (PT + EN) para routes, journeys e destinations
+  - Validação automática com critérios da Fase 2
+- `scripts/pyproject.toml` + `scripts/uv.lock` — UV project com ambiente virtual reprodutível
+- `.env.example` — Adicionado `SUPABASE_SERVICE_KEY` com instruções
+
 ## [0.3.0] - 2026-02-24
 
 ### Adicionado
