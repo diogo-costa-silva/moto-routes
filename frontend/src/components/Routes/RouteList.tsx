@@ -1,4 +1,5 @@
 import type { Route } from '../../hooks/useRoutes'
+import { LANDSCAPE_LABELS } from '../../lib/labels'
 
 interface RouteListProps {
   routes: Route[]
@@ -7,16 +8,6 @@ interface RouteListProps {
   hoveredRouteId: string | null
   onSelect: (route: Route) => void
   onHover: (id: string | null) => void
-}
-
-const LANDSCAPE_LABELS: Record<string, string> = {
-  coast: 'Coast',
-  mountain: 'Mountain',
-  forest: 'Forest',
-  urban: 'Urban',
-  river_valley: 'River Valley',
-  mixed: 'Mixed',
-  plains: 'Plains',
 }
 
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -58,9 +49,12 @@ export function RouteList({
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
-        {loading
-          ? Array.from({ length: 7 }).map((_, i) => <SkeletonCard key={i} />)
-          : routes.map((route) => {
+        {loading ? (
+          Array.from({ length: 7 }).map((_, i) => <SkeletonCard key={i} />)
+        ) : routes.length === 0 ? (
+          <p className="p-4 text-sm text-gray-500">No routes found.</p>
+        ) : (
+          routes.map((route) => {
               const isSelected = selectedRoute?.id === route.id
               const isHovered = hoveredRouteId === route.id
 
@@ -106,7 +100,8 @@ export function RouteList({
                   </div>
                 </button>
               )
-            })}
+            })
+        )}
       </div>
     </div>
   )

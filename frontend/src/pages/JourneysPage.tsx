@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router'
+import { useIsMobile } from '../hooks/useIsMobile'
 import { NavHeader } from '../components/AppShell/NavHeader'
 import { MobileTabBar } from '../components/AppShell/MobileTabBar'
 import { JourneyMap } from '../components/Map/JourneyMap'
@@ -10,6 +12,7 @@ export function JourneysPage() {
   const {
     journeys,
     loadingJourneys,
+    error,
     selectedJourney,
     selectJourney,
     stages,
@@ -18,24 +21,76 @@ export function JourneysPage() {
     selectStage,
   } = useJourneys()
 
-  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 767px)').matches)
-  const [showList, setShowList] = useState(false)
+  const { slug } = useParams<{ slug?: string }>()
+  const navigate = useNavigate()
+  const location = useLocation()
 
+  const isMobile = useIsMobile()
+  const [showList, setShowList] = useState(false)
+  // Guard: pre-select only once (prevents re-select loop when closing)
+  const didPreSelect = useRef(false)
+
+  // Pre-select from URL slug — runs once when journeys load
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)')
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
-    mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
-  }, [])
+    if (!didPreSelect.current && slug && journeys.length > 0) {
+      const match = journeys.find((j) => j.slug === slug)
+      if (match) {
+        didPreSelect.current = true
+        selectJourney(match)
+      }
+    }
+  }, [slug, journeys, selectJourney])
+
+  // Sync URL when a journey is selected (only push if URL doesn't match)
+  useEffect(() => {
+    if (!selectedJourney) return
+    const expected = `/journeys/${selectedJourney.slug}`
+    if (location.pathname !== expected) {
+      navigate(expected, { replace: true })
+    }
+  }, [selectedJourney, navigate, location.pathname])
 
   // Auto-close list sheet when a journey is selected on mobile
   useEffect(() => {
     if (selectedJourney) setShowList(false)
   }, [selectedJourney])
 
+  const listSheetRef = useRef<HTMLDivElement>(null)
+  const dragStartY = useRef<number>(0)
+  const dragging = useRef<boolean>(false)
+
+  function onSheetTouchStart(e: React.TouchEvent) {
+    dragStartY.current = e.touches[0].clientY
+    dragging.current = true
+  }
+
+  function onSheetTouchMove(e: React.TouchEvent) {
+    if (!dragging.current) return
+    const delta = e.touches[0].clientY - dragStartY.current
+    if (delta > 0 && listSheetRef.current) {
+      listSheetRef.current.style.transform = `translateY(${delta}px)`
+    }
+  }
+
+  function onSheetTouchEnd(e: React.TouchEvent) {
+    dragging.current = false
+    const delta = e.changedTouches[0].clientY - dragStartY.current
+    if (listSheetRef.current) {
+      listSheetRef.current.style.transform = ''
+      listSheetRef.current.style.transition = 'transform 0.2s ease'
+      setTimeout(() => {
+        if (listSheetRef.current) listSheetRef.current.style.transition = ''
+      }, 200)
+    }
+    if (delta > 80) {
+      setShowList(false)
+    }
+  }
+
   function handleClose() {
     selectJourney(null)
     selectStage(null)
+    navigate('/journeys', { replace: true })
   }
 
   return (
@@ -56,12 +111,19 @@ export function JourneysPage() {
             />
           </div>
         ) : (
-          <JourneyList
-            journeys={journeys}
-            loading={loadingJourneys}
-            selectedJourney={selectedJourney}
-            onSelect={selectJourney}
-          />
+          <>
+            {error && (
+              <div className="p-4 text-sm text-red-400">
+                Unable to load journeys. Please try again.
+              </div>
+            )}
+            <JourneyList
+              journeys={journeys}
+              loading={loadingJourneys}
+              selectedJourney={selectedJourney}
+              onSelect={selectJourney}
+            />
+          </>
         )}
       </div>
 
@@ -100,7 +162,13 @@ export function JourneysPage() {
 
       {/* Mobile: bottom sheet for journey list */}
       {isMobile && showList && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-gray-950 rounded-t-2xl h-[55vh] flex flex-col">
+        <div
+          ref={listSheetRef}
+          className="fixed bottom-0 left-0 right-0 z-40 bg-gray-950 rounded-t-2xl h-[55vh] flex flex-col"
+          onTouchStart={onSheetTouchStart}
+          onTouchMove={onSheetTouchMove}
+          onTouchEnd={onSheetTouchEnd}
+        >
           <div className="flex items-center justify-center pt-3 pb-2">
             <div className="h-1 w-10 rounded-full bg-gray-700" />
           </div>
@@ -119,6 +187,11 @@ export function JourneysPage() {
           </div>
 
           <div className="flex-1 overflow-y-auto">
+            {error && (
+              <div className="p-4 text-sm text-red-400">
+                Unable to load journeys. Please try again.
+              </div>
+            )}
             <JourneyList
               journeys={journeys}
               loading={loadingJourneys}

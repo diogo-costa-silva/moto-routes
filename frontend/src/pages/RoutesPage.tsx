@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router'
+import { useIsMobile } from '../hooks/useIsMobile'
 import { NavHeader } from '../components/AppShell/NavHeader'
 import { MobileTabBar } from '../components/AppShell/MobileTabBar'
 import { RouteMap } from '../components/Map/RouteMap'
@@ -8,23 +10,79 @@ import { useRoutePOIs } from '../hooks/useRoutePOIs'
 import { useRoutes } from '../hooks/useRoutes'
 
 export function RoutesPage() {
-  const { routes, loading, selectedRoute, hoveredRouteId, selectRoute, hoverRoute } = useRoutes()
+  const { routes, loading, error, selectedRoute, hoveredRouteId, selectRoute, hoverRoute } = useRoutes()
   const { pois } = useRoutePOIs(selectedRoute?.id ?? null)
 
-  const [isMobile, setIsMobile] = useState(() => window.matchMedia('(max-width: 767px)').matches)
+  const { slug } = useParams<{ slug?: string }>()
+  const navigate = useNavigate()
+  const location = useLocation()
+  // Guard: pre-select only once (prevents re-select loop when closing)
+  const didPreSelect = useRef(false)
+
+  const isMobile = useIsMobile()
   const [showList, setShowList] = useState(false)
 
+  // Pre-select from URL slug — runs once when routes load
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)')
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
-    mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
-  }, [])
+    if (!didPreSelect.current && slug && routes.length > 0) {
+      const match = routes.find((r) => r.slug === slug)
+      if (match) {
+        didPreSelect.current = true
+        selectRoute(match)
+      }
+    }
+  }, [slug, routes, selectRoute])
+
+  // Sync URL when a route is selected (only push if URL doesn't match)
+  useEffect(() => {
+    if (!selectedRoute) return
+    const expected = `/routes/${selectedRoute.slug}`
+    if (location.pathname !== expected) {
+      navigate(expected, { replace: true })
+    }
+  }, [selectedRoute, navigate, location.pathname])
 
   // Auto-close list sheet when a route is selected on mobile
   useEffect(() => {
     if (selectedRoute) setShowList(false)
   }, [selectedRoute])
+
+  const listSheetRef = useRef<HTMLDivElement>(null)
+  const dragStartY = useRef<number>(0)
+  const dragging = useRef<boolean>(false)
+
+  function onSheetTouchStart(e: React.TouchEvent) {
+    dragStartY.current = e.touches[0].clientY
+    dragging.current = true
+  }
+
+  function onSheetTouchMove(e: React.TouchEvent) {
+    if (!dragging.current) return
+    const delta = e.touches[0].clientY - dragStartY.current
+    if (delta > 0 && listSheetRef.current) {
+      listSheetRef.current.style.transform = `translateY(${delta}px)`
+    }
+  }
+
+  function onSheetTouchEnd(e: React.TouchEvent) {
+    dragging.current = false
+    const delta = e.changedTouches[0].clientY - dragStartY.current
+    if (listSheetRef.current) {
+      listSheetRef.current.style.transform = ''
+      listSheetRef.current.style.transition = 'transform 0.2s ease'
+      setTimeout(() => {
+        if (listSheetRef.current) listSheetRef.current.style.transition = ''
+      }, 200)
+    }
+    if (delta > 80) {
+      setShowList(false)
+    }
+  }
+
+  function handleClose() {
+    selectRoute(null)
+    navigate('/routes', { replace: true })
+  }
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-gray-950 text-white">
@@ -34,17 +92,24 @@ export function RoutesPage() {
 
         {selectedRoute ? (
           <div className="flex-1 overflow-y-auto">
-            <DetailsContent route={selectedRoute} onClose={() => selectRoute(null)} pois={pois} />
+            <DetailsContent route={selectedRoute} onClose={handleClose} pois={pois} />
           </div>
         ) : (
-          <RouteList
-            routes={routes}
-            loading={loading}
-            selectedRoute={selectedRoute}
-            hoveredRouteId={hoveredRouteId}
-            onSelect={selectRoute}
-            onHover={hoverRoute}
-          />
+          <>
+            {error && (
+              <div className="p-4 text-sm text-red-400">
+                Unable to load routes. Please try again.
+              </div>
+            )}
+            <RouteList
+              routes={routes}
+              loading={loading}
+              selectedRoute={selectedRoute}
+              hoveredRouteId={hoveredRouteId}
+              onSelect={selectRoute}
+              onHover={hoverRoute}
+            />
+          </>
         )}
       </div>
 
@@ -63,7 +128,7 @@ export function RoutesPage() {
         />
 
         {selectedRoute && (
-          <RouteDetails route={selectedRoute} onClose={() => selectRoute(null)} pois={pois} />
+          <RouteDetails route={selectedRoute} onClose={handleClose} pois={pois} />
         )}
       </div>
 
@@ -79,7 +144,13 @@ export function RoutesPage() {
 
       {/* Mobile: bottom sheet for route list */}
       {isMobile && showList && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-gray-950 rounded-t-2xl h-[55vh] flex flex-col">
+        <div
+          ref={listSheetRef}
+          className="fixed bottom-0 left-0 right-0 z-40 bg-gray-950 rounded-t-2xl h-[55vh] flex flex-col"
+          onTouchStart={onSheetTouchStart}
+          onTouchMove={onSheetTouchMove}
+          onTouchEnd={onSheetTouchEnd}
+        >
           <div className="flex items-center justify-center pt-3 pb-2">
             <div className="h-1 w-10 rounded-full bg-gray-700" />
           </div>

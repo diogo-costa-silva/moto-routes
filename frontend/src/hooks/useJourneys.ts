@@ -30,6 +30,7 @@ export interface Journey {
 interface UseJourneysState {
   journeys: Journey[]
   loadingJourneys: boolean
+  error: string | null
   selectedJourney: Journey | null
   selectJourney: (j: Journey | null) => void
   stages: JourneyStage[]
@@ -47,6 +48,7 @@ function isLineString(value: unknown): value is GeoJSON.LineString {
 export function useJourneys(): UseJourneysState {
   const [journeys, setJourneys] = useState<Journey[]>([])
   const [loadingJourneys, setLoadingJourneys] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null)
   const [stages, setStages] = useState<JourneyStage[]>([])
   const [loadingStages, setLoadingStages] = useState(false)
@@ -60,6 +62,7 @@ export function useJourneys(): UseJourneysState {
       .then(({ data, error }) => {
         if (error) {
           toast.error('Failed to load journeys')
+          setError('Failed to load journeys')
           setLoadingJourneys(false)
           return
         }
@@ -135,6 +138,7 @@ export function useJourneys(): UseJourneysState {
   return {
     journeys,
     loadingJourneys,
+    error,
     selectedJourney,
     selectJourney: setSelectedJourney,
     stages,

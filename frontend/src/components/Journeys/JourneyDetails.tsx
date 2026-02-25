@@ -95,7 +95,7 @@ export function JourneyDetails({
         </div>
         <button
           onClick={onClose}
-          className="ml-4 flex-shrink-0 rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+          className="ml-4 flex-shrink-0 rounded-full p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
           aria-label="Close"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -189,7 +189,7 @@ export function JourneyDetails({
                         e.stopPropagation()
                         generateGpx(stageName, stage.route.slug, stage.route.geometry_geojson)
                       }}
-                      className="flex-shrink-0 rounded p-1.5 text-gray-500 hover:text-white hover:bg-gray-700 transition-colors"
+                      className="flex-shrink-0 rounded p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-500 hover:text-white hover:bg-gray-700 transition-colors"
                       aria-label={`Download GPX for ${stageName}`}
                       title="Download GPX"
                     >
@@ -219,7 +219,7 @@ export function JourneyDetailsMobile({
   onStageSelect,
 }: JourneyDetailsProps) {
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 h-[55vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 h-[55vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20 pb-[env(safe-area-inset-bottom,0px)]">
       <div className="mx-auto mt-2 mb-4 h-1 w-12 rounded-full bg-gray-700" />
       <JourneyDetails
         journey={journey}

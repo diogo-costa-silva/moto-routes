@@ -1,5 +1,6 @@
 import type { RoutePOI } from '../../hooks/useRoutePOIs'
 import type { Route } from '../../hooks/useRoutes'
+import { LANDSCAPE_LABELS } from '../../lib/labels'
 import { POIList } from './POIList'
 
 interface RouteDetailsProps {
@@ -35,16 +36,6 @@ function downloadGpx(route: Route) {
   URL.revokeObjectURL(url)
 }
 
-const LANDSCAPE_LABELS: Record<string, string> = {
-  coast: 'Coast',
-  mountain: 'Mountain',
-  forest: 'Forest',
-  urban: 'Urban',
-  river_valley: 'River Valley',
-  mixed: 'Mixed',
-  plains: 'Plains',
-}
-
 interface StatProps {
   label: string
   value: string | null
@@ -63,9 +54,11 @@ function Stat({ label, value }: StatProps) {
 export function RouteDetails({ route, onClose, pois }: RouteDetailsProps) {
   return (
     /* Mobile: bottom sheet */
-    <div className="md:hidden fixed bottom-0 left-0 right-0 h-[50vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20">
+    <div className="md:hidden fixed bottom-0 left-0 right-0 h-[55vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20">
       <div className="mx-auto mt-2 mb-4 h-1 w-12 rounded-full bg-gray-700" />
-      <DetailsContent route={route} onClose={onClose} pois={pois} />
+      <div className="pb-[env(safe-area-inset-bottom,0px)]">
+        <DetailsContent route={route} onClose={onClose} pois={pois} />
+      </div>
     </div>
   )
 }

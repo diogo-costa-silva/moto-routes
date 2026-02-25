@@ -37,9 +37,12 @@ export function JourneyList({ journeys, loading, selectedJourney, onSelect }: Jo
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
-        {loading
-          ? Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
-          : journeys.map((journey) => {
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
+        ) : journeys.length === 0 ? (
+          <p className="p-4 text-sm text-gray-500">No journeys found.</p>
+        ) : (
+          journeys.map((journey) => {
               const isSelected = selectedJourney?.id === journey.id
               return (
                 <button
@@ -72,7 +75,8 @@ export function JourneyList({ journeys, loading, selectedJourney, onSelect }: Jo
                   )}
                 </button>
               )
-            })}
+            })
+        )}
       </div>
     </div>
   )
