@@ -323,6 +323,45 @@ CREATE TRIGGER update_translations_updated_at
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- ============================================================================
+-- RPC FUNCTIONS (applied via Supabase migrations)
+-- ============================================================================
+
+-- Returns POIs for a route with extracted lon/lat coordinates
+-- Applied via migration (not inline — requires PostGIS ST_X/ST_Y)
+-- Usage: supabase.rpc('get_pois_for_route', { p_route_id: uuid })
+CREATE OR REPLACE FUNCTION get_pois_for_route(p_route_id uuid)
+RETURNS TABLE (
+  id uuid, name text, description text, poi_type text,
+  association_type poi_association_type, km_marker numeric,
+  longitude double precision, latitude double precision
+)
+LANGUAGE sql SECURITY DEFINER AS $$
+  SELECT p.id, p.name, p.description, p.poi_type,
+         rp.association_type, rp.km_marker,
+         ST_X(p.location::geometry) AS longitude,
+         ST_Y(p.location::geometry) AS latitude
+  FROM route_pois rp
+  JOIN pois p ON p.id = rp.poi_id
+  WHERE rp.route_id = p_route_id
+  ORDER BY rp.km_marker;
+$$;
+GRANT EXECUTE ON FUNCTION get_pois_for_route(uuid) TO public;
+
+-- Returns all destinations with bounding box as GeoJSON polygon
+-- Usage: supabase.rpc('get_destinations', {})
+CREATE OR REPLACE FUNCTION get_destinations()
+RETURNS TABLE (
+  id uuid, name text, slug text, description text,
+  landscape_type text, bounding_box_geojson json
+)
+LANGUAGE sql SECURITY DEFINER AS $$
+  SELECT id, name, slug, description, landscape_type::text,
+         ST_AsGeoJSON(bounding_box)::json
+  FROM destinations ORDER BY name;
+$$;
+GRANT EXECUTE ON FUNCTION get_destinations() TO public;
+
+-- ============================================================================
 -- COMMENTS
 -- ============================================================================
 

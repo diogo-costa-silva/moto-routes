@@ -270,6 +270,16 @@ export interface Database {
     }
     Views: Record<string, never>
     Functions: {
+      get_destinations: {
+        Args: Record<string, never>
+        Returns: {
+          id: string
+          name: string
+          slug: string
+          description: string | null
+          bounding_box_geojson: unknown
+        }[]
+      }
       get_pois_for_route: {
         Args: { p_route_id: string }
         Returns: {

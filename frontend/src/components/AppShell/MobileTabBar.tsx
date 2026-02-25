@@ -19,6 +19,17 @@ const TABS = [
       </svg>
     ),
   },
+  {
+    path: '/destinations',
+    label: 'Regions',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+        <circle cx="12" cy="12" r="10" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M2 12h20" />
+      </svg>
+    ),
+  },
 ]
 
 export function MobileTabBar() {
@@ -28,16 +39,19 @@ export function MobileTabBar() {
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-950 border-t border-gray-800">
       <div className="flex">
         {TABS.map(({ path, label, icon }) => {
-          const isActive = pathname === path
+          const isActive = pathname === path || pathname.startsWith(path + '/')
           return (
             <Link
               key={path}
               to={path}
               className={[
-                'flex-1 flex flex-col items-center gap-1 py-2.5 text-xs transition-colors',
+                'relative flex-1 flex flex-col items-center gap-1 py-2.5 text-xs transition-colors',
                 isActive ? 'text-white' : 'text-gray-500',
               ].join(' ')}
             >
+              <div className={`absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full transition-all duration-200 ${
+                isActive ? 'bg-orange-500' : 'bg-transparent'
+              }`} />
               {icon}
               <span className={isActive ? 'font-semibold' : ''}>{label}</span>
             </Link>

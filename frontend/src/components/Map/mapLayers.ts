@@ -258,6 +258,66 @@ export function updateJourneyStagesSource(
   source?.setData(buildStagesFeatureCollection(stages))
 }
 
+// --- Destination helpers ---
+
+export const SOURCE_DESTINATION_BBOX = 'destination-bbox'
+export const LAYER_DESTINATION_FILL = 'destination-fill'
+export const LAYER_DESTINATION_OUTLINE = 'destination-outline'
+export const SOURCE_DESTINATION_ROUTES = 'destination-routes'
+export const LAYER_DESTINATION_ROUTES = 'destination-routes-line'
+
+export function addDestinationSources(map: MapboxMap): void {
+  map.addSource(SOURCE_DESTINATION_BBOX, {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] },
+  })
+  map.addSource(SOURCE_DESTINATION_ROUTES, {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] },
+  })
+}
+
+export function addDestinationLayers(map: MapboxMap): void {
+  // Orange solid lines for featured routes
+  map.addLayer({
+    id: LAYER_DESTINATION_ROUTES,
+    type: 'line',
+    source: SOURCE_DESTINATION_ROUTES,
+    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    paint: {
+      'line-color': '#f97316',
+      'line-width': 3,
+      'line-opacity': 0.9,
+    },
+  })
+}
+
+export function updateDestinationBBoxSource(map: MapboxMap, polygon: GeoJSON.Polygon | null): void {
+  const source = map.getSource(SOURCE_DESTINATION_BBOX) as GeoJSONSource | undefined
+  if (!source) return
+  if (!polygon) {
+    source.setData({ type: 'FeatureCollection', features: [] })
+  } else {
+    source.setData({ type: 'Feature', properties: {}, geometry: polygon })
+  }
+}
+
+export function updateDestinationRoutesSource(
+  map: MapboxMap,
+  routes: Array<{ id: string; name: string; geometry_geojson: GeoJSON.LineString }>,
+): void {
+  const source = map.getSource(SOURCE_DESTINATION_ROUTES) as GeoJSONSource | undefined
+  if (!source) return
+  source.setData({
+    type: 'FeatureCollection',
+    features: routes.map((r) => ({
+      type: 'Feature',
+      properties: { id: r.id, name: r.name },
+      geometry: r.geometry_geojson,
+    })),
+  })
+}
+
 export function updateJourneySelectedSource(
   map: MapboxMap,
   geometry: GeoJSON.LineString | null,
