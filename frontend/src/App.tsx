@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router'
 import { Toaster } from 'sonner'
 import { HomePage } from './pages/HomePage'
+import { JourneysPage } from './pages/JourneysPage'
 import { RoutesPage } from './pages/RoutesPage'
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/routes" element={<RoutesPage />} />
+        <Route path="/journeys" element={<JourneysPage />} />
       </Routes>
       <Toaster position="bottom-right" />
     </BrowserRouter>

@@ -160,3 +160,113 @@ export function updatePOISource(map: MapboxMap, pois: RoutePOI[]): void {
 
 // Type alias re-export so RouteMap can get GeoJSONSource type from here
 export type { GeoJSONSource }
+
+// --- Journey helpers ---
+
+export const SOURCE_JOURNEY_STAGES = 'journey-stages'
+export const LAYER_JOURNEY_STAGES = 'journey-stages-line'
+export const LAYER_JOURNEY_STAGE_HOVER = 'journey-stage-hover'
+export const SOURCE_JOURNEY_SELECTED = 'journey-stage-selected'
+export const LAYER_JOURNEY_SELECTED = 'journey-stage-selected'
+export const STAGE_COLORS = ['#f59e0b', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444']
+
+export interface StageFeatureProps {
+  stage_id: string
+  stage_order: number
+}
+
+export function buildStagesFeatureCollection(
+  stages: Array<{ id: string; stage_order: number; route: { geometry_geojson: GeoJSON.LineString } }>,
+): GeoJSON.FeatureCollection {
+  return {
+    type: 'FeatureCollection',
+    features: stages.map((s) => ({
+      type: 'Feature',
+      properties: { stage_id: s.id, stage_order: s.stage_order },
+      geometry: s.route.geometry_geojson,
+    })),
+  }
+}
+
+export function addJourneySources(map: MapboxMap): void {
+  map.addSource(SOURCE_JOURNEY_STAGES, {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] },
+  })
+  map.addSource(SOURCE_JOURNEY_SELECTED, {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] },
+  })
+}
+
+export function addJourneyLayers(map: MapboxMap): void {
+  map.addLayer({
+    id: LAYER_JOURNEY_STAGES,
+    type: 'line',
+    source: SOURCE_JOURNEY_STAGES,
+    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    paint: {
+      'line-color': [
+        'match',
+        ['get', 'stage_order'],
+        1, STAGE_COLORS[0],
+        2, STAGE_COLORS[1],
+        3, STAGE_COLORS[2],
+        4, STAGE_COLORS[3],
+        5, STAGE_COLORS[4],
+        '#6b7280',
+      ] as unknown as string,
+      'line-width': 3,
+      'line-opacity': 0.85,
+    },
+  })
+
+  // Hover highlight
+  map.addLayer({
+    id: LAYER_JOURNEY_STAGE_HOVER,
+    type: 'line',
+    source: SOURCE_JOURNEY_STAGES,
+    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    filter: ['==', ['get', 'stage_id'], ''],
+    paint: {
+      'line-color': '#ffffff',
+      'line-width': 5,
+      'line-opacity': 0.4,
+    },
+  })
+
+  // Selected stage (animated)
+  map.addLayer({
+    id: LAYER_JOURNEY_SELECTED,
+    type: 'line',
+    source: SOURCE_JOURNEY_SELECTED,
+    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    paint: {
+      'line-color': '#ffffff',
+      'line-width': 5,
+      'line-dasharray': [0, 2],
+      'line-opacity': 0.9,
+    },
+  })
+}
+
+export function updateJourneyStagesSource(
+  map: MapboxMap,
+  stages: Array<{ id: string; stage_order: number; route: { geometry_geojson: GeoJSON.LineString } }>,
+): void {
+  const source = map.getSource(SOURCE_JOURNEY_STAGES) as GeoJSONSource | undefined
+  source?.setData(buildStagesFeatureCollection(stages))
+}
+
+export function updateJourneySelectedSource(
+  map: MapboxMap,
+  geometry: GeoJSON.LineString | null,
+): void {
+  const source = map.getSource(SOURCE_JOURNEY_SELECTED) as GeoJSONSource | undefined
+  if (!source) return
+  if (!geometry) {
+    source.setData({ type: 'FeatureCollection', features: [] })
+  } else {
+    source.setData({ type: 'Feature', properties: {}, geometry })
+  }
+}

@@ -8,6 +8,18 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-02-25
+
+### Adicionado (Fase 5 — Frontend Journeys)
+- `hooks/useJourneys.ts` — hook com fetch de journeys e etapas (via Supabase join `journey_stages → routes`), estado `selectedJourney`, `selectedStage`, `loadingStages`
+- `components/Map/mapLayers.ts` — constantes `SOURCE_JOURNEY_STAGES`, `LAYER_JOURNEY_STAGES`, `LAYER_JOURNEY_STAGE_HOVER`, `SOURCE_JOURNEY_SELECTED`, `LAYER_JOURNEY_SELECTED`, `STAGE_COLORS`; funções `addJourneySources`, `addJourneyLayers`, `buildStagesFeatureCollection`, `updateJourneyStagesSource`, `updateJourneySelectedSource`
+- `components/Map/JourneyMap.tsx` — mapa Mapbox para journeys; etapas coloridas por `stage_order` via `match` expression; fly-to + animação ao selecionar etapa; reutiliza `RouteAnimation`
+- `components/Journeys/JourneyList.tsx` — lista de journeys com skeleton, badges tipo/dias, border amber ao selecionar
+- `components/Journeys/JourneyDetails.tsx` — header journey, stats total km/dias, lista de etapas com dot colorido, GPX download por etapa; `JourneyDetailsMobile` como bottom sheet
+- `pages/JourneysPage.tsx` — orquestrador com sidebar desktop + bottom sheet mobile; pill flutuante "Journeys (N)"
+- `App.tsx` — rota `/journeys` adicionada
+- `pages/HomePage.tsx` — link para `/journeys` e versão atualizada para "Phase 5 Journeys"
+
 ## [0.6.0] - 2026-02-24
 
 ### Adicionado (Fase 4 — Frontend POIs)
