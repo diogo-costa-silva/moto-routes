@@ -54,6 +54,9 @@ venv/
 # Claude Code plans (optional - remove if you want to track plans)
 .claude/plans/
 
+# CodeGraph (generated locally, not committed)
+.codegraph/
+
 # Secrets and credentials
 *.pem
 *.key
