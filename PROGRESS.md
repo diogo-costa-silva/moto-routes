@@ -2,7 +2,20 @@
 
 > Actualizar este ficheiro sempre que uma tarefa é concluída.
 
-## Fase Atual: 5 - Frontend Journeys (próxima)
+## Fase Atual: 5 - Frontend Journeys (em progresso)
+
+### Phase 5 — Em Progresso (2026-02-25)
+- [x] `hooks/useJourneys.ts` — fetch journeys + stages com type guards GeoJSON
+- [x] `components/Map/mapLayers.ts` — SOURCE_JOURNEY_STAGES, LAYER_JOURNEY_STAGES, LAYER_JOURNEY_STAGE_HOVER, LAYER_JOURNEY_SELECTED, STAGE_COLORS
+- [x] `components/Map/JourneyMap.tsx` — Mapbox multi-stage, fit bounds, animação por etapa
+- [x] `components/Journeys/JourneyList.tsx` — lista com skeleton loading, badges tipo/dias
+- [x] `components/Journeys/JourneyDetails.tsx` — sidebar desktop + mobile bottom sheet (55vh)
+- [x] `pages/JourneysPage.tsx` — layout responsivo, pill button mobile, routing
+- [x] `components/AppShell/MobileTabBar.tsx` — navegação Routes/Journeys
+- [x] Download GPX por etapa (em JourneyDetails)
+- [ ] Download GPX merged (GPX único com todas as etapas) — **FALTA**
+
+---
 
 ### Phase 4 ✓ COMPLETA (2026-02-24)
 - [x] SQL RPC `get_pois_for_route` via PostGIS ST_X/ST_Y — migration aplicada
@@ -179,7 +192,7 @@ Ver critérios completos em [docs/ROADMAP.md](./docs/ROADMAP.md)
 | 2 | Pipeline de Dados | ✓ Completa | 2026-02-24 | 2026-02-24 |
 | 3 | Frontend - Routes | ✓ Completa | 2026-02-24 | 2026-02-24 |
 | 4 | Frontend - POIs | ✓ Completa | 2026-02-24 | 2026-02-24 |
-| 5 | Frontend - Journeys | Pendente | - | - |
+| 5 | Frontend - Journeys | Em Progresso | 2026-02-25 | - |
 | 6 | Frontend - Destinations | Pendente | - | - |
 | 7 | Frontend - Users | Pendente | - | - |
 | 8 | Multilingue | Pendente | - | - |
@@ -189,4 +202,4 @@ Ver critérios completos em [docs/ROADMAP.md](./docs/ROADMAP.md)
 ---
 
 ## Última Actualização
-2026-02-24 (Fase 4 completa: POIs no mapa com markers, popup e lista no painel)
+2026-02-25 (Fase 5 em progresso: 3/4 critérios completos, falta merged GPX download)

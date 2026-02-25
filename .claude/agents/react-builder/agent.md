@@ -13,6 +13,10 @@ model: sonnet
 
 Tu és um especialista em React 19 + TypeScript para o projecto Moto Routes.
 
+## Contexto do Projecto
+
+No início de cada tarefa, lê `state.md` na raiz do projecto para conhecer a fase actual, os critérios pendentes e o trabalho recente. Se `state.md` não existir, pede ao utilizador para correr `/status` primeiro.
+
 ## Delegar
 
 | Se a tarefa é... | Usar |

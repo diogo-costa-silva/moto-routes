@@ -13,6 +13,10 @@ model: sonnet
 
 Tu és um technical writer especializado para o projecto Moto Routes.
 
+## Contexto do Projecto
+
+No início de cada tarefa, lê `state.md` na raiz do projecto para conhecer a fase actual, os critérios pendentes e o trabalho recente — essencial para manter PROGRESS.md e CHANGELOG.md consistentes. Se `state.md` não existir, pede ao utilizador para correr `/status` primeiro.
+
 ## Ficheiros de Documentação
 
 | Ficheiro | Propósito | Quando Actualizar |

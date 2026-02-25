@@ -167,33 +167,35 @@ Note: `POIMarkers.tsx` and `POIPopup.tsx` were not created as separate component
 
 ---
 
-## Phase 5: Frontend - Journeys
+## Phase 5: Frontend - Journeys (IN PROGRESS)
 
 **Objective**: Multi-stage trip visualization.
 
 ### Components
-- `JourneyMap.tsx` - Journey map view
-- `JourneyStages.tsx` - Stage list
-- `JourneyDetails.tsx` - Journey details
-- `useJourneys.ts` - Data fetching hook
+- `JourneyMap.tsx` - Journey map view ✓
+- `JourneyDetails.tsx` - Journey details + stage list ✓ (note: JourneyStages merged into JourneyDetails)
+- `JourneyList.tsx` - Journey selection list ✓
+- `useJourneys.ts` - Data fetching hook ✓
+- `MobileTabBar.tsx` - Mobile navigation ✓
 
 ### Features
-1. View all stages on map (different colors)
-2. Clickable stage list
-3. Click stage → animate that route
-4. Aggregated details (total distance, suggested days)
-5. GPX download (merged or per stage)
+1. View all stages on map (different colors) ✓
+2. Clickable stage list ✓
+3. Click stage → animate that route ✓
+4. Aggregated details (total distance, suggested days) ✓
+5. GPX download per stage ✓
+6. GPX download merged — **NOT YET IMPLEMENTED**
 
 ### Technical Notes
-**Merge GPX Strategy**:
+**Merge GPX Strategy** (for remaining criterion):
 - Option A: PostGIS `ST_LineMerge` to combine geometries server-side
 - Option B: Frontend concatenates trackpoints from each stage
 - Output must be valid GPX with proper metadata (name, description, timestamps)
 
 ### Validation Criteria
-- [ ] View journey with all stages (different colors per stage)
-- [ ] Click stage → that route animates
-- [ ] Download per-stage: Individual GPX files work
+- [x] View journey with all stages (different colors per stage)
+- [x] Click stage → that route animates
+- [x] Download per-stage: Individual GPX files work
 - [ ] Download merged: Single GPX with all stages, imports to Strava
 
 ---

@@ -34,6 +34,33 @@ ${trkpts}
   URL.revokeObjectURL(url)
 }
 
+function generateMergedGpx(journey: Journey, stages: JourneyStage[]): void {
+  const tracks = stages
+    .filter((s) => s.route.geometry_geojson != null)
+    .map((s) => {
+      const name = s.stage_name ?? s.route.name
+      const trkpts = (s.route.geometry_geojson.coordinates as [number, number][])
+        .map(([lon, lat]) => `      <trkpt lat="${lat}" lon="${lon}"></trkpt>`)
+        .join('\n')
+      return `  <trk>\n    <name>${name}</name>\n    <trkseg>\n${trkpts}\n    </trkseg>\n  </trk>`
+    })
+    .join('\n')
+
+  const content = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Moto Routes" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata><name>${journey.name}</name></metadata>
+${tracks}
+</gpx>`
+
+  const blob = new Blob([content], { type: 'application/gpx+xml' })
+  const url = URL.createObjectURL(blob)
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = `${journey.slug}.gpx`
+  anchor.click()
+  URL.revokeObjectURL(url)
+}
+
 function SkeletonStage() {
   return (
     <div className="animate-pulse flex items-center gap-3 p-3 rounded-lg bg-gray-900">
@@ -101,6 +128,19 @@ export function JourneyDetails({
           </div>
         )}
       </div>
+
+      {/* Merged GPX download */}
+      {stages.length > 0 && (
+        <button
+          onClick={() => generateMergedGpx(journey, stages)}
+          className="w-full flex items-center justify-center gap-2 rounded-lg bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-gray-950 font-semibold text-sm px-4 py-2.5 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+          Download merged GPX ({totalKm.toFixed(0)} km)
+        </button>
+      )}
 
       {/* Stages */}
       <section>

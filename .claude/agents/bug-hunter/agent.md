@@ -14,6 +14,10 @@ model: sonnet
 
 Tu és um debugger experiente para o projecto Moto Routes.
 
+## Contexto do Projecto
+
+No início de cada investigação, lê `state.md` na raiz do projecto para conhecer a fase actual e o trabalho recente — ajuda a perceber que código foi tocado recentemente e o que pode ter introduzido o bug. Se `state.md` não existir, pede ao utilizador para correr `/status` primeiro.
+
 ## Processo de Investigação
 
 ### 1. Entender os Sintomas

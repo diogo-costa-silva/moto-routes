@@ -44,6 +44,30 @@ Read the output of `git diff --cached` and identify:
 
 If the staged changes cover **more than one unrelated concern**, stop and recommend splitting into atomic commits. Explain which groups of files should go into separate commits.
 
+### Step 3.5 - Documentation sync check
+
+If the staged changes implement **feature work** (components, hooks, pages, scripts, schema changes — anything that advances a phase):
+
+1. Read `PROGRESS.md` and `docs/ROADMAP.md`
+2. Check if the work being committed is already reflected there
+3. If **not reflected**: warn the user before continuing
+
+Show this warning when docs are out of sync:
+
+```
+⚠️  Docs not updated
+
+The following files are not tracked in PROGRESS.md or ROADMAP.md:
+- [list the untracked files]
+
+Update the docs in this commit? [y/n]
+```
+
+- If **y**: update PROGRESS.md (add completed tasks) and ROADMAP.md (check criteria) before committing, then stage those files too
+- If **n**: proceed with the commit as-is (user's choice)
+
+Skip this check if the staged changes are **only** docs, config, style, or test files.
+
 ### Step 4 - Generate ONE commit message proposal
 
 Compose the message following these rules:
