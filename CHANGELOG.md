@@ -8,6 +8,17 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-02-25
+
+### Adicionado
+- `scripts/import_gpx.py` — suporte a `trim_south_lat` por rota: filtra pontos GPX abaixo de uma latitude, sem ficheiros adicionais
+- Nova rota `n2-tras-os-montes` (88.71 km) — troço norte da N2, Chaves → Peso da Régua (lat ≥ 41.15), variante da N2 completa
+
+### Alterado
+- Journey "Volta Trás-os-Montes" — Stage 2 aponta agora para `n2-tras-os-montes` em vez da N2 completa (716 km)
+- Destination "Trás-os-Montes" — featured routes actualizado para `n2-tras-os-montes` + `pt-n304-alvao`
+- Validação do pipeline actualizada: 8 rotas, 2 journeys
+
 ## [0.7.1] - 2026-02-25
 
 ### Adicionado

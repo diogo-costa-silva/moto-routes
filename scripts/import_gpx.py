@@ -2,7 +2,7 @@
 """
 Moto Routes v4 — Phase 2: GPX Data Import Pipeline
 
-Populates Supabase with 7 routes, 2 journeys, 3 destinations, 5 POIs,
+Populates Supabase with 8 routes, 2 journeys, 3 destinations, 5 POIs,
 and 42+ translations from GPX files. Idempotent — safe to run multiple times.
 
 Usage:
@@ -46,20 +46,21 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 
 # --- Data definitions ----------------------------------------------------
 
-# (code, slug, name, gpx, landscape, difficulty, parent_code, relationship)
+# (code, slug, name, gpx, landscape, difficulty, parent_code, relationship, trim_south_lat)
 _RD = [
-    ("pt-n222",               "pt-n222",               "N222 — Vale do Douro",         "pt/pt-n222.gpx",               "river_valley", "intermediate", None,      None),
-    ("pt-n222-ext-mesao-frio","pt-n222-ext-mesao-frio","N222 — Extensão Mesão Frio",   "pt/pt-n222-ext-mesao-frio.gpx","river_valley", "intermediate","pt-n222", "is_extension_of"),
-    ("pt-n222-ext-pias",      "pt-n222-ext-pias",      "N222 — Extensão Pias",         "pt/pt-n222-ext-pias.gpx",      "river_valley", "intermediate","pt-n222", "is_extension_of"),
-    ("pt-n222-var-margem-norte","pt-n222-var-margem-norte","N222 — Variante Margem Norte","pt/pt-n222-var-margem-norte.gpx","river_valley","intermediate","pt-n222","is_variant_of"),
-    ("pt-n304-alvao",         "pt-n304-alvao",         "N304 — Serra do Alvão",        "pt/pt-n304-alvao.gpx",         "mountain",     "advanced",    None,      None),
-    ("pt-n2",                 "pt-n2",                 "N2 — A Estrada Nacional",      "pt/pt-n2.gpx",                 "mixed",        "beginner",    None,      None),
-    ("es-figueres-cadaques",  "es-figueres-cadaques",  "Figueres — Cadaqués",          "es/es-figueres-cadaques.gpx",  "coast",        "intermediate",None,      None),
+    ("pt-n222",               "pt-n222",               "N222 — Vale do Douro",         "pt/pt-n222.gpx",               "river_valley", "intermediate", None,      None,              None),
+    ("pt-n222-ext-mesao-frio","pt-n222-ext-mesao-frio","N222 — Extensão Mesão Frio",   "pt/pt-n222-ext-mesao-frio.gpx","river_valley", "intermediate","pt-n222", "is_extension_of", None),
+    ("pt-n222-ext-pias",      "pt-n222-ext-pias",      "N222 — Extensão Pias",         "pt/pt-n222-ext-pias.gpx",      "river_valley", "intermediate","pt-n222", "is_extension_of", None),
+    ("pt-n222-var-margem-norte","pt-n222-var-margem-norte","N222 — Variante Margem Norte","pt/pt-n222-var-margem-norte.gpx","river_valley","intermediate","pt-n222","is_variant_of",  None),
+    ("pt-n304-alvao",         "pt-n304-alvao",         "N304 — Serra do Alvão",        "pt/pt-n304-alvao.gpx",         "mountain",     "advanced",    None,      None,              None),
+    ("pt-n2",                 "pt-n2",                 "N2 — A Estrada Nacional",      "pt/pt-n2.gpx",                 "mixed",        "beginner",    None,      None,              None),
+    ("es-figueres-cadaques",  "es-figueres-cadaques",  "Figueres — Cadaqués",          "es/es-figueres-cadaques.gpx",  "coast",        "intermediate",None,      None,              None),
+    ("n2-tras-os-montes",     "n2-tras-os-montes",     "N2 — Trás-os-Montes",          "pt/pt-n2.gpx",                 "mountain",     "intermediate","pt-n2",   "is_variant_of",   41.15),
 ]
 ROUTES = [
     {"code": c, "slug": s, "name": n, "gpx": g, "landscape_type": l,
-     "difficulty": d, "parent_code": p, "relationship": r}
-    for c, s, n, g, l, d, p, r in _RD
+     "difficulty": d, "parent_code": p, "relationship": r, "trim_south_lat": t}
+    for c, s, n, g, l, d, p, r, t in _RD
 ]
 
 JOURNEYS = [
@@ -68,7 +69,7 @@ JOURNEYS = [
      "stages": [("pt-n222", 1, "N222 Principal"), ("pt-n222-ext-mesao-frio", 2, "Extensão Mesão Frio"), ("pt-n222-ext-pias", 3, "Extensão Pias")]},
     {"name": "Volta Trás-os-Montes", "slug": "volta-tras-os-montes", "type": "circular", "suggested_days": 3,
      "description": "Circuito pelas montanhas transmontanas, pela Serra do Alvão e pela histórica N2.",
-     "stages": [("pt-n304-alvao", 1, "Serra do Alvão"), ("pt-n2", 2, "N2 — Trás-os-Montes")]},
+     "stages": [("pt-n304-alvao", 1, "Serra do Alvão"), ("n2-tras-os-montes", 2, "N2 — Trás-os-Montes")]},
 ]
 
 DESTINATIONS = [
@@ -83,7 +84,7 @@ DESTINATIONS = [
     {"name": "Trás-os-Montes", "slug": "tras-os-montes",
      "description": "Terra de contrastes, de vinhos e de tradições milenares do nordeste português.",
      "bbox": (-7.5, -6.8, 41.4, 41.9),
-     "featured": ["pt-n2", "pt-n304-alvao"]},
+     "featured": ["n2-tras-os-montes", "pt-n304-alvao"]},
 ]
 
 # (name, type, lon, lat, description, association_type, distance_m, route_code, km_marker)
@@ -109,6 +110,8 @@ ROUTE_TR: dict = {
                                "en": {"name": "N304 — Alvão Mountain Range",   "description": "Mountain route through the Alvão Natural Park, with technical curves and views over the transmontane plateau."}},
     "pt-n2":                  {"pt": {"name": "N2 — A Estrada Nacional",        "description": "A mais longa estrada nacional de Portugal, ligando Chaves a Faro. Uma viagem pelo interior do país."},
                                "en": {"name": "N2 — The National Road",         "description": "Portugal's longest national road, connecting Chaves to Faro through the country's interior."}},
+    "n2-tras-os-montes":      {"pt": {"name": "N2 — Trás-os-Montes",            "description": "O troço norte da histórica N2, de Chaves ao Vale do Douro, pelo coração das montanhas transmontanas."},
+                               "en": {"name": "N2 — Trás-os-Montes",            "description": "The northern stretch of the historic N2, from Chaves to the Douro Valley, through the heart of the Transmontane mountains."}},
     "es-figueres-cadaques":   {"pt": {"name": "Figueres — Cadaqués",            "description": "Rota costeira pela Costa Brava catalã, passando pelo Cabo de Creus. Paisagens mediterrâneas e curvas sobre o mar."},
                                "en": {"name": "Figueres — Cadaqués",            "description": "Coastal route along the Catalan Costa Brava, passing through Cape Creus. Mediterranean landscapes above the sea."}},
 }
@@ -130,7 +133,7 @@ DEST_TR: dict = {
 
 # --- GPX parsing & geometry helpers -------------------------------------
 
-def parse_gpx(path: Path) -> list[dict]:
+def parse_gpx(path: Path, trim_south_lat: float | None = None) -> list[dict]:
     with open(path) as f:
         gpx = gpxpy.parse(f)
     pts = []
@@ -138,6 +141,10 @@ def parse_gpx(path: Path) -> list[dict]:
         for seg in track.segments:
             for p in seg.points:
                 pts.append({"lat": p.latitude, "lon": p.longitude, "ele": p.elevation or 0.0})
+    if trim_south_lat is not None:
+        before = len(pts)
+        pts = [p for p in pts if p["lat"] >= trim_south_lat]
+        print(f"    Trimmed to lat >= {trim_south_lat}: {before} → {len(pts)} pts")
     if not pts:
         print(f"  WARNING: no track points in {path.name}")
     return pts
@@ -223,7 +230,7 @@ def insert_routes(db: Client) -> dict[str, str]:
         gpx_path = DATA_DIR / rd["gpx"]
         if not gpx_path.exists():
             print(f"  ERROR: {gpx_path} not found"); sys.exit(1)
-        raw = parse_gpx(gpx_path)
+        raw = parse_gpx(gpx_path, rd.get("trim_south_lat"))
         if not raw:
             print(f"  ERROR: no points in {gpx_path.name}"); sys.exit(1)
         print(f"    Raw: {len(raw)} pts")
@@ -351,9 +358,9 @@ def validate(db: Client) -> bool:
     print("VALIDATION")
     print("=" * 60)
     checks = [
-        ("routes",                    7,  lambda: db.table("routes").select("id", count="exact").execute().count),
-        ("routes with landscape_type",7,  lambda: db.table("routes").select("id", count="exact").not_.is_("landscape_type", "null").execute().count),
-        ("journeys",                  1,  lambda: db.table("journeys").select("id", count="exact").execute().count),
+        ("routes",                    8,  lambda: db.table("routes").select("id", count="exact").execute().count),
+        ("routes with landscape_type",8,  lambda: db.table("routes").select("id", count="exact").not_.is_("landscape_type", "null").execute().count),
+        ("journeys",                  2,  lambda: db.table("journeys").select("id", count="exact").execute().count),
         ("destinations",              2,  lambda: db.table("destinations").select("id", count="exact").execute().count),
         ("pois",                      5,  lambda: db.table("pois").select("id", count="exact").execute().count),
         ("translations",             14,  lambda: db.table("translations").select("id", count="exact").execute().count),
