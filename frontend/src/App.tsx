@@ -3,6 +3,7 @@ import { Toaster } from 'sonner'
 import { JourneysPage } from './pages/JourneysPage'
 import { RoutesPage } from './pages/RoutesPage'
 import { DestinationsPage } from './pages/DestinationsPage'
+import { ProfilePage } from './pages/ProfilePage'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/journeys/:slug" element={<JourneysPage />} />
         <Route path="/destinations" element={<DestinationsPage />} />
         <Route path="/destinations/:slug" element={<DestinationsPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Routes>
       <Toaster position="bottom-right" />
     </BrowserRouter>
