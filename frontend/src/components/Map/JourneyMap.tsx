@@ -6,6 +6,7 @@ import {
   LAYER_JOURNEY_SELECTED,
   LAYER_JOURNEY_STAGE_HOVER,
   LAYER_JOURNEY_STAGES,
+  STAGE_COLORS,
   addJourneyLayers,
   addJourneySources,
   updateJourneySelectedSource,
@@ -120,15 +121,18 @@ export function JourneyMap({
 
     if (!selectedStage) {
       updateJourneySelectedSource(map, null)
-      // Reset dasharray
       if (map.getLayer(LAYER_JOURNEY_SELECTED)) {
         map.setPaintProperty(LAYER_JOURNEY_SELECTED, 'line-dasharray', [0, 2])
+        map.setPaintProperty(LAYER_JOURNEY_SELECTED, 'line-color', '#ffffff')
       }
       return
     }
 
     updateJourneySelectedSource(map, selectedStage.route.geometry_geojson)
     map.setPaintProperty(LAYER_JOURNEY_SELECTED, 'line-dasharray', [0, 2])
+    // Match animation colour to the stage dot colour
+    const stageColor = STAGE_COLORS[(selectedStage.stage_order - 1) % STAGE_COLORS.length]
+    map.setPaintProperty(LAYER_JOURNEY_SELECTED, 'line-color', stageColor)
 
     const coords = selectedStage.route.geometry_geojson.coordinates as [number, number][]
     const bounds = boundsFromCoords(coords)
