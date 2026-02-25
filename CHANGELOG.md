@@ -8,6 +8,24 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-02-25
+
+### Adicionado — Phase 7: Frontend Users (Auth + Favourites + History)
+- `hooks/useAuth.ts` — autenticação via Supabase: email/password + Google OAuth; `getSession()` no mount + `onAuthStateChange` listener; actions `login`, `signup`, `loginWithGoogle`, `logout`
+- `hooks/useFavorites.ts` — favoritos persistentes; optimistic update com rollback em caso de erro; `isFavorite(routeId)` O(1) via `Set<string>`; chama `useAuth()` internamente
+- `hooks/useHistory.ts` — histórico de rotas vistas (últimas 20); `recordView(routeId)` fire-and-forget com refresh automático; chama `useAuth()` internamente
+- `components/Auth/LoginModal.tsx` — modal de login/signup com email+password e botão Google OAuth; backdrop click + ESC fecha; spinner de submissão; erro inline
+- `components/Auth/UserMenu.tsx` — avatar com Google photo ou iniciais; dropdown com "My Profile" e "Sign out"; fecha ao clicar fora
+- `components/Routes/FavoriteButton.tsx` — botão de favorito presentacional (sem hooks internos); 44px touch target; states: heart outline/filled/spinner
+- `pages/ProfilePage.tsx` — página de perfil com tabs Favourites/History; skeleton loaders; empty states; redirect para /routes se não autenticado
+- Rota `/profile` em `App.tsx`
+- Tab "Profile" em `MobileTabBar.tsx`
+- Área de auth em `NavHeader.tsx` (botão "Sign in" ou `UserMenu`)
+
+### Alterado
+- `components/Routes/RouteDetails.tsx` — header com `FavoriteButton` ao lado do botão close; novas props: `isFavorite`, `isAuthenticated`, `onToggleFavorite`, `onLoginRequired`
+- `pages/RoutesPage.tsx` — integração de `useAuth`, `useFavorites`, `useHistory`; debounce de 2s para `recordView`; `LoginModal` inline para rotas não autenticadas
+
 ## [0.8.7] - 2026-02-25
 
 ### Adicionado
