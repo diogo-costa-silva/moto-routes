@@ -3,9 +3,9 @@
 COMMIT_MSG_FILE="$1"
 COMMIT_SOURCE="$2"
 
-# Skip for merge, squash, and amend commits
+# Skip for merge, squash, amend, and programmatic (-m) commits
 case "$COMMIT_SOURCE" in
-  merge|squash|commit) exit 0 ;;
+  merge|squash|commit|message) exit 0 ;;
 esac
 
 cat >> "$COMMIT_MSG_FILE" << 'TEMPLATE'
