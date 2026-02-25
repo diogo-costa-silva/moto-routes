@@ -1,12 +1,17 @@
 import type { RoutePOI } from '../../hooks/useRoutePOIs'
 import type { Route } from '../../hooks/useRoutes'
 import { LANDSCAPE_LABELS } from '../../lib/labels'
+import { FavoriteButton } from './FavoriteButton'
 import { POIList } from './POIList'
 
 interface RouteDetailsProps {
   route: Route
   onClose: () => void
   pois?: RoutePOI[]
+  isFavorite?: boolean
+  isAuthenticated?: boolean
+  onToggleFavorite?: () => void
+  onLoginRequired?: () => void
 }
 
 function generateGpx(route: Route): string {
@@ -51,13 +56,13 @@ function Stat({ label, value }: StatProps) {
   )
 }
 
-export function RouteDetails({ route, onClose, pois }: RouteDetailsProps) {
+export function RouteDetails({ route, onClose, pois, isFavorite, isAuthenticated, onToggleFavorite, onLoginRequired }: RouteDetailsProps) {
   return (
     /* Mobile: bottom sheet */
     <div className="md:hidden fixed bottom-0 left-0 right-0 h-[55vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20">
       <div className="mx-auto mt-2 mb-4 h-1 w-12 rounded-full bg-gray-700" />
       <div className="pb-[env(safe-area-inset-bottom,0px)]">
-        <DetailsContent route={route} onClose={onClose} pois={pois} />
+        <DetailsContent route={route} onClose={onClose} pois={pois} isFavorite={isFavorite} isAuthenticated={isAuthenticated} onToggleFavorite={onToggleFavorite} onLoginRequired={onLoginRequired} />
       </div>
     </div>
   )
@@ -65,34 +70,45 @@ export function RouteDetails({ route, onClose, pois }: RouteDetailsProps) {
 
 export { DetailsContent }
 
-function DetailsContent({ route, onClose, pois }: RouteDetailsProps) {
+function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthenticated = false, onToggleFavorite, onLoginRequired }: RouteDetailsProps) {
   return (
     <div className="p-6 flex flex-col gap-4">
       <div className="flex items-start justify-between">
-        <div>
+        <div className="flex-1 min-w-0">
           <p className="text-xs font-mono text-orange-400 uppercase tracking-widest mb-1">
             {route.code}
           </p>
           <h2 className="text-xl font-bold text-white leading-tight">{route.name}</h2>
         </div>
-        <button
-          onClick={onClose}
-          className="ml-4 flex-shrink-0 rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
-          aria-label="Close"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-              clipRule="evenodd"
+        <div className="flex items-center gap-1 ml-2 flex-shrink-0">
+          {onToggleFavorite && (
+            <FavoriteButton
+              routeId={route.id}
+              isFavorite={isFavorite}
+              onToggle={onToggleFavorite}
+              isAuthenticated={isAuthenticated}
+              onLoginRequired={onLoginRequired ?? (() => {})}
             />
-          </svg>
-        </button>
+          )}
+          <button
+            onClick={onClose}
+            className="flex-shrink-0 rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+            aria-label="Close"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">

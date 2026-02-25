@@ -6,12 +6,19 @@ import { MobileTabBar } from '../components/AppShell/MobileTabBar'
 import { RouteMap } from '../components/Map/RouteMap'
 import { DetailsContent, RouteDetails } from '../components/Routes/RouteDetails'
 import { RouteList } from '../components/Routes/RouteList'
+import { LoginModal } from '../components/Auth/LoginModal'
 import { useRoutePOIs } from '../hooks/useRoutePOIs'
 import { useRoutes } from '../hooks/useRoutes'
+import { useAuth } from '../hooks/useAuth'
+import { useFavorites } from '../hooks/useFavorites'
+import { useHistory } from '../hooks/useHistory'
 
 export function RoutesPage() {
   const { routes, loading, error, selectedRoute, hoveredRouteId, selectRoute, hoverRoute } = useRoutes()
   const { pois } = useRoutePOIs(selectedRoute?.id ?? null)
+  const { user } = useAuth()
+  const { isFavorite, toggleFavorite } = useFavorites()
+  const { recordView } = useHistory()
 
   const { slug } = useParams<{ slug?: string }>()
   const navigate = useNavigate()
@@ -21,6 +28,8 @@ export function RoutesPage() {
 
   const isMobile = useIsMobile()
   const [showList, setShowList] = useState(false)
+  const [loginModalOpen, setLoginModalOpen] = useState(false)
+  const historyDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Pre-select from URL slug — runs once when routes load
   useEffect(() => {
@@ -46,6 +55,18 @@ export function RoutesPage() {
   useEffect(() => {
     if (selectedRoute) setShowList(false)
   }, [selectedRoute])
+
+  // Debounced history recording — fires 2s after a route is selected
+  useEffect(() => {
+    if (historyDebounce.current) clearTimeout(historyDebounce.current)
+    if (!selectedRoute) return
+    historyDebounce.current = setTimeout(() => {
+      recordView(selectedRoute.id)
+    }, 2000)
+    return () => {
+      if (historyDebounce.current) clearTimeout(historyDebounce.current)
+    }
+  }, [selectedRoute?.id])
 
   const listSheetRef = useRef<HTMLDivElement>(null)
   const dragStartY = useRef<number>(0)
@@ -92,7 +113,15 @@ export function RoutesPage() {
 
         {selectedRoute ? (
           <div className="flex-1 overflow-y-auto">
-            <DetailsContent route={selectedRoute} onClose={handleClose} pois={pois} />
+            <DetailsContent
+              route={selectedRoute}
+              onClose={handleClose}
+              pois={pois}
+              isFavorite={isFavorite(selectedRoute.id)}
+              isAuthenticated={!!user}
+              onToggleFavorite={() => toggleFavorite(selectedRoute.id)}
+              onLoginRequired={() => setLoginModalOpen(true)}
+            />
           </div>
         ) : (
           <>
@@ -128,7 +157,15 @@ export function RoutesPage() {
         />
 
         {selectedRoute && (
-          <RouteDetails route={selectedRoute} onClose={handleClose} pois={pois} />
+          <RouteDetails
+            route={selectedRoute}
+            onClose={handleClose}
+            pois={pois}
+            isFavorite={isFavorite(selectedRoute.id)}
+            isAuthenticated={!!user}
+            onToggleFavorite={() => toggleFavorite(selectedRoute.id)}
+            onLoginRequired={() => setLoginModalOpen(true)}
+          />
         )}
       </div>
 
@@ -182,6 +219,8 @@ export function RoutesPage() {
       )}
 
       <MobileTabBar />
+
+      <LoginModal isOpen={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
     </div>
   )
 }
