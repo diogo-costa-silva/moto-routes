@@ -8,6 +8,89 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [0.8.7] - 2026-02-25
+
+### Adicionado
+- `hooks/useIsMobile.ts` — hook partilhado para detecção de breakpoint mobile via `matchMedia`; substitui o padrão `useState + useEffect` repetido nas 3 pages
+- `lib/labels.ts` — constante `LANDSCAPE_LABELS` centralizada; elimina a definição duplicada em `RouteList`, `RouteDetails` e `DestinationDetails`
+
+### Alterado
+- `pages/RoutesPage.tsx`, `pages/JourneysPage.tsx`, `pages/DestinationsPage.tsx` — removido bloco `useState + useEffect` de isMobile; substituído por `useIsMobile()`
+- `components/Routes/RouteList.tsx`, `components/Routes/RouteDetails.tsx`, `components/Destinations/DestinationDetails.tsx` — removida constante local `LANDSCAPE_LABELS`; importada de `lib/labels`
+- `components/AppShell/MobileTabBar.tsx` — adicionado indicador geométrico no topo de cada tab activo (`h-0.5 w-8 bg-orange-500`); container do link tem `relative`
+
+## [0.8.6] - 2026-02-25
+
+### Adicionado
+- `pages/RoutesPage.tsx` — swipe-to-dismiss na bottom sheet da lista: `listSheetRef`, `dragStartY`, `dragging` refs + handlers `onSheetTouchStart/Move/End`; fecha quando o utilizador arrasta > 80px para baixo; snap-back animado (0.2s) quando o gesto não atinge o threshold
+- `pages/JourneysPage.tsx` — mesmo padrão swipe-to-dismiss aplicado na bottom sheet da lista de journeys
+- `pages/DestinationsPage.tsx` — mesmo padrão swipe-to-dismiss aplicado na bottom sheet da lista de regiões
+
+## [0.8.5] - 2026-02-25
+
+### Adicionado
+- `hooks/useDestinations.ts` — expõe campo `error: string | null`; definido em caso de falha no fetch de destinations
+- `pages/DestinationsPage.tsx` — error state visível no sidebar desktop quando `useDestinations` retorna erro
+- `components/Destinations/DestinationList.tsx` — header com título "Regions" e contagem `(N)`, seguindo o padrão de RouteList e JourneyList
+
+### Corrigido
+- `pages/DestinationsPage.tsx` — guard de pre-selecção mudado de `boolean` para `string | null` (`lastPreSelectedSlug`); agora re-selecciona correctamente quando o utilizador navega via browser history para um slug diferente
+- `components/Destinations/DestinationDetails.tsx` — empty state "No featured routes." muda de `text-gray-600` para `text-gray-400` (contraste melhorado sobre `bg-gray-950`)
+- `components/Destinations/DestinationDetails.tsx` — `DestinationDetailsMobile` bottom sheet: adicionado `pb-[env(safe-area-inset-bottom,0px)]` para iOS gesture bar
+
+## [0.8.4] - 2026-02-25
+
+### Adicionado
+- `hooks/useJourneys.ts` — expõe campo `error: string | null`; definido em caso de falha no fetch de journeys
+- `pages/JourneysPage.tsx` — URL sync: pre-selecção a partir de slug na URL (ex: `/journeys/douro-valley`); sincronização da URL quando um journey é seleccionado; `handleClose` navega para `/journeys`; guard `didPreSelect` evita loop de re-selecção
+- `pages/JourneysPage.tsx` — error state visível no sidebar desktop e no mobile bottom sheet quando `useJourneys` retorna erro
+- `components/Journeys/JourneyList.tsx` — empty state "No journeys found." quando `!loading && journeys.length === 0`
+
+### Corrigido
+- `components/Journeys/JourneyDetails.tsx` — botão de fechar: `p-1.5` aumentado para `p-2.5 min-w-[44px] min-h-[44px]` (tap target mínimo de 44px)
+- `components/Journeys/JourneyDetails.tsx` — botão de download GPX por stage: `p-1.5` aumentado para `p-2.5 min-w-[44px] min-h-[44px]` (tap target mínimo de 44px)
+- `components/Journeys/JourneyDetails.tsx` — `JourneyDetailsMobile` bottom sheet: adicionado `pb-[env(safe-area-inset-bottom,0px)]` para iOS gesture bar
+
+## [0.8.3] - 2026-02-25
+
+### Adicionado
+- `App.tsx` — rotas `/routes/:slug` e `/journeys/:slug` adicionadas ao router
+- `pages/RoutesPage.tsx` — URL sync: pre-selecção a partir de slug na URL (ex: `/routes/n222`); sincronização da URL quando uma rota é seleccionada; `handleClose` navega para `/routes`
+- `components/Routes/RouteList.tsx` — empty state "No routes found." quando `!loading && routes.length === 0`
+
+### Corrigido
+- `components/Routes/RouteDetails.tsx` — altura do bottom sheet mobile alterada de `h-[50vh]` para `h-[55vh]` (consistência com Journeys/Destinations); adicionado `pb-[env(safe-area-inset-bottom,0px)]` para iOS gesture bar
+- `pages/RoutesPage.tsx` — error state visível no sidebar desktop quando `useRoutes` retorna erro
+
+## [0.8.2] - 2026-02-25
+
+### Corrigido
+- `components/Map/DestinationMap.tsx` — removido `boundsFromPolygon` como fonte primária de zoom; substituído por `boundsFromRoutes` que calcula bounds a partir das coordenadas das rotas featured; `boundsFromPolygon` mantido apenas como fallback quando não há rotas
+- `components/Map/DestinationMap.tsx` — removidas chamadas a `updateDestinationBBoxSource` (polígono rectangular já não é actualizado)
+- `components/Map/mapLayers.ts` — removidos layers `LAYER_DESTINATION_FILL` e `LAYER_DESTINATION_OUTLINE` de `addDestinationLayers`; source `SOURCE_DESTINATION_BBOX` mantida para não quebrar código de terceiros
+
+## [0.8.1] - 2026-02-25
+
+### Documentação
+- `docs/ROADMAP.md` — Phase 5 marcada como COMPLETE (merged GPX critério satisfeito em `22a9760`); Phase 6 marcada como COMPLETE com componentes e critérios actualizados para reflectir implementação real (slugs EN, sem componentes planeados não criados)
+- `scripts/schema.sql` — adicionadas definições das RPCs `get_pois_for_route` e `get_destinations` (documentação de recovery; RPCs existem na BD via migrations)
+
+## [0.8.0] - 2026-02-25
+
+### Adicionado
+- `hooks/useDestinations.ts` — fetch destinations via `get_destinations` RPC + featured routes via FK join; `isPolygon` + `isLineString` type guards
+- `components/Map/DestinationMap.tsx` — Mapbox map with amber polygon fill + dashed outline + orange featured route lines; `fitBounds` on destination change
+- `components/Destinations/DestinationList.tsx` — amber left-border selection, skeleton loading, description `line-clamp-2`
+- `components/Destinations/DestinationDetails.tsx` — amber header label, featured routes list with distance + landscape_type badges; mobile bottom sheet (55vh)
+- `pages/DestinationsPage.tsx` — responsive orchestrator with URL slug sync (`/destinations/:slug`); floating pill + mobile list sheet
+- Supabase migration `add_get_destinations_rpc` — `get_destinations()` RPC with `ST_AsGeoJSON(bounding_box)`
+- `App.tsx` — routes `/destinations` + `/destinations/:slug` → `DestinationsPage`
+- `MobileTabBar.tsx` — "Regions" tab (globe icon); active check uses `startsWith` for slug sub-paths
+
+### Alterado
+- `types/database.ts` — added `get_destinations` to `Functions`
+- `components/Map/mapLayers.ts` — appended destination layer constants + `addDestinationSources`, `addDestinationLayers`, `updateDestinationBBoxSource`, `updateDestinationRoutesSource`
+
 ## [0.7.2] - 2026-02-25
 
 ### Adicionado

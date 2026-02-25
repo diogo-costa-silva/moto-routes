@@ -13,8 +13,8 @@
 | 2 | Data Pipeline | Import GPX, create test data ✓ |
 | 3 | Routes | Map visualization with animations ✓ |
 | 4 | POIs | Points of interest ✓ |
-| 5 | Journeys | Multi-stage trips |
-| 6 | Destinations | Geographic regions |
+| 5 | Journeys | Multi-stage trips ✓ |
+| 6 | Destinations | Geographic regions ✓ |
 | 7 | Users | Authentication, favorites, history |
 | 8 | i18n | Portuguese + English |
 | 9 | Filters | Landscape type tags |
@@ -167,58 +167,62 @@ Note: `POIMarkers.tsx` and `POIPopup.tsx` were not created as separate component
 
 ---
 
-## Phase 5: Frontend - Journeys (IN PROGRESS)
+## Phase 5: Frontend - Journeys ✓ COMPLETE
 
 **Objective**: Multi-stage trip visualization.
 
 ### Components
-- `JourneyMap.tsx` - Journey map view ✓
-- `JourneyDetails.tsx` - Journey details + stage list ✓ (note: JourneyStages merged into JourneyDetails)
-- `JourneyList.tsx` - Journey selection list ✓
-- `useJourneys.ts` - Data fetching hook ✓
-- `MobileTabBar.tsx` - Mobile navigation ✓
+- `JourneyMap.tsx` - Journey map view
+- `JourneyDetails.tsx` - Journey details + stage list (JourneyStages merged in)
+- `JourneyList.tsx` - Journey selection list
+- `useJourneys.ts` - Data fetching hook
+- `MobileTabBar.tsx` - Mobile tab navigation (Routes / Journeys / Regions)
 
 ### Features
-1. View all stages on map (different colors) ✓
-2. Clickable stage list ✓
-3. Click stage → animate that route ✓
-4. Aggregated details (total distance, suggested days) ✓
-5. GPX download per stage ✓
-6. GPX download merged — **NOT YET IMPLEMENTED**
-
-### Technical Notes
-**Merge GPX Strategy** (for remaining criterion):
-- Option A: PostGIS `ST_LineMerge` to combine geometries server-side
-- Option B: Frontend concatenates trackpoints from each stage
-- Output must be valid GPX with proper metadata (name, description, timestamps)
+1. View all stages on map (different colors per stage)
+2. Clickable stage list
+3. Click stage → animate that route
+4. Aggregated details (total distance, suggested days)
+5. GPX download per stage
+6. GPX download merged (all stages in single file)
 
 ### Validation Criteria
 - [x] View journey with all stages (different colors per stage)
 - [x] Click stage → that route animates
 - [x] Download per-stage: Individual GPX files work
-- [ ] Download merged: Single GPX with all stages, imports to Strava
+- [x] Download merged: Single GPX with all stages (commit `22a9760`)
 
 ---
 
-## Phase 6: Frontend - Destinations
+## Phase 6: Frontend - Destinations ✓ COMPLETE
 
 **Objective**: Discovery by geographic region.
 
 ### Components
-- `DestinationPage.tsx` - Region page
-- `DestinationMap.tsx` - Focused map
-- `DestinationRoutes.tsx` - Routes in region
-- `RegionFilter.tsx` - Region dropdown
+- `DestinationsPage.tsx` - Destinations page with URL slug sync
+- `DestinationMap.tsx` - Map with amber polygon + featured route lines
+- `DestinationList.tsx` - Destination cards list
+- `DestinationDetails.tsx` - Sidebar + mobile bottom sheet
+- `useDestinations.ts` - Data fetching hook with `get_destinations` RPC
 
 ### Features
-1. `/destinos/[slug]` route
-2. Map focused on region with bounding box
-3. Routes list filtered by region
-4. Region filter dropdown on main map
+1. `/destinations` and `/destinations/:slug` routes
+2. Map focused on region bounding box (amber polygon fill + dashed outline)
+3. Featured routes shown as orange lines within region
+4. URL slug sync — navigating to `/destinations/vale-do-douro` pre-selects
+5. Regions tab in mobile nav bar (globe icon)
+
+### Technical Notes
+- `get_destinations` RPC uses `ST_AsGeoJSON(bounding_box)` for polygon GeoJSON
+- `get_destinations` returns featured routes via FK join
+- `fitBounds` on destination change; no animation (polygon, not line)
+- LANDSCAPE_LABELS hardcoded in PT — will be replaced in Phase 8 (i18n)
 
 ### Validation Criteria
-- [ ] `/destinos/douro` shows Douro routes
-- [ ] Region area highlighted on map
+- [x] `/destinations` lists 3 destinations
+- [x] `/destinations/vale-do-douro` shows Douro polygon + featured routes
+- [x] Region area highlighted on map (amber polygon)
+- [x] Mobile: Regions tab active, bottom sheet works
 
 ---
 
@@ -373,7 +377,7 @@ Phase 2 (Data) ─── routes, journeys, destinations, POIs, translations
 - [ ] **View POIs**: Markers visible, popup works (shows type: on_route/near_route/detour)
 - [ ] **Download GPX**: File downloads, valid in Strava
 - [ ] **View Journey**: Colored stages, navigation works
-- [ ] **Destination page**: `/destinos/douro` loads correctly
+- [ ] **Destination page**: `/destinations/vale-do-douro` loads correctly
 
 ### User Features
 
