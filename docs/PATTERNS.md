@@ -72,6 +72,35 @@ is_extension_of UUID REFERENCES routes(id),
 is_variant_of UUID REFERENCES routes(id)
 ```
 
+### SQL RPC for PostGIS Geometry in JS Client
+
+PostGIS `geometry` columns return `null` in the Supabase JavaScript client. Use a SQL function with `ST_X`/`ST_Y` to extract coordinates server-side.
+
+```sql
+-- Bad: geometry column returns null in JS
+SELECT id, name, geometry FROM pois;
+
+-- Good: extract coordinates via RPC
+CREATE OR REPLACE FUNCTION get_pois_for_route(p_route_id uuid)
+RETURNS TABLE (
+  id uuid, name text,
+  longitude double precision,
+  latitude double precision
+) LANGUAGE sql STABLE AS $$
+  SELECT p.id, p.name,
+    ST_X(p.geometry::geometry) AS longitude,
+    ST_Y(p.geometry::geometry) AS latitude
+  FROM pois p JOIN route_pois rp ON rp.poi_id = p.id
+  WHERE rp.route_id = p_route_id;
+$$;
+```
+
+Call from JS:
+```typescript
+const { data } = await supabase.rpc('get_pois_for_route', { p_route_id: id } as never)
+// Note: `as never` cast needed — see Troubleshooting for explanation
+```
+
 ---
 
 ## Python Pipeline Patterns
@@ -216,6 +245,56 @@ map.flyTo({
 });
 ```
 
+### Mapbox GL: Type Imports Only
+
+Import Mapbox types with `import type` to avoid bundling the full library twice. Use the default `import mapboxgl` only in the component that initialises the map.
+
+```typescript
+// mapLayers.ts — type-only import (no bundle overhead)
+import type { Map as MapboxMap, GeoJSONSource } from 'mapbox-gl'
+
+// RouteMap.tsx — full import only here (initialises map)
+import mapboxgl from 'mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css'
+```
+
+### Mapbox GL: Layer Ordering Matters
+
+Layers are rendered in the order they are added. POI circles and labels must be added AFTER route lines, or they will be hidden behind them.
+
+```typescript
+map.on('load', () => {
+  addRouteSources(map, [])
+  addRouteLayers(map)   // route lines first
+  addPOISources(map)
+  addPOILayers(map)     // POI circles on top
+})
+```
+
+### Mapbox GL: Popup via mapboxgl.Popup (not React)
+
+For popups triggered by map events, use `mapboxgl.Popup` with HTML string — not a React component. React can't manage DOM inside the Mapbox canvas.
+
+```typescript
+const popup = new mapboxgl.Popup({ closeButton: true, maxWidth: '260px' })
+  .setLngLat(coordinates)
+  .setHTML(`<strong>${name}</strong><p>${description}</p>`)
+  .addTo(map)
+
+// Always clean up
+popupRef.current?.remove()
+popupRef.current = popup
+```
+
+### Mapbox GL: mapRef in Event Listener Closures
+
+TypeScript narrows `mapRef.current` to `null` inside closures. Use non-null assertion `!` inside event listeners where the map is guaranteed to exist.
+
+```typescript
+// Inside map.on('mousemove', ...) — map is guaranteed to exist
+mapRef.current!.getCanvas().style.cursor = 'pointer'
+```
+
 ---
 
 ## GPX Export Patterns
@@ -279,6 +358,7 @@ POIs can be included as waypoints if user wants them.
 | Desktop-first UI | Unusable on mobile | Mobile-first with Tailwind |
 | Calculate in frontend | Slow, inconsistent | Pre-calculate at import |
 | Mixed coordinate order | Broken map display | Always (lon, lat) |
+| Query PostGIS geometry directly | JS receives `null` | Use SQL RPC with ST_X/ST_Y |
 
 ---
 

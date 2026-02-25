@@ -2,7 +2,30 @@
 
 > Actualizar este ficheiro sempre que uma tarefa é concluída.
 
-## Fase Atual: 3 - Frontend Routes (próxima)
+## Fase Atual: 5 - Frontend Journeys (próxima)
+
+### Phase 4 ✓ COMPLETA (2026-02-24)
+- [x] SQL RPC `get_pois_for_route` via PostGIS ST_X/ST_Y — migration aplicada
+- [x] `hooks/useRoutePOIs.ts` — fetch via supabase.rpc
+- [x] `types/database.ts` — Functions.get_pois_for_route adicionado
+- [x] `components/Map/mapLayers.ts` — SOURCE_POIS, LAYER_POI_CIRCLES, LAYER_POI_LABELS
+- [x] `components/Map/RouteMap.tsx` — props pois + onPOIClick, mapboxgl.Popup inline
+- [x] `components/Routes/POIList.tsx` — novo componente (emoji tipo, badge association_type, km)
+- [x] `components/Routes/RouteDetails.tsx` — secção POIs opcional
+- [x] `pages/RoutesPage.tsx` — wire useRoutePOIs
+
+---
+
+### Phase 3 ✓ COMPLETA (2026-02-24)
+- [x] `hooks/useRoutes.ts` — Supabase fetch + RouteGeoJSON type guard + center computation
+- [x] `components/Map/mapLayers.ts` — 3 layers (base/hover/selected)
+- [x] `components/Map/RouteMap.tsx` — Mapbox init, fly-to 1.5s, fitBounds com padding dinâmico
+- [x] `components/Map/RouteAnimation.tsx` — `line-dasharray` RAF animation (1.8s)
+- [x] `components/Routes/RouteList.tsx` — skeleton loading, hover/selection state
+- [x] `components/Routes/RouteDetails.tsx` — desktop sidebar + mobile bottom sheet, GPX download
+- [x] `pages/RoutesPage.tsx` — layout responsivo, bottom sheet, pill button mobile
+
+---
 
 ### Phase 2 ✓ COMPLETA (2026-02-24)
 - [x] `scripts/import_gpx.py` — pipeline GPX completo (390 LOC)
@@ -88,10 +111,6 @@
 
 ---
 
-## Fase Atual: 2 - Pipeline de Dados (Pendente)
-
----
-
 ## Fase 1 - Fundação ✓ COMPLETA
 
 ### Concluído
@@ -140,11 +159,11 @@ Ver critérios completos em [docs/ROADMAP.md](./docs/ROADMAP.md)
 
 | Métrica | Atual | Meta |
 |---------|-------|------|
-| Rotas importadas | 0 | 7 |
-| Journeys criados | 0 | 2 |
-| Destinations | 0 | 3 |
-| POIs | 0 | 10 |
-| Componentes React | 0 | ~25 |
+| Rotas importadas | 7 | 7 |
+| Journeys criados | 2 | 2 |
+| Destinations | 3 | 3 |
+| POIs | 5 | 10 |
+| Componentes React | ~12 | ~25 |
 | Skills Claude Code | 8 | 8 |
 | Subagents Claude Code | 13 | 13 |
 | Documentos docs/ | 12 | 12 |
@@ -157,9 +176,9 @@ Ver critérios completos em [docs/ROADMAP.md](./docs/ROADMAP.md)
 |------|------|--------|-------------|----------|
 | 0 | Preparação | ✓ Completa | 2026-01-26 | 2026-01-26 |
 | 1 | Fundação | ✓ Completa | 2026-01-26 | 2026-02-24 |
-| 2 | Pipeline de Dados | Pendente | - | - |
-| 3 | Frontend - Routes | Pendente | - | - |
-| 4 | Frontend - POIs | Pendente | - | - |
+| 2 | Pipeline de Dados | ✓ Completa | 2026-02-24 | 2026-02-24 |
+| 3 | Frontend - Routes | ✓ Completa | 2026-02-24 | 2026-02-24 |
+| 4 | Frontend - POIs | ✓ Completa | 2026-02-24 | 2026-02-24 |
 | 5 | Frontend - Journeys | Pendente | - | - |
 | 6 | Frontend - Destinations | Pendente | - | - |
 | 7 | Frontend - Users | Pendente | - | - |
@@ -170,4 +189,4 @@ Ver critérios completos em [docs/ROADMAP.md](./docs/ROADMAP.md)
 ---
 
 ## Última Actualização
-2026-02-24 (Fase 1 completa: frontend Vite+React+TS inicializado, Tailwind v4, Supabase client tipado, build sem erros)
+2026-02-24 (Fase 4 completa: POIs no mapa com markers, popup e lista no painel)

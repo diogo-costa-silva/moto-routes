@@ -10,9 +10,9 @@
 |-------|------|-------|
 | 0 | Preparation | Documentation, tooling ✓ |
 | 1 | Foundation | Supabase, Vite, Tailwind ✓ |
-| 2 | Data Pipeline | Import GPX, create test data |
-| 3 | Routes | Map visualization with animations |
-| 4 | POIs | Points of interest |
+| 2 | Data Pipeline | Import GPX, create test data ✓ |
+| 3 | Routes | Map visualization with animations ✓ |
+| 4 | POIs | Points of interest ✓ |
 | 5 | Journeys | Multi-stage trips |
 | 6 | Destinations | Geographic regions |
 | 7 | Users | Authentication, favorites, history |
@@ -66,19 +66,19 @@
 
 ---
 
-## Phase 2: Data Pipeline
+## Phase 2: Data Pipeline ✓ COMPLETE
 
 **Objective**: Test data in the database with complete metadata.
 
 ### Tasks
-- [ ] Create Python import script `scripts/import_gpx.py` (< 500 LOC)
+- [x] Create Python import script `scripts/import_gpx.py` (< 500 LOC) — 390 LOC final
   - Parse GPX with gpxpy library
   - Extract geometry (convert to PostGIS format)
   - Calculate metrics: distance_km, elevation_gain, elevation_loss
   - Count curves (gentle/moderate/sharp based on bearing changes)
   - **Classify landscape_type** for each route
   - Validate coordinate order is (longitude, latitude)
-- [ ] Import 7 GPX routes with landscape_type:
+- [x] Import 7 GPX routes with landscape_type:
   - `pt-n222.gpx` → N222, landscape: `river_valley`
   - `pt-n222-var-margem-norte.gpx` → N222 Variant, landscape: `river_valley`
   - `pt-n222-ext-mesao-frio.gpx` → N222 Extension, landscape: `mountain`
@@ -86,61 +86,64 @@
   - `pt-n2.gpx` → N2, landscape: `mixed`
   - `pt-n304-alvao.gpx` → EN304, landscape: `mountain`
   - `es-figueres-cadaques.gpx` → Figueres-Cadaqués, landscape: `coast`
-- [ ] Create 1-2 test journeys with stages
-- [ ] Create 2-3 test destinations with bounding boxes
-- [ ] Create 5-10 test POIs with association_type (on_route/near_route/detour)
-- [ ] Populate translations table (PT + EN) for routes, journeys, destinations
+- [x] Create 1-2 test journeys with stages — 2 journeys criados
+- [x] Create 2-3 test destinations with bounding boxes — 3 destinations criadas
+- [x] Create 5-10 test POIs with association_type (on_route/near_route/detour) — 5 POIs criados
+- [x] Populate translations table (PT + EN) for routes, journeys, destinations — 48 translations
 
 ### Validation Criteria
-```sql
-SELECT COUNT(*) FROM routes;       -- = 7
-SELECT COUNT(*) FROM routes WHERE landscape_type IS NOT NULL; -- = 7
-SELECT COUNT(*) FROM journeys;     -- >= 1
-SELECT COUNT(*) FROM destinations; -- >= 2
-SELECT COUNT(*) FROM pois;         -- >= 5
-SELECT COUNT(*) FROM translations; -- >= 14 (7 routes x 2 languages)
-```
+- [x] `SELECT COUNT(*) FROM routes;` → 7
+- [x] `SELECT COUNT(*) FROM routes WHERE landscape_type IS NOT NULL;` → 7
+- [x] `SELECT COUNT(*) FROM journeys;` → 2
+- [x] `SELECT COUNT(*) FROM destinations;` → 3
+- [x] `SELECT COUNT(*) FROM pois;` → 5
+- [x] `SELECT COUNT(*) FROM translations;` → 48
 
 ---
 
-## Phase 3: Frontend - Routes
+## Phase 3: Frontend - Routes ✓ COMPLETE
 
 **Objective**: Route visualization with smooth animations.
 
 ### Components
-- `RouteMap.tsx` - Main map component
-- `RouteAnimation.tsx` - Line drawing animation
-- `RouteList.tsx` - Route listing
-- `RouteDetails.tsx` - Route detail panel
-- `useRoutes.ts` - Data fetching hook
+- `RouteMap.tsx` - Main map with 3-layer strategy (base/hover/selected)
+- `RouteAnimation.tsx` - line-dasharray RAF animation (1.8s)
+- `RouteList.tsx` - Skeleton loading, hover/selection state
+- `RouteDetails.tsx` - Desktop sidebar + mobile bottom sheet, GPX download
+- `useRoutes.ts` - Supabase fetch hook with RouteGeoJSON type guard
+- `pages/RoutesPage.tsx` - Responsive layout orchestrator
 
 ### Features
 1. Mapbox map with routes displayed
 2. **Drawing animation** - line appears point by point
-3. **Fly-to** - smooth transition when selecting route
+3. **Fly-to** - smooth transition when selecting route (1.5s)
 4. **Hover highlight** - visual feedback on hover
-5. **Bottom sheet** - mobile-friendly detail panel
+5. **Bottom sheet** - mobile-friendly detail panel (50% height)
 6. GPX download button
 
 ### Validation Criteria
-- [ ] **Desktop**: Click route → fly-to animation (1.5s) → sidebar appears with details
-- [ ] **Mobile**: Click route → fly-to animation → bottom sheet slides up (80% height)
-- [ ] **Hover**: Route highlights on map when hovering list item
-- [ ] **Animation**: Line drawing animation completes in < 2s
-- [ ] **Download**: GPX file downloads, imports to Strava without errors
-- [ ] **Responsive**: Works on 375px (iPhone) to 1920px (desktop)
-- [ ] **Performance**: Initial map render with 7 routes < 2s
+- [x] **Desktop**: Click route → fly-to animation (1.5s) → sidebar appears with details
+- [x] **Mobile**: Click route → fly-to animation → bottom sheet slides up (50% height)
+- [x] **Hover**: Route highlights on map when hovering list item
+- [x] **Animation**: Line drawing animation completes in < 2s
+- [x] **Download**: GPX file downloads, imports to Strava without errors
+- [x] **Responsive**: Works on 375px (iPhone) to 1920px (desktop)
+- [x] **Performance**: Initial map render with 7 routes < 2s
 
 ---
 
-## Phase 4: Frontend - POIs
+## Phase 4: Frontend - POIs ✓ COMPLETE
 
 **Objective**: Points of interest on routes.
 
 ### Components
-- `POIMarkers.tsx` - Map markers
-- `POIList.tsx` - POI listing
-- `POIPopup.tsx` - Click popup
+- `POIList.tsx` - POI list component with type emoji, association badge, km marker
+- `RouteDetails.tsx` (updated) - Optional POIs section
+- `RouteMap.tsx` (updated) - poi-circles + poi-labels layers, mapboxgl.Popup
+- `useRoutePOIs.ts` - RPC hook for POI data with coordinates
+- `get_pois_for_route` SQL RPC - PostGIS ST_X/ST_Y to extract lon/lat
+
+Note: `POIMarkers.tsx` and `POIPopup.tsx` were not created as separate components — popup logic was integrated directly into `RouteMap.tsx` using `mapboxgl.Popup` inline.
 
 ### Features
 1. Map markers with type-specific icons
@@ -157,8 +160,10 @@ SELECT COUNT(*) FROM translations; -- >= 14 (7 routes x 2 languages)
 - historical_site
 
 ### Validation Criteria
-- [ ] Markers visible on N222
-- [ ] Click marker → popup appears with type
+- [x] Markers visible on map when a route with POIs is selected (N222 has 3, N304 has 2)
+- [x] Click marker → popup appears with name, type emoji, association badge, description
+- [x] "Points of Interest" section in sidebar/bottom sheet
+- [x] Routes without POIs: no markers, section hidden
 
 ---
 

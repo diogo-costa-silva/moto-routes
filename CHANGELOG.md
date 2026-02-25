@@ -8,6 +8,47 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-02-24
+
+### Adicionado (Fase 4 — Frontend POIs)
+- `scripts/migrations` — SQL RPC `get_pois_for_route(p_route_id uuid)` via PostGIS ST_X/ST_Y para retornar coordenadas lon/lat
+- `hooks/useRoutePOIs.ts` — hook que busca POIs via `supabase.rpc`, com estado `pois`, `loading`, `selectedPOI`
+- `components/Map/mapLayers.ts` — constantes `SOURCE_POIS`, `LAYER_POI_CIRCLES`, `LAYER_POI_LABELS` + funções `addPOISources`, `addPOILayers`, `updatePOISource`, `buildPOIFeatureCollection`
+- `components/Map/RouteMap.tsx` — props `pois` e `onPOIClick`; useEffect para sincronizar source de POIs; eventos click/hover em `LAYER_POI_CIRCLES` com `mapboxgl.Popup` inline
+- `components/Routes/POIList.tsx` — novo componente com emoji por tipo, badge por association_type (laranja/amarelo/lilás), km_marker
+- `components/Routes/RouteDetails.tsx` — secção "Points of Interest" com `POIList` (escondida quando sem POIs); prop `pois?: RoutePOI[]`
+- `pages/RoutesPage.tsx` — integração de `useRoutePOIs`, passagem de `pois` para `RouteMap` e `RouteDetails`/`DetailsContent`
+- `types/database.ts` — tipo `Functions.get_pois_for_route` adicionado ao interface `Database`
+
+## [0.5.3] - 2026-02-24
+
+### Corrigido
+- `components/Map/RouteMap.tsx` — Padding do `fitBounds` calculado dinamicamente (`window.innerHeight * 0.5 + 20`) em vez de 320px hardcoded em mobile
+- `components/Map/RouteMap.tsx` — Adicionado `maxZoom: 13` ao `fitBounds` para evitar aproximação excessiva em rotas curtas
+- `components/Map/RouteMap.tsx` — Reset do mapa ao fechar detalhes via `flyTo` para overview de Portugal (`[-7.9, 41.0]`, zoom 7)
+- `components/Map/RouteMap.tsx` — Nova prop `bottomPanelHeight?: number` para controlo externo do padding bottom
+- `components/Map/mapLayers.ts` — Cor do hover separada da selecionada: hover usa `#fb923c` (orange-400), selected mantém `#f97316` (orange-500)
+- `pages/RoutesPage.tsx` — Desktop: painel de detalhes movido para dentro da sidebar (`w-80`), deixou de ser overlay absoluto sobre o mapa
+- `pages/RoutesPage.tsx` — Z-index da lista bottom sheet corrigido de `z-30` para `z-40`
+- `components/Routes/RouteDetails.tsx` — Removido bloco desktop absoluto; desktop renderizado pela sidebar via `DetailsContent` exportado
+
+## [0.5.2] - 2026-02-24
+
+### Corrigido
+- `hooks/useRoutes.ts` — Removido `computeCenter` e campo `center` do tipo `Route` (substituído por `fitBounds`)
+- `components/Map/RouteMap.tsx` — Substituído `flyTo` + zoom 11 por `fitBounds` com padding adaptativo (desktop: right 420px; mobile: bottom 320px)
+- `components/Map/RouteMap.tsx` — Callback `onComplete` estabilizado com `useCallback` para evitar reinício do loop RAF
+- `pages/RoutesPage.tsx` — `isMobile` passado ao `RouteMap` para padding correcto do `fitBounds`
+
+## [0.5.1] - 2026-02-24
+
+### Corrigido
+- `pages/RoutesPage.tsx` — Sidebar agora oculta em mobile por omissão (mapa ocupa 100% do ecrã)
+- `pages/RoutesPage.tsx` — Botão pill flutuante "Routes (N)" visível em mobile quando lista fechada e sem rota seleccionada
+- `pages/RoutesPage.tsx` — Bottom sheet `h-[55vh]` para lista de rotas em mobile com drag handle e botão de fechar
+- `pages/RoutesPage.tsx` — Lista fecha automaticamente ao seleccionar uma rota em mobile
+- `components/Routes/RouteDetails.tsx` — Bottom sheet de detalhe reduzido de `h-[80vh]` para `h-[50vh]`
+
 ## [0.5.0] - 2026-02-24
 
 ### Adicionado

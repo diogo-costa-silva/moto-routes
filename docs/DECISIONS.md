@@ -192,6 +192,55 @@ Completely standalone project. No references to external code. Lessons learned d
 
 ---
 
+## DEC-008: SQL RPC for extracting POI coordinates
+
+**Date**: 2026-02-24
+**Status**: Accepted
+
+**Context**
+The `pois` table stores location as `geometry(Point, 4326)` (PostGIS). The Supabase JavaScript client cannot deserialize PostGIS binary geometry — the column returns `null`. We need lon/lat coordinates for Mapbox GL markers.
+
+**Decision**
+Create a PostgreSQL function `get_pois_for_route(p_route_id uuid)` that uses `ST_X()` and `ST_Y()` to extract longitude and latitude, called via `supabase.rpc()`.
+
+**Rejected Alternatives**
+- Direct table query: Returns `geometry = null` — unusable in frontend
+- Cache lon/lat columns (like `geometry_geojson` for routes): Would require maintaining 3 representations of the same geometry; RPC is cleaner for POIs since they're always fetched with route context
+- PostgREST computed columns: More complex setup, less explicit
+
+**Consequences**
+- (+) Coordinates arrive as plain numbers — no client-side parsing
+- (+) Single query fetches both POI metadata and coordinates
+- (+) Can add filtering/ordering server-side easily
+- (-) Requires a TypeScript workaround: `args as never` (Supabase RPC generic inference)
+- (-) Function must be maintained alongside schema changes
+
+---
+
+## DEC-009: mapboxgl.Popup with inline HTML for POI popups
+
+**Date**: 2026-02-24
+**Status**: Accepted
+
+**Context**
+When a user clicks a POI marker on the map, we need to show a popup with name, type, and description. Two approaches are possible: React portal or mapboxgl.Popup.
+
+**Decision**
+Use `mapboxgl.Popup` with an HTML string template, managed via `useRef`. The popup is created imperatively inside a Mapbox event listener.
+
+**Rejected Alternatives**
+- React portal/component rendered into popup container: Mapbox's popup DOM container exists outside React's render tree; synchronising React lifecycle with Mapbox events adds complexity and risk of memory leaks
+- Separate React overlay div positioned via map coordinates: Requires manual position tracking on map pan/zoom — fragile
+
+**Consequences**
+- (+) Popup follows Mapbox GL lifecycle natively (closes on map interaction, handles z-index correctly)
+- (+) Simple — no extra state, no portal, no sync issues
+- (+) Popup auto-positions to stay within viewport
+- (-) HTML is a string template — no access to React state or components
+- (-) Styling must be inline or via Mapbox popup CSS classes, not Tailwind
+
+---
+
 ## Template for New Decisions
 
 ```markdown

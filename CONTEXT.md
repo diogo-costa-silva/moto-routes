@@ -3,7 +3,7 @@
 ## Em 30 Segundos
 
 Plataforma de rotas de mota. React + Supabase + PostGIS.
-7 rotas GPX prontas. Ver PROGRESS.md para fase actual.
+7 rotas GPX prontas. Fase actual: 5 — Journeys. Ver PROGRESS.md para detalhe.
 
 ---
 

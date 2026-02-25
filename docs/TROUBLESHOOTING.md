@@ -185,6 +185,90 @@ ALTER TABLE routes DISABLE ROW LEVEL SECURITY;
 
 ---
 
+## PostGIS geometry column returns null in JS
+
+**Symptom**: POI positions are `null` or `undefined` — markers don't appear on map
+
+**Cause**: The Supabase JavaScript client cannot deserialize PostGIS `geometry` binary format. All geometry columns return `null` when queried directly.
+
+**Solution**: Create a SQL RPC function that extracts coordinates using `ST_X`/`ST_Y`:
+
+```sql
+CREATE OR REPLACE FUNCTION get_pois_for_route(p_route_id uuid)
+RETURNS TABLE (longitude double precision, latitude double precision, ...)
+LANGUAGE sql STABLE AS $$
+  SELECT ST_X(p.geometry::geometry), ST_Y(p.geometry::geometry), ...
+  FROM pois p JOIN route_pois rp ON rp.poi_id = p.id
+  WHERE rp.route_id = p_route_id;
+$$;
+```
+
+For routes, the workaround used is caching GeoJSON in `geometry_geojson` (a plain JSON column) at import time. See DEC-002.
+
+---
+
+## Supabase RPC TypeScript: Argument type error with custom functions
+
+**Symptom**: `Argument of type '{ arg: string }' is not assignable to parameter of type 'undefined'`
+
+**Cause**: Supabase's `rpc()` generic signature defaults `Args` to `never` when TypeScript cannot infer it from the function union type. `args?: never` only accepts `undefined`, so any object fails.
+
+**Solution**: Use `as never` cast on the arguments object. The value is passed correctly at runtime; only the TypeScript type check is bypassed.
+
+```typescript
+// Error:
+await supabase.rpc('get_pois_for_route', { p_route_id: routeId })
+
+// Fix:
+await supabase.rpc('get_pois_for_route', { p_route_id: routeId } as never)
+```
+
+Also add the function to `Database['public']['Functions']` in `types/database.ts`:
+```typescript
+Functions: {
+  get_pois_for_route: {
+    Args: { p_route_id: string }
+    Returns: { id: string; longitude: number; latitude: number; ... }[]
+  }
+}
+```
+
+---
+
+## Mapbox GL POI markers not visible
+
+**Symptom**: POI circles/labels not showing on map even though source has data
+
+**Check**:
+1. POI layers are added AFTER route layers in `map.on('load')` (ordering matters)
+2. Source data is non-empty: `map.getSource('pois').getData()` in browser console
+3. Coordinates are `[longitude, latitude]` order — not reversed
+
+```typescript
+// Correct layer order in map.on('load'):
+addRouteLayers(map)  // first
+addPOILayers(map)    // second — renders on top
+```
+
+---
+
+## WKT LINESTRING geometry rejected by PostGIS
+
+**Symptom**: `invalid geometry` error when inserting routes via Python pipeline
+
+**Cause**: PostGIS WKT format requires comma+space between coordinate pairs: `lon lat, lon lat`. Using only space causes a parse error.
+
+**Solution**:
+```python
+# WRONG — space only between coordinate pairs
+wkt = "LINESTRING(" + " ".join(f"{lon} {lat}" for lon, lat in coords) + ")"
+
+# CORRECT — comma+space between pairs, space within pair
+wkt = "LINESTRING(" + ", ".join(f"{lon} {lat}" for lon, lat in coords) + ")"
+```
+
+---
+
 ## Template for New Problems
 
 ```markdown

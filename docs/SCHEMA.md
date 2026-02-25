@@ -420,6 +420,41 @@ CREATE POLICY "Users insert own history" ON user_history
 
 ---
 
+## RPC Functions
+
+PostgreSQL functions exposed via Supabase REST API (`supabase.rpc()`).
+
+### `get_pois_for_route`
+
+Returns POIs for a given route with extracted coordinates (PostGIS geometry columns return `null` in the JS client — this function uses `ST_X`/`ST_Y` to convert).
+
+**Signature**:
+```sql
+get_pois_for_route(p_route_id uuid)
+RETURNS TABLE (
+  id               uuid,
+  name             text,
+  type             text,
+  description      text,
+  association_type text,        -- 'on_route' | 'near_route' | 'detour'
+  distance_meters  integer,
+  km_marker        numeric,     -- position on route in km
+  longitude        double precision,
+  latitude         double precision
+)
+```
+
+**Usage (TypeScript)**:
+```typescript
+const { data } = await supabase
+  .rpc('get_pois_for_route', { p_route_id: routeId } as never)
+// Note: `as never` needed due to Supabase RPC TypeScript inference — see TROUBLESHOOTING.md
+```
+
+**Orders by**: `km_marker ASC`
+
+---
+
 ## Common Queries
 
 ### Get route with GeoJSON
@@ -434,10 +469,22 @@ FROM routes
 WHERE slug = 'n222-vale-do-douro';
 ```
 
-### Get POIs near a route
+### Get POIs for a route (frontend — via RPC)
+
+```typescript
+// Use RPC — PostGIS geometry columns return null in JS client
+const { data } = await supabase
+  .rpc('get_pois_for_route', { p_route_id: routeId } as never)
+// Returns: { id, name, type, description, association_type, km_marker, longitude, latitude }[]
+```
+
+### Get POIs for a route (SQL — backend/migrations)
 
 ```sql
-SELECT p.*
+SELECT p.id, p.name, p.type,
+  ST_X(p.geometry::geometry) AS longitude,
+  ST_Y(p.geometry::geometry) AS latitude,
+  rp.km_marker
 FROM pois p
 JOIN route_pois rp ON rp.poi_id = p.id
 WHERE rp.route_id = $1
