@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { NavHeader } from '../components/AppShell/NavHeader'
+import { MobileTabBar } from '../components/AppShell/MobileTabBar'
 import { JourneyMap } from '../components/Map/JourneyMap'
 import { JourneyDetails, JourneyDetailsMobile } from '../components/Journeys/JourneyDetails'
 import { JourneyList } from '../components/Journeys/JourneyList'
@@ -40,13 +42,7 @@ export function JourneysPage() {
     <div className="flex h-screen w-screen overflow-hidden bg-gray-950 text-white">
       {/* Sidebar: visible on md+, hidden on mobile */}
       <div className="hidden md:flex md:w-80 flex-shrink-0 border-r border-gray-800 flex-col">
-        <div className="flex items-center gap-3 border-b border-gray-800 px-4 py-3">
-          <a href="/routes" className="text-gray-500 hover:text-white text-sm transition-colors">
-            ← Routes
-          </a>
-          <span className="text-gray-700">|</span>
-          <span className="text-sm font-semibold text-gray-300">Journeys</span>
-        </div>
+        <NavHeader />
 
         {selectedJourney ? (
           <div className="flex-1 overflow-y-auto">
@@ -92,11 +88,11 @@ export function JourneysPage() {
         )}
       </div>
 
-      {/* Mobile: floating pill — visible when no journey selected and list closed */}
+      {/* Mobile: floating pill — above tab bar (bottom-16 = 64px) */}
       {isMobile && !showList && !selectedJourney && (
         <button
           onClick={() => setShowList(true)}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 bg-gray-900 text-white px-5 py-2 rounded-full shadow-lg text-sm font-medium"
+          className="fixed bottom-16 left-1/2 -translate-x-1/2 z-30 bg-gray-900 text-white px-5 py-2 rounded-full shadow-lg text-sm font-medium"
         >
           Journeys ({loadingJourneys ? '…' : journeys.length})
         </button>
@@ -117,11 +113,7 @@ export function JourneysPage() {
               aria-label="Close"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
               </svg>
             </button>
           </div>
@@ -139,6 +131,8 @@ export function JourneysPage() {
           </div>
         </div>
       )}
+
+      <MobileTabBar />
     </div>
   )
 }

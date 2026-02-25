@@ -72,8 +72,8 @@ export function RouteList({
                     isSelected
                       ? 'border-orange-500 bg-gray-800 border-l-4'
                       : isHovered
-                        ? 'border-gray-600 bg-gray-850'
-                        : 'border-gray-800 bg-gray-900 hover:border-gray-700 hover:bg-gray-850',
+                        ? 'border-gray-600 bg-gray-800'
+                        : 'border-gray-800 bg-gray-900 hover:border-gray-700 hover:bg-gray-800',
                   ].join(' ')}
                   onClick={() => onSelect(route)}
                   onMouseEnter={() => onHover(route.id)}

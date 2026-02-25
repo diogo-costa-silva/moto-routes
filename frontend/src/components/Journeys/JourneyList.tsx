@@ -48,7 +48,7 @@ export function JourneyList({ journeys, loading, selectedJourney, onSelect }: Jo
                     'w-full rounded-lg border text-left transition-all duration-150 p-4',
                     isSelected
                       ? 'border-amber-500 bg-gray-800 border-l-4'
-                      : 'border-gray-800 bg-gray-900 hover:border-gray-700 hover:bg-gray-850',
+                      : 'border-gray-800 bg-gray-900 hover:border-gray-700 hover:bg-gray-800',
                   ].join(' ')}
                   onClick={() => onSelect(journey)}
                 >

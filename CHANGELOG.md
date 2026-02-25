@@ -8,6 +8,21 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-02-25
+
+### Adicionado
+- `components/AppShell/NavHeader.tsx` — navegação partilhada para o sidebar desktop (Moto Routes | Routes | Journeys), com active state via `useLocation`
+- `components/AppShell/MobileTabBar.tsx` — tab bar fixa no fundo em mobile (md:hidden) com ícones SVG e active state
+
+### Alterado
+- `App.tsx` — `/` redireciona para `/routes` via `<Navigate replace>`; `HomePage` removida
+- `pages/RoutesPage.tsx` — usa `NavHeader` + `MobileTabBar`; pill subiu para `bottom-16` (acima da tab bar)
+- `pages/JourneysPage.tsx` — usa `NavHeader` + `MobileTabBar`; pill subiu para `bottom-16`
+
+### Corrigido
+- `components/Routes/RouteList.tsx` — `bg-gray-850` substituído por `bg-gray-800` (cor inexistente em Tailwind v4)
+- `components/Journeys/JourneyList.tsx` — `hover:bg-gray-850` substituído por `hover:bg-gray-800`
+
 ## [0.7.0] - 2026-02-25
 
 ### Adicionado (Fase 5 — Frontend Journeys)
