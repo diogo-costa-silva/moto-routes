@@ -52,7 +52,10 @@ venv/
 .supabase/
 
 # Claude Code plans (optional - remove if you want to track plans)
-.claude/plans/
+.claude/
+CONTEXT.md
+PROGRESS.md
+
 
 # CodeGraph (generated locally, not committed)
 .codegraph/
@@ -64,3 +67,4 @@ credentials.json
 service-account.json
 moto-secrets.txt
 CLAUDE.md
+.claude/
