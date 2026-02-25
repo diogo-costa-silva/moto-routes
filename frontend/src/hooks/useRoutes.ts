@@ -25,7 +25,6 @@ export interface Route {
   curve_count_total: number | null
   curve_count_sharp: number | null
   geometry_geojson: RouteGeoJSON
-  center: [number, number]
 }
 
 // Use unknown so the predicate is compatible with Json | null at call sites
@@ -39,10 +38,6 @@ function isRouteGeoJSON(value: unknown): value is RouteGeoJSON {
   )
 }
 
-function computeCenter(geojson: RouteGeoJSON): [number, number] {
-  const coords = geojson.coordinates
-  return coords[Math.floor(coords.length / 2)]
-}
 
 interface UseRoutesState {
   routes: Route[]
@@ -95,7 +90,6 @@ export function useRoutes(): UseRoutesState {
             curve_count_total: row.curve_count_total,
             curve_count_sharp: row.curve_count_sharp,
             geometry_geojson: geojson,
-            center: computeCenter(geojson),
           })
         }
 

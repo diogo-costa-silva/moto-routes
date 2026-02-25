@@ -1,40 +1,72 @@
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { RoutePOI } from '../../hooks/useRoutePOIs'
 import type { Route } from '../../hooks/useRoutes'
 import {
   LAYER_BASE,
   LAYER_HOVER,
+  LAYER_POI_CIRCLES,
   LAYER_SELECTED,
   SOURCE_ALL,
   SOURCE_SELECTED,
+  addPOILayers,
+  addPOISources,
   addRouteLayers,
   addRouteSources,
   buildFeatureCollection,
+  updatePOISource,
 } from './mapLayers'
 import { RouteAnimation } from './RouteAnimation'
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN as string | undefined
 
+const ASSOCIATION_COLOUR: Record<string, string> = {
+  on_route: '#f97316',
+  near_route: '#facc15',
+  detour: '#a78bfa',
+}
+
+const TYPE_EMOJI: Record<string, string> = {
+  viewpoint: '👁',
+  restaurant: '🍽',
+  fuel_station: '⛽',
+  waterfall: '💧',
+  village: '🏘',
+  historical_site: '🏛',
+}
+
 interface RouteMapProps {
   routes: Route[]
   selectedRoute: Route | null
   hoveredRouteId: string | null
+  isMobile: boolean
+  bottomPanelHeight?: number
   onRouteClick: (route: Route) => void
   onRouteHover: (id: string | null) => void
+  pois: RoutePOI[]
+  onPOIClick: (poi: RoutePOI) => void
 }
 
 export function RouteMap({
   routes,
   selectedRoute,
   hoveredRouteId,
+  isMobile,
+  bottomPanelHeight,
   onRouteClick,
   onRouteHover,
+  pois,
+  onPOIClick,
 }: RouteMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
+  const popupRef = useRef<mapboxgl.Popup | null>(null)
   const [mapReady, setMapReady] = useState(false)
   const [animating, setAnimating] = useState(false)
+
+  // Stable callback — avoids restarting the RAF animation on every parent re-render
+  const handleAnimationComplete = useCallback(() => setAnimating(false), [])
 
   // Reset animation when selection changes
   useEffect(() => {
@@ -58,12 +90,16 @@ export function RouteMap({
     map.on('load', () => {
       addRouteSources(map, [])
       addRouteLayers(map)
+      addPOISources(map)
+      addPOILayers(map)
       setMapReady(true)
     })
 
     mapRef.current = map
 
     return () => {
+      popupRef.current?.remove()
+      popupRef.current = null
       map.remove()
       mapRef.current = null
       setMapReady(false)
@@ -78,6 +114,16 @@ export function RouteMap({
     const source = map.getSource(SOURCE_ALL) as mapboxgl.GeoJSONSource | undefined
     source?.setData(buildFeatureCollection(routes))
   }, [routes, mapReady])
+
+  // Sync POI source when pois list changes
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapReady) return
+    updatePOISource(map, pois)
+    // Close any open popup when POIs change (route change)
+    popupRef.current?.remove()
+    popupRef.current = null
+  }, [pois, mapReady])
 
   // Attach click and hover events when map + routes are ready
   useEffect(() => {
@@ -96,7 +142,6 @@ export function RouteMap({
     function onMouseMove(
       e: mapboxgl.MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] },
     ) {
-      // mapRef.current is non-null here: we're inside an active map event listener
       mapRef.current!.getCanvas().style.cursor = 'pointer'
       const id = e.features?.[0]?.properties?.id as string | undefined
       onRouteHover(id ?? null)
@@ -118,6 +163,76 @@ export function RouteMap({
     }
   }, [mapReady, routes, onRouteClick, onRouteHover])
 
+  // POI click and hover events
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapReady) return
+
+    function onPOIClickHandler(
+      e: mapboxgl.MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] },
+    ) {
+      const feature = e.features?.[0]
+      if (!feature) return
+
+      const props = feature.properties as {
+        id: string
+        name: string
+        type: string
+        description: string
+        association_type: string
+        km_marker: number | null
+      } | null
+      if (!props) return
+
+      const poi = pois.find((p) => p.id === props.id)
+      if (poi) onPOIClick(poi)
+
+      // Show popup at click location
+      const coords = (feature.geometry as GeoJSON.Point).coordinates as [number, number]
+      const colour = ASSOCIATION_COLOUR[props.association_type] ?? '#6b7280'
+      const emoji = TYPE_EMOJI[props.type] ?? '📍'
+      const assocLabel =
+        props.association_type === 'on_route'
+          ? 'On route'
+          : props.association_type === 'near_route'
+            ? 'Nearby'
+            : 'Detour'
+
+      popupRef.current?.remove()
+      popupRef.current = new mapboxgl.Popup({ closeButton: true, maxWidth: '260px' })
+        .setLngLat(coords)
+        .setHTML(
+          `<div style="font-family:system-ui,sans-serif;padding:4px 0">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+              <span style="font-size:18px">${emoji}</span>
+              <strong style="font-size:14px;color:#111">${props.name}</strong>
+            </div>
+            <span style="display:inline-block;background:${colour}22;color:${colour};border:1px solid ${colour}55;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:600;margin-bottom:${props.description ? '6px' : '0'}">${assocLabel}</span>
+            ${props.description ? `<p style="margin:0;font-size:12px;color:#555;line-clamp:3">${props.description}</p>` : ''}
+          </div>`,
+        )
+        .addTo(mapRef.current!)
+    }
+
+    function onPOIMouseEnter() {
+      mapRef.current!.getCanvas().style.cursor = 'pointer'
+    }
+
+    function onPOIMouseLeave() {
+      mapRef.current!.getCanvas().style.cursor = ''
+    }
+
+    map.on('click', LAYER_POI_CIRCLES, onPOIClickHandler)
+    map.on('mouseenter', LAYER_POI_CIRCLES, onPOIMouseEnter)
+    map.on('mouseleave', LAYER_POI_CIRCLES, onPOIMouseLeave)
+
+    return () => {
+      map.off('click', LAYER_POI_CIRCLES, onPOIClickHandler)
+      map.off('mouseenter', LAYER_POI_CIRCLES, onPOIMouseEnter)
+      map.off('mouseleave', LAYER_POI_CIRCLES, onPOIMouseLeave)
+    }
+  }, [mapReady, pois, onPOIClick])
+
   // Update hover filter
   useEffect(() => {
     const map = mapRef.current
@@ -125,7 +240,7 @@ export function RouteMap({
     map.setFilter(LAYER_HOVER, ['==', ['get', 'id'], hoveredRouteId ?? ''])
   }, [hoveredRouteId, mapReady])
 
-  // Handle route selection: update selected source + fly-to + trigger animation
+  // Handle route selection: update selected source + fit-to-bounds + trigger animation
   useEffect(() => {
     const map = mapRef.current
     if (!map || !mapReady) return
@@ -135,6 +250,7 @@ export function RouteMap({
 
     if (!selectedRoute) {
       source.setData({ type: 'FeatureCollection', features: [] })
+      map.flyTo({ center: [-7.9, 41.0], zoom: 7, duration: 1000 })
       return
     }
 
@@ -147,9 +263,23 @@ export function RouteMap({
     // Reset dasharray before animation
     map.setPaintProperty(LAYER_SELECTED, 'line-dasharray', [0, 2])
 
-    map.flyTo({ center: selectedRoute.center, zoom: 11, duration: 1500 })
+    // Compute bounds from route coordinates
+    const coords = selectedRoute.geometry_geojson.coordinates as [number, number][]
+    const lons = coords.map(c => c[0])
+    const lats = coords.map(c => c[1])
+    const bounds = new mapboxgl.LngLatBounds(
+      [Math.min(...lons), Math.min(...lats)],
+      [Math.max(...lons), Math.max(...lats)],
+    )
+
+    const bottomPad = isMobile ? (bottomPanelHeight ?? window.innerHeight * 0.5) + 20 : 60
+    const padding = isMobile
+      ? { top: 40, bottom: bottomPad, left: 40, right: 40 }
+      : { top: 60, bottom: 60, left: 40, right: 60 }
+
+    map.fitBounds(bounds, { padding, duration: 1500, maxZoom: 13 })
     map.once('moveend', () => setAnimating(true))
-  }, [selectedRoute, mapReady])
+  }, [selectedRoute, mapReady, isMobile, bottomPanelHeight])
 
   if (!MAPBOX_TOKEN) {
     return (
@@ -166,7 +296,7 @@ export function RouteMap({
         <RouteAnimation
           map={mapRef.current}
           layerId={LAYER_SELECTED}
-          onComplete={() => setAnimating(false)}
+          onComplete={handleAnimationComplete}
         />
       )}
     </div>

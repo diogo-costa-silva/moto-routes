@@ -1,8 +1,11 @@
+import type { RoutePOI } from '../../hooks/useRoutePOIs'
 import type { Route } from '../../hooks/useRoutes'
+import { POIList } from './POIList'
 
 interface RouteDetailsProps {
   route: Route
   onClose: () => void
+  pois?: RoutePOI[]
 }
 
 function generateGpx(route: Route): string {
@@ -57,24 +60,19 @@ function Stat({ label, value }: StatProps) {
   )
 }
 
-export function RouteDetails({ route, onClose }: RouteDetailsProps) {
+export function RouteDetails({ route, onClose, pois }: RouteDetailsProps) {
   return (
-    <>
-      {/* Desktop: right sidebar */}
-      <div className="hidden md:flex md:flex-col absolute inset-y-0 right-0 w-96 bg-gray-950 border-l border-gray-800 overflow-y-auto z-10">
-        <DetailsContent route={route} onClose={onClose} />
-      </div>
-
-      {/* Mobile: bottom sheet */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 h-[80vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20">
-        <div className="mx-auto mt-2 mb-4 h-1 w-12 rounded-full bg-gray-700" />
-        <DetailsContent route={route} onClose={onClose} />
-      </div>
-    </>
+    /* Mobile: bottom sheet */
+    <div className="md:hidden fixed bottom-0 left-0 right-0 h-[50vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20">
+      <div className="mx-auto mt-2 mb-4 h-1 w-12 rounded-full bg-gray-700" />
+      <DetailsContent route={route} onClose={onClose} pois={pois} />
+    </div>
   )
 }
 
-function DetailsContent({ route, onClose }: RouteDetailsProps) {
+export { DetailsContent }
+
+function DetailsContent({ route, onClose, pois }: RouteDetailsProps) {
   return (
     <div className="p-6 flex flex-col gap-4">
       <div className="flex items-start justify-between">
@@ -140,6 +138,15 @@ function DetailsContent({ route, onClose }: RouteDetailsProps) {
           value={route.curve_count_total != null ? String(route.curve_count_total) : null}
         />
       </div>
+
+      {pois && pois.length > 0 && (
+        <section>
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
+            Points of Interest
+          </h3>
+          <POIList pois={pois} />
+        </section>
+      )}
 
       <button
         onClick={() => downloadGpx(route)}

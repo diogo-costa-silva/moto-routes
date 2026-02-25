@@ -269,7 +269,22 @@ export interface Database {
       }
     }
     Views: Record<string, never>
-    Functions: Record<string, never>
+    Functions: {
+      get_pois_for_route: {
+        Args: { p_route_id: string }
+        Returns: {
+          id: string
+          name: string
+          type: string
+          description: string | null
+          association_type: string
+          distance_meters: number | null
+          km_marker: number | null
+          longitude: number
+          latitude: number
+        }[]
+      }
+    }
     Enums: {
       landscape_type: LandscapeType
       poi_association_type: PoiAssociationType
