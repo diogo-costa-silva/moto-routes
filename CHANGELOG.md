@@ -8,6 +8,15 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+### Corrigido — Google OAuth bloqueado no Brave e Chrome
+- `useAuth.ts` — dois problemas corrigidos em `loginWithGoogle`:
+  1. `skipBrowserCheck: true` — sem esta opção o Supabase tentava abrir um popup que o Brave bloqueia silenciosamente; com a opção força sempre o redirect flow
+  2. `redirectTo: window.location.origin + window.location.pathname` — antes era só `window.location.origin` (`/`); o React Router tem `<Navigate to="/routes" replace />` na raiz que fazia strip dos query params `?code=` do PKCE callback antes do Supabase os processar; com o pathname incluído o callback cai em `/routes` directamente e a sessão é estabelecida correctamente
+- Supabase Dashboard — adicionados `http://localhost:5174/**` e `https://moto-routes.vercel.app/**` à whitelist de redirect URLs para cobrir todos os paths
+
+### Corrigido — Mouse drag no bottom sheet
+- `useSheetDrag.ts` — adicionado suporte a mouse events (`onMouseDown`) para que o drag funcione no desktop; listeners `mousemove`/`mouseup` registados no `document` para capturar o drag mesmo quando o cursor sai do elemento; `e.preventDefault()` evita selecção de texto; click pós-drag é suprimido para não desfazer a acção
+
 ### Melhorado — Mobile bottom sheet drag
 - `useSheetDrag.ts` — reescrito com drag em tempo real: `sheetRef` para manipulação directa do DOM, `onTouchMove` move o sheet pixel a pixel, dismiss animado (height → 0px em 300ms), snap com `cubic-bezier(0.32, 0.72, 0, 1)` (iOS-like)
 - `RouteDetails.tsx` + `JourneyDetailsMobile` + `DestinationDetailsMobile` — drag restrito ao handle bar (`touchAction: none`); outer div usa `flex flex-col overflow-hidden`; scroll do conteúdo no inner div sem conflito com drag
