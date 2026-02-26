@@ -20,7 +20,7 @@ export function NavHeader() {
 
   return (
     <>
-      <div className="flex items-center justify-between border-b border-gray-800 px-4 py-3 flex-shrink-0 min-w-0">
+      <div className="flex items-center justify-between border-b border-gray-800 px-4 py-3 min-w-0">
         <div className="flex items-center gap-3 min-w-0">
           <Link to="/" aria-label="Moto Routes home">
             <svg

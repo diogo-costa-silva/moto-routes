@@ -8,6 +8,13 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+### Fixed — Desktop navigation layout
+
+- Lifted `NavHeader` out of the 320px sidebar in `RoutesPage`, `JourneysPage`, `DestinationsPage`
+- NavHeader now spans the full viewport width on desktop; all three nav links (Rotas/Viagens/Regiões) are visible
+- Inner sidebar+map row wrapped in `flex flex-1 min-h-0` to prevent overflow
+- Removed `flex-shrink-0` from `NavHeader` root div (no longer inside a flex column)
+
 ## [0.10.0] - 2026-02-26
 
 ### Adicionado — Fase 8: Multilingue PT/EN

@@ -102,11 +102,11 @@ export function JourneysPage() {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-gray-950 text-white">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-gray-950 text-white">
+      <NavHeader />
+      <div className="flex flex-1 min-h-0">
       {/* Sidebar: visible on lg+, hidden on mobile/tablet */}
       <div className="hidden lg:flex lg:w-80 flex-shrink-0 border-r border-gray-800 flex-col">
-        <NavHeader />
-
         {selectedJourney ? (
           <div className="flex-1 overflow-y-auto">
             <JourneyDetails
@@ -158,6 +158,7 @@ export function JourneysPage() {
             onStageSelect={selectStage}
           />
         )}
+      </div>
       </div>
 
       {/* Mobile: floating pill — above tab bar (bottom-16 = 64px) */}
