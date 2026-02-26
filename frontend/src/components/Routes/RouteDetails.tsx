@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { RoutePOI } from '../../hooks/useRoutePOIs'
 import type { Route } from '../../hooks/useRoutes'
+import { useSheetDrag } from '../../hooks/useSheetDrag'
 import { FavoriteButton } from './FavoriteButton'
 import { POIList } from './POIList'
 
@@ -13,6 +14,7 @@ interface RouteDetailsProps {
   isAuthenticated?: boolean
   onToggleFavorite?: () => void
   onLoginRequired?: () => void
+  onHeightChange?: (vh: number) => void
 }
 
 function generateGpx(route: Route): string {
@@ -57,12 +59,35 @@ function Stat({ label, value }: StatProps) {
   )
 }
 
-export function RouteDetails({ route, onClose, pois, isFavorite, isAuthenticated, onToggleFavorite, onLoginRequired }: RouteDetailsProps) {
+export function RouteDetails({ route, onClose, pois, isFavorite, isAuthenticated, onToggleFavorite, onLoginRequired, onHeightChange }: RouteDetailsProps) {
+  const { height, sheetRef, toggleSnap, dragHandlers } = useSheetDrag({
+    snapPoints: [65, 92],
+    onDismiss: onClose,
+  })
+
+  useEffect(() => {
+    onHeightChange?.(height)
+  }, [height])
+
   return (
     /* Mobile: bottom sheet */
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 h-[55vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20">
-      <div className="mx-auto mt-2 mb-4 h-1 w-12 rounded-full bg-gray-700" />
-      <div className="pb-20">
+    <div
+      ref={sheetRef}
+      className="lg:hidden fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 rounded-t-2xl z-20 flex flex-col overflow-hidden"
+      style={{ height: `${height}vh` }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Handle — drag restricted here, touchAction:none prevents scroll conflict */}
+      <div
+        style={{ touchAction: 'none' }}
+        {...dragHandlers}
+        onClick={toggleSnap}
+        className="flex w-full items-center justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing flex-shrink-0"
+      >
+        <div className="h-1 w-12 rounded-full bg-gray-700" />
+      </div>
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto pb-20">
         <DetailsContent route={route} onClose={onClose} pois={pois} isFavorite={isFavorite} isAuthenticated={isAuthenticated} onToggleFavorite={onToggleFavorite} onLoginRequired={onLoginRequired} />
       </div>
     </div>
@@ -106,7 +131,7 @@ function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthentica
           <button
             onClick={onClose}
             className="flex-shrink-0 rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
-            aria-label={t('common.close')}
+            aria-label={t('common.back')}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -116,7 +141,7 @@ function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthentica
             >
               <path
                 fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
                 clipRule="evenodd"
               />
             </svg>

@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { STAGE_COLORS } from '../Map/mapLayers'
 import type { Journey, JourneyStage } from '../../hooks/useJourneys'
+import { useSheetDrag } from '../../hooks/useSheetDrag'
 
 interface JourneyDetailsProps {
   journey: Journey
@@ -10,6 +12,7 @@ interface JourneyDetailsProps {
   stagesError?: string | null
   onClose: () => void
   onStageSelect: (stage: JourneyStage) => void
+  onHeightChange?: (vh: number) => void
 }
 
 function generateGpx(name: string, slug: string, geometry: GeoJSON.LineString): void {
@@ -100,12 +103,12 @@ export function JourneyDetails({
         <button
           onClick={onClose}
           className="ml-4 flex-shrink-0 rounded-full p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
-          aria-label={t('common.close')}
+          aria-label={t('common.back')}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path
               fillRule="evenodd"
-              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+              d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
               clipRule="evenodd"
             />
           </svg>
@@ -224,19 +227,45 @@ export function JourneyDetailsMobile({
   stagesError,
   onClose,
   onStageSelect,
+  onHeightChange,
 }: JourneyDetailsProps) {
+  const { height, sheetRef, toggleSnap, dragHandlers } = useSheetDrag({
+    snapPoints: [65, 92],
+    onDismiss: onClose,
+  })
+
+  useEffect(() => {
+    onHeightChange?.(height)
+  }, [height])
+
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 h-[55vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20 pb-20">
-      <div className="mx-auto mt-2 mb-4 h-1 w-12 rounded-full bg-gray-700" />
-      <JourneyDetails
-        journey={journey}
-        stages={stages}
-        selectedStage={selectedStage}
-        loadingStages={loadingStages}
-        stagesError={stagesError}
-        onClose={onClose}
-        onStageSelect={onStageSelect}
-      />
+    <div
+      ref={sheetRef}
+      className="lg:hidden fixed bottom-0 left-0 right-0 bg-gray-950 border-t border-gray-800 rounded-t-2xl z-20 flex flex-col overflow-hidden"
+      style={{ height: `${height}vh` }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Handle — drag restricted here */}
+      <div
+        style={{ touchAction: 'none' }}
+        {...dragHandlers}
+        onClick={toggleSnap}
+        className="flex w-full items-center justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing flex-shrink-0"
+      >
+        <div className="mx-auto h-1 w-12 rounded-full bg-gray-700" />
+      </div>
+      {/* Scrollable content */}
+      <div className="flex-1 overflow-y-auto pb-20">
+        <JourneyDetails
+          journey={journey}
+          stages={stages}
+          selectedStage={selectedStage}
+          loadingStages={loadingStages}
+          stagesError={stagesError}
+          onClose={onClose}
+          onStageSelect={onStageSelect}
+        />
+      </div>
     </div>
   )
 }

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { useSheetDrag } from '../hooks/useSheetDrag'
 import { NavHeader } from '../components/AppShell/NavHeader'
 import { MobileTabBar } from '../components/AppShell/MobileTabBar'
 import { DestinationMap } from '../components/Map/DestinationMap'
@@ -28,6 +29,7 @@ export function DestinationsPage() {
 
   const isMobile = useIsMobile()
   const [showList, setShowList] = useState(false)
+  const [sheetHeight, setSheetHeight] = useState(65)
   // Guard: track last pre-selected slug to support browser history navigation
   const lastPreSelectedSlug = useRef<string | null>(null)
 
@@ -60,41 +62,15 @@ export function DestinationsPage() {
     if (selectedDestination) setShowList(false)
   }, [selectedDestination])
 
-  const listSheetRef = useRef<HTMLDivElement>(null)
-  const dragStartY = useRef<number>(0)
-  const dragging = useRef<boolean>(false)
-
-  function onSheetTouchStart(e: React.TouchEvent) {
-    dragStartY.current = e.touches[0].clientY
-    dragging.current = true
-  }
-
-  function onSheetTouchMove(e: React.TouchEvent) {
-    if (!dragging.current) return
-    const delta = e.touches[0].clientY - dragStartY.current
-    if (delta > 0 && listSheetRef.current) {
-      listSheetRef.current.style.transform = `translateY(${delta}px)`
-    }
-  }
-
-  function onSheetTouchEnd(e: React.TouchEvent) {
-    dragging.current = false
-    const delta = e.changedTouches[0].clientY - dragStartY.current
-    if (listSheetRef.current) {
-      listSheetRef.current.style.transform = ''
-      listSheetRef.current.style.transition = 'transform 0.2s ease'
-      setTimeout(() => {
-        if (listSheetRef.current) listSheetRef.current.style.transition = ''
-      }, 200)
-    }
-    if (delta > 80) {
-      setShowList(false)
-    }
-  }
+  const { sheetRef: listSheetRef, toggleSnap: toggleListSnap, dragHandlers: listDragHandlers } = useSheetDrag({
+    snapPoints: [65, 95],
+    onDismiss: () => setShowList(false),
+  })
 
   function handleClose() {
     selectDestination(null)
     navigate('/destinations', { replace: true })
+    if (isMobile) setShowList(true)
   }
 
   return (
@@ -131,10 +107,15 @@ export function DestinationsPage() {
       {/* Map area */}
       <div className="relative flex-1">
         <DestinationMap
+          destinations={destinations}
           destination={selectedDestination}
           featuredRoutes={featuredRoutes}
           isMobile={isMobile}
-          bottomPanelHeight={isMobile ? window.innerHeight * 0.55 : undefined}
+          bottomPanelHeight={isMobile ? window.innerHeight * (sheetHeight / 100) : undefined}
+          onDeselect={() => {
+            selectDestination(null)
+            navigate('/destinations', { replace: true })
+          }}
         />
 
         {/* Mobile: destination details as bottom sheet */}
@@ -144,6 +125,7 @@ export function DestinationsPage() {
             featuredRoutes={featuredRoutes}
             loadingRoutes={loadingRoutes}
             onClose={handleClose}
+            onHeightChange={isMobile ? setSheetHeight : undefined}
           />
         )}
       </div>
@@ -164,16 +146,20 @@ export function DestinationsPage() {
       {isMobile && showList && (
         <div
           ref={listSheetRef}
-          className="fixed bottom-0 left-0 right-0 z-40 bg-gray-950 rounded-t-2xl h-[55vh] flex flex-col"
-          onTouchStart={onSheetTouchStart}
-          onTouchMove={onSheetTouchMove}
-          onTouchEnd={onSheetTouchEnd}
+          className="fixed bottom-0 left-0 right-0 z-40 bg-gray-950 rounded-t-2xl flex flex-col overflow-hidden"
+          style={{ height: '65vh' }}
         >
-          <div className="flex items-center justify-center pt-3 pb-2">
+          {/* Handle — drag only here */}
+          <div
+            style={{ touchAction: 'none' }}
+            {...listDragHandlers}
+            onClick={toggleListSnap}
+            className="flex items-center justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing flex-shrink-0"
+          >
             <div className="h-1 w-10 rounded-full bg-gray-700" />
           </div>
 
-          <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-800">
+          <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-800 flex-shrink-0">
             <span className="text-sm font-semibold text-gray-300">{t('destination.heading')}</span>
             <button
               onClick={() => setShowList(false)}
