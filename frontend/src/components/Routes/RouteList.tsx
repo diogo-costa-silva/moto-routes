@@ -95,7 +95,7 @@ export function RouteList({
                       <span
                         className={`text-xs font-medium capitalize ${DIFFICULTY_COLORS[route.difficulty] ?? 'text-gray-400'}`}
                       >
-                        {route.difficulty}
+                        {t(`difficulty.${route.difficulty}`, { defaultValue: route.difficulty })}
                       </span>
                     )}
                   </div>

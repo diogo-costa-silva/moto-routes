@@ -71,7 +71,18 @@
     "unableToLoad": "Unable to load regions. Please try again.",
     "showList": "Show regions list"
   },
+  "difficulty": {
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced"
+  },
+  "surface": {
+    "asphalt": "Asphalt",
+    "gravel": "Gravel",
+    "mixed": "Mixed"
+  },
   "profile": {
+    "signInToView": "Sign in to view your profile",
     "signedInAs": "Signed in as",
     "favourites": "Favourites",
     "history": "History",

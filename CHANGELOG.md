@@ -8,6 +8,16 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [0.11.1] - 2026-02-26
+
+### Fixed — Auditoria UI/UX (Phase 10 prep)
+
+- `RouteList.tsx`, `RouteDetails.tsx` — `difficulty` e `surface` agora usam `t()` em vez de renderizar o valor raw; mostram "Intermédio"/"Avançado"/"Principiante" e "Asfalto"/"Terra"/"Misto" em PT
+- `pt.json`, `en.json` — adicionadas chaves `difficulty.*`, `surface.*` e `profile.signInToView`
+- `ProfilePage.tsx` — redirect para utilizadores não autenticados movido para `useEffect` (elimina side-effect no corpo do render e toast duplicado); toast usa `t('profile.signInToView')`
+- `App.tsx` — `<ErrorBoundary>` agora envolve `<Routes>`; erros de render são capturados em vez de crashar toda a app
+- `vite.config.ts` — `manualChunks` separa mapbox-gl, @supabase/supabase-js e i18next em chunks independentes; bundle principal reduzido de 2.27 MB para 339 KB
+
 ## [0.11.0] - 2026-02-26
 
 ### Adicionado — Fase 9: Landscape Tags

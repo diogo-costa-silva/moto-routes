@@ -71,7 +71,18 @@
     "unableToLoad": "Não foi possível carregar as regiões. Tente novamente.",
     "showList": "Mostrar lista de regiões"
   },
+  "difficulty": {
+    "beginner": "Principiante",
+    "intermediate": "Intermédio",
+    "advanced": "Avançado"
+  },
+  "surface": {
+    "asphalt": "Asfalto",
+    "gravel": "Terra",
+    "mixed": "Misto"
+  },
   "profile": {
+    "signInToView": "Inicia sessão para ver o teu perfil",
     "signedInAs": "Sessão iniciada como",
     "favourites": "Favoritos",
     "history": "Histórico",

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { useNavigate } from 'react-router'
@@ -75,12 +75,14 @@ export function ProfilePage() {
   const navigate = useNavigate()
   const [tab, setTab] = useState<'favourites' | 'history'>('favourites')
 
-  // Redirect unauthenticated users (wait for auth to resolve first)
-  if (!authLoading && !user) {
-    toast.info('Sign in to view your profile')
-    navigate('/routes', { replace: true })
-    return null
-  }
+  useEffect(() => {
+    if (!authLoading && !user) {
+      toast.info(t('profile.signInToView'))
+      navigate('/routes', { replace: true })
+    }
+  }, [authLoading, user, navigate, t])
+
+  if (authLoading || !user) return null
 
   return (
     <div className="flex flex-col h-screen w-screen bg-gray-950 text-white">

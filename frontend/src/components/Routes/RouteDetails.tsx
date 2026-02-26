@@ -132,12 +132,12 @@ function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthentica
         )}
         {route.surface && (
           <span className="rounded-full bg-gray-800 px-3 py-1 text-sm text-gray-300 capitalize">
-            {route.surface}
+            {t(`surface.${route.surface}`, { defaultValue: route.surface })}
           </span>
         )}
         {route.difficulty && (
           <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-sm text-orange-400 capitalize">
-            {route.difficulty}
+            {t(`difficulty.${route.difficulty}`, { defaultValue: route.difficulty })}
           </span>
         )}
       </div>
