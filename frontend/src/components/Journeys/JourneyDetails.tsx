@@ -6,6 +6,7 @@ interface JourneyDetailsProps {
   stages: JourneyStage[]
   selectedStage: JourneyStage | null
   loadingStages: boolean
+  stagesError?: string | null
   onClose: () => void
   onStageSelect: (stage: JourneyStage) => void
 }
@@ -78,6 +79,7 @@ export function JourneyDetails({
   stages,
   selectedStage,
   loadingStages,
+  stagesError,
   onClose,
   onStageSelect,
 }: JourneyDetailsProps) {
@@ -91,7 +93,7 @@ export function JourneyDetails({
           <p className="text-xs font-mono text-amber-400 uppercase tracking-widest mb-1">
             Journey
           </p>
-          <h2 className="text-xl font-bold text-white leading-tight">{journey.name}</h2>
+          <h2 className="text-lg font-bold text-white leading-tight">{journey.name}</h2>
         </div>
         <button
           onClick={onClose}
@@ -151,7 +153,9 @@ export function JourneyDetails({
         <div className="space-y-1.5">
           {loadingStages
             ? Array.from({ length: 2 }).map((_, i) => <SkeletonStage key={i} />)
-            : stages.map((stage) => {
+            : stagesError
+              ? <p className="text-sm text-red-400 p-3">{stagesError}</p>
+              : stages.map((stage) => {
                 const color = STAGE_COLORS[(stage.stage_order - 1) % STAGE_COLORS.length]
                 const isSelected = selectedStage?.id === stage.id
                 const stageName = stage.stage_name ?? stage.route.name
@@ -215,6 +219,7 @@ export function JourneyDetailsMobile({
   stages,
   selectedStage,
   loadingStages,
+  stagesError,
   onClose,
   onStageSelect,
 }: JourneyDetailsProps) {
@@ -226,6 +231,7 @@ export function JourneyDetailsMobile({
         stages={stages}
         selectedStage={selectedStage}
         loadingStages={loadingStages}
+        stagesError={stagesError}
         onClose={onClose}
         onStageSelect={onStageSelect}
       />

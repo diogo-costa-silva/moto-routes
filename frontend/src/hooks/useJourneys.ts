@@ -35,6 +35,7 @@ interface UseJourneysState {
   selectJourney: (j: Journey | null) => void
   stages: JourneyStage[]
   loadingStages: boolean
+  stagesError: string | null
   selectedStage: JourneyStage | null
   selectStage: (s: JourneyStage | null) => void
 }
@@ -52,6 +53,7 @@ export function useJourneys(): UseJourneysState {
   const [selectedJourney, setSelectedJourney] = useState<Journey | null>(null)
   const [stages, setStages] = useState<JourneyStage[]>([])
   const [loadingStages, setLoadingStages] = useState(false)
+  const [stagesError, setStagesError] = useState<string | null>(null)
   const [selectedStage, setSelectedStage] = useState<JourneyStage | null>(null)
 
   // Fetch all journeys on mount
@@ -80,6 +82,7 @@ export function useJourneys(): UseJourneysState {
     }
 
     setLoadingStages(true)
+    setStagesError(null)
     setSelectedStage(null)
 
     supabase
@@ -92,6 +95,7 @@ export function useJourneys(): UseJourneysState {
       .then(({ data, error }) => {
         if (error) {
           toast.error('Failed to load journey stages')
+          setStagesError('Failed to load journey stages')
           setLoadingStages(false)
           return
         }
@@ -143,6 +147,7 @@ export function useJourneys(): UseJourneysState {
     selectJourney: setSelectedJourney,
     stages,
     loadingStages,
+    stagesError,
     selectedStage,
     selectStage: setSelectedStage,
   }
