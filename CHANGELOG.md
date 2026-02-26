@@ -8,6 +8,25 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+### Melhorado — Mobile bottom sheet drag
+- `useSheetDrag.ts` — reescrito com drag em tempo real: `sheetRef` para manipulação directa do DOM, `onTouchMove` move o sheet pixel a pixel, dismiss animado (height → 0px em 300ms), snap com `cubic-bezier(0.32, 0.72, 0, 1)` (iOS-like)
+- `RouteDetails.tsx` + `JourneyDetailsMobile` + `DestinationDetailsMobile` — drag restrito ao handle bar (`touchAction: none`); outer div usa `flex flex-col overflow-hidden`; scroll do conteúdo no inner div sem conflito com drag
+- `RoutesPage.tsx` + `JourneysPage.tsx` + `DestinationsPage.tsx` — list sheets migradas para `useSheetDrag`; snap points `[65, 90]vh` (era fixed 55vh); drag para cima expande, para baixo colapsa ou fecha
+
+### Corrigido — Bug fixes & UX (friend testing feedback)
+- `translations.ts` + `useRoutes.ts` + `useJourneys.ts` + `useDestinations.ts` — `fetchTranslations` chamado com tipos singulares (`'route'`, `'journey'`, `'destination'`) mas a BD guarda plurais (`'routes'`, `'journeys'`, `'destinations'`); corrigidos todos os 5 call sites — descrições em inglês agora carregam correctamente
+- `DestinationMap.tsx` — posição inicial do mapa harmonizada com Routes/Journeys (`center: [-7.9, 41.0], zoom: 7`)
+- `DestinationMap.tsx` — clicar em área vazia do mapa agora deselecciona a região activa
+- `RoutesPage.tsx` + `JourneysPage.tsx` + `DestinationsPage.tsx` — fechar painel de detalhe no mobile agora reabre automaticamente a lista de items
+- `useSheetDrag.ts` (novo hook) — dois snap points (55vh / 75vh) com detecção de drag; arrastar para cima expande, arrastar para baixo colapsa ou fecha
+- `RouteDetails.tsx` + `JourneyDetailsMobile` + `DestinationDetailsMobile` — bottom sheet com drag real; drag handle clicável para alternar entre 55vh e 75vh; arrastar 80px para baixo fecha o painel
+- Pages actualizadas para propagar `sheetHeight` ao mapa via `bottomPanelHeight`
+
+### Corrigido — Auth UI
+- `LoginModal.tsx` — erros do Supabase traduzidos para PT/EN (era "Invalid login credentials" em inglês)
+- `LoginModal.tsx` — estado do formulário (campos + erro + modo) agora limpa ao reabrir o modal
+- `locales/pt.json` + `locales/en.json` — 5 novas chaves `auth.error*` adicionadas
+
 ## [0.12.0] - 2026-02-26
 
 ### Adicionado — Fase 10: Deploy Vercel
