@@ -133,7 +133,7 @@ export function JourneyDetails({
       {stages.length > 0 && (
         <button
           onClick={() => generateMergedGpx(journey, stages)}
-          className="w-full flex items-center justify-center gap-2 rounded-lg bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-gray-950 font-semibold text-sm px-4 py-2.5 transition-colors"
+          className="w-full flex items-center justify-center gap-2 rounded-lg bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-gray-950 font-semibold text-sm px-4 py-2.5 transition-colors whitespace-nowrap"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -219,7 +219,7 @@ export function JourneyDetailsMobile({
   onStageSelect,
 }: JourneyDetailsProps) {
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 h-[55vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20 pb-[env(safe-area-inset-bottom,0px)]">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 h-[55vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20 pb-20">
       <div className="mx-auto mt-2 mb-4 h-1 w-12 rounded-full bg-gray-700" />
       <JourneyDetails
         journey={journey}

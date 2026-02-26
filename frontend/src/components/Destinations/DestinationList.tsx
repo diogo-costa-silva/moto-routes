@@ -33,9 +33,11 @@ export function DestinationList({
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
-        {loading
-          ? Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
-          : destinations.map((dest) => {
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
+        ) : destinations.length === 0 ? (
+          <div className="p-8 text-center text-sm text-gray-500">No regions found</div>
+        ) : destinations.map((dest) => {
               const isSelected = selectedDestination?.id === dest.id
               return (
                 <button
@@ -45,7 +47,7 @@ export function DestinationList({
                     'w-full text-left p-4 rounded-lg border-l-4 transition-colors',
                     isSelected
                       ? 'border-amber-500 bg-gray-800'
-                      : 'border-transparent bg-gray-900 hover:bg-gray-800 hover:border-gray-600',
+                      : 'border-gray-800 bg-gray-900 hover:bg-gray-800 hover:border-gray-600',
                   ].join(' ')}
                 >
                   <p className="text-sm font-semibold text-white mb-1">{dest.name}</p>

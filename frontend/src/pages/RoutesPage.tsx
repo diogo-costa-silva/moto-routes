@@ -107,8 +107,8 @@ export function RoutesPage() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-gray-950 text-white">
-      {/* Sidebar: visible on md+, hidden on mobile */}
-      <div className="hidden md:flex md:w-80 flex-shrink-0 border-r border-gray-800 flex-col">
+      {/* Sidebar: visible on lg+, hidden on mobile/tablet */}
+      <div className="hidden lg:flex lg:w-80 flex-shrink-0 border-r border-gray-800 flex-col">
         <NavHeader />
 
         {selectedRoute ? (
@@ -149,7 +149,7 @@ export function RoutesPage() {
           selectedRoute={selectedRoute}
           hoveredRouteId={hoveredRouteId}
           isMobile={isMobile}
-          bottomPanelHeight={isMobile ? window.innerHeight * 0.5 : undefined}
+          bottomPanelHeight={isMobile ? window.innerHeight * 0.55 : undefined}
           onRouteClick={selectRoute}
           onRouteHover={hoverRoute}
           pois={pois}
@@ -173,6 +173,7 @@ export function RoutesPage() {
       {isMobile && !showList && !selectedRoute && (
         <button
           onClick={() => setShowList(true)}
+          aria-label="Show routes list"
           className="fixed bottom-16 left-1/2 -translate-x-1/2 z-30 bg-gray-900 text-white px-5 py-2 rounded-full shadow-lg text-sm font-medium"
         >
           Routes ({loading ? '…' : routes.length})

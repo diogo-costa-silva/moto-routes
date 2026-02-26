@@ -27,7 +27,7 @@ export function FavoriteButton({
       onClick={handleClick}
       disabled={loading}
       aria-label={isFavorite ? 'Remove from favourites' : 'Add to favourites'}
-      className="flex-shrink-0 flex items-center justify-center h-11 w-11 rounded-full hover:bg-gray-800 transition-colors disabled:opacity-50"
+      className="flex-shrink-0 flex items-center justify-center h-11 w-11 rounded-full hover:bg-gray-800 transition-colors disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
     >
       {loading ? (
         <svg className="h-5 w-5 animate-spin text-gray-400" viewBox="0 0 24 24" fill="none">

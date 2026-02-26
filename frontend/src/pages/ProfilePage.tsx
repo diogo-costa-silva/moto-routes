@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
+import { toast } from 'sonner'
 import { NavHeader } from '../components/AppShell/NavHeader'
 import { MobileTabBar } from '../components/AppShell/MobileTabBar'
 import { useAuth } from '../hooks/useAuth'
@@ -73,6 +74,7 @@ export function ProfilePage() {
 
   // Redirect unauthenticated users (wait for auth to resolve first)
   if (!authLoading && !user) {
+    toast.info('Sign in to view your profile')
     navigate('/routes', { replace: true })
     return null
   }
@@ -82,7 +84,7 @@ export function ProfilePage() {
       <NavHeader />
 
       {/* Main content */}
-      <div className="flex-1 overflow-y-auto pb-16 md:pb-0">
+      <div className="flex-1 overflow-y-auto pb-16 lg:pb-0">
         <div className="max-w-lg mx-auto px-4 py-6">
           {/* Profile header */}
           <div className="mb-6">
@@ -91,23 +93,37 @@ export function ProfilePage() {
           </div>
 
           {/* Tab switcher */}
-          <div className="flex gap-1 mb-6 bg-gray-900 rounded-full p-1 border border-gray-800">
-            {(['favourites', 'history'] as const).map(t => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={[
-                  'flex-1 py-1.5 rounded-full text-sm font-medium transition-colors capitalize',
-                  tab === t ? 'bg-gray-800 text-white' : 'text-gray-500 hover:text-gray-300',
-                ].join(' ')}
-              >
-                {t === 'favourites' ? `Favourites (${favoriteRoutes.length})` : 'History'}
-              </button>
-            ))}
+          <div role="tablist" aria-label="Profile sections" className="flex gap-1 mb-6 bg-gray-900 rounded-full p-1 border border-gray-800">
+            <button
+              role="tab"
+              id="tab-favourites"
+              aria-selected={tab === 'favourites'}
+              aria-controls="panel-favourites"
+              onClick={() => setTab('favourites')}
+              className={[
+                'flex-1 py-1.5 rounded-full text-sm font-medium transition-colors',
+                tab === 'favourites' ? 'bg-gray-800 text-white' : 'text-gray-500 hover:text-gray-300',
+              ].join(' ')}
+            >
+              Favourites ({favoriteRoutes.length})
+            </button>
+            <button
+              role="tab"
+              id="tab-history"
+              aria-selected={tab === 'history'}
+              aria-controls="panel-history"
+              onClick={() => setTab('history')}
+              className={[
+                'flex-1 py-1.5 rounded-full text-sm font-medium transition-colors',
+                tab === 'history' ? 'bg-gray-800 text-white' : 'text-gray-500 hover:text-gray-300',
+              ].join(' ')}
+            >
+              History
+            </button>
           </div>
 
           {/* Favourites tab */}
-          {tab === 'favourites' && (
+          <div role="tabpanel" id="panel-favourites" aria-labelledby="tab-favourites" hidden={tab !== 'favourites'}>
             <div className="flex flex-col gap-2">
               {favLoading ? (
                 Array.from({ length: 3 }, (_, i) => <SkeletonCard key={i} />)
@@ -127,10 +143,10 @@ export function ProfilePage() {
                 ))
               )}
             </div>
-          )}
+          </div>
 
           {/* History tab */}
-          {tab === 'history' && (
+          <div role="tabpanel" id="panel-history" aria-labelledby="tab-history" hidden={tab !== 'history'}>
             <div className="flex flex-col gap-2">
               {histLoading ? (
                 Array.from({ length: 3 }, (_, i) => <SkeletonCard key={i} />)
@@ -153,7 +169,7 @@ export function ProfilePage() {
                 ))
               )}
             </div>
-          )}
+          </div>
         </div>
       </div>
 

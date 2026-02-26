@@ -5,6 +5,7 @@ import type { Destination, DestinationRoute } from '../../hooks/useDestinations'
 import {
   addDestinationLayers,
   addDestinationSources,
+  updateDestinationBBoxSource,
   updateDestinationRoutesSource,
 } from './mapLayers'
 
@@ -87,17 +88,24 @@ export function DestinationMap({
 
     if (!destination) {
       updateDestinationRoutesSource(map, [])
+      updateDestinationBBoxSource(map, null)
       return
     }
 
-    const bounds =
-      boundsFromRoutes(featuredRoutes) ?? boundsFromPolygon(destination.bounding_box_geojson)
+    updateDestinationBBoxSource(map, destination.bounding_box_geojson)
+
+    // Extend bounds to include both the bbox polygon and any featured routes
+    const polyBounds = boundsFromPolygon(destination.bounding_box_geojson)
+    const routeBounds = boundsFromRoutes(featuredRoutes)
+    const bounds = routeBounds
+      ? polyBounds.extend(routeBounds)
+      : polyBounds
     const bottomPad = isMobile ? (bottomPanelHeight ?? window.innerHeight * 0.55) + 20 : 60
 
     map.fitBounds(bounds, {
       padding: isMobile
         ? { top: 40, bottom: bottomPad, left: 40, right: 40 }
-        : { top: 60, bottom: 60, left: 60, right: 60 },
+        : { top: 60, bottom: 60, left: 340, right: 60 },
       duration: 1200,
       maxZoom: 12,
     })

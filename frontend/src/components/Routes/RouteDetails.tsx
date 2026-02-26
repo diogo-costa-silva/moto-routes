@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { RoutePOI } from '../../hooks/useRoutePOIs'
 import type { Route } from '../../hooks/useRoutes'
 import { LANDSCAPE_LABELS } from '../../lib/labels'
@@ -59,9 +60,9 @@ function Stat({ label, value }: StatProps) {
 export function RouteDetails({ route, onClose, pois, isFavorite, isAuthenticated, onToggleFavorite, onLoginRequired }: RouteDetailsProps) {
   return (
     /* Mobile: bottom sheet */
-    <div className="md:hidden fixed bottom-0 left-0 right-0 h-[55vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 h-[55vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20">
       <div className="mx-auto mt-2 mb-4 h-1 w-12 rounded-full bg-gray-700" />
-      <div className="pb-[env(safe-area-inset-bottom,0px)]">
+      <div className="pb-20">
         <DetailsContent route={route} onClose={onClose} pois={pois} isFavorite={isFavorite} isAuthenticated={isAuthenticated} onToggleFavorite={onToggleFavorite} onLoginRequired={onLoginRequired} />
       </div>
     </div>
@@ -71,6 +72,17 @@ export function RouteDetails({ route, onClose, pois, isFavorite, isAuthenticated
 export { DetailsContent }
 
 function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthenticated = false, onToggleFavorite, onLoginRequired }: RouteDetailsProps) {
+  const [gpxLoading, setGpxLoading] = useState(false)
+
+  async function handleDownloadGpx() {
+    setGpxLoading(true)
+    try {
+      downloadGpx(route)
+    } finally {
+      setGpxLoading(false)
+    }
+  }
+
   return (
     <div className="p-6 flex flex-col gap-4">
       <div className="flex items-start justify-between">
@@ -158,21 +170,30 @@ function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthentica
       )}
 
       <button
-        onClick={() => downloadGpx(route)}
-        className="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-500 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-orange-600 active:bg-orange-700"
+        onClick={handleDownloadGpx}
+        disabled={gpxLoading}
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-500 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-orange-600 active:bg-orange-700 disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-        >
-          <path
-            fillRule="evenodd"
-            d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
-            clipRule="evenodd"
-          />
-        </svg>
+        {gpxLoading ? (
+          <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+        ) : (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fillRule="evenodd"
+              d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
+          </svg>
+        )}
         Download GPX
       </button>
     </div>

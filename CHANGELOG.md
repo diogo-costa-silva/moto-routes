@@ -8,6 +8,43 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-02-26
+
+### Corrigido — Reorganização UI/UX estratégica (Fases A–E)
+
+**Layout crítico (Fase A)**
+- `NavHeader.tsx` — substituído texto "Moto Routes" por ícone SVG de mota; resolve overflow do link "Regions" em viewports estreitas
+- `RouteDetails`, `JourneyDetails`, `DestinationDetails` — bottom sheets adicionam `pb-20` para conteúdo não ficar tapado pela `MobileTabBar`
+- `ProfilePage.tsx` — toast `"Sign in to view your profile"` antes de redirecionar utilizadores não autenticados
+- `MobileTabBar.tsx` — tab Profile abre `LoginModal` para utilizadores não autenticados em vez de redirecionar silenciosamente
+- `RoutesPage.tsx` — `bottomPanelHeight` corrigido de 0.5 para 0.55 (consistente com sheet height)
+
+**Responsivo tablet (Fase B)**
+- `useIsMobile.ts` — breakpoint alterado de 768 para 1024px; tablet portrait (768px) usa layout mobile, tablet landscape+ usa sidebar
+- `RoutesPage`, `JourneysPage`, `DestinationsPage` — sidebar: `hidden md:flex md:w-80` → `hidden lg:flex lg:w-80`
+- `RouteDetails`, `JourneyDetails`, `DestinationDetails` — bottom sheets: `md:hidden` → `lg:hidden`
+- `MobileTabBar.tsx` — `md:hidden` → `lg:hidden`
+- `RouteMap`, `DestinationMap` — `fitBounds` padding esquerdo: 40 → 340px (acomoda sidebar 320px + margem)
+
+**Acessibilidade WCAG 2.1 AA (Fase C)**
+- `LoginModal.tsx` — `role="dialog"` + `aria-modal` + `aria-labelledby`; focus trap manual; labels sr-only para inputs; `role="alert"` em erros; loading state no botão Google; `focus-visible` rings
+- `UserMenu.tsx` — `aria-haspopup="menu"` + `aria-expanded`; `role="menu"` + `role="menuitem"`; navegação por setas ↑↓; ESC fecha
+- `ProfilePage.tsx` — tabs com `role="tablist"`, `role="tab"`, `aria-selected`, `aria-controls`; panels com `role="tabpanel"`, `aria-labelledby`, `hidden`
+- `MobileTabBar.tsx` — SVGs com `aria-hidden="true"`; links activos com `aria-current="page"`; `role="navigation"` + `aria-label`
+- `FavoriteButton.tsx` — `focus-visible:ring-2 focus-visible:ring-orange-500` para navegação por teclado
+- Pill buttons (Routes/Journeys/Regions) — `aria-label` descritivo adicionado
+
+**Mapa e consistência visual (Fase D)**
+- `RouteMap.tsx` — popup POI: dark theme (`bg gray-950`, `color gray-50`) via classe CSS `.dark-popup`; `closeButton: false`
+- `index.css` — estilos `.dark-popup` para popup Mapbox consistente com dark UI
+- `mapLayers.ts` — `addDestinationLayers` agora adiciona fill (amber, opacidade 0.2) + outline dashed (amber, 3px) para bbox polygon; layers adicionados antes das route lines
+- `DestinationMap.tsx` — chama `updateDestinationBBoxSource` ao seleccionar destino; `fitBounds` estende para incluir bbox + routes (evitava bbox fora do viewport); limpa bbox ao deseleccionar
+- `DestinationList.tsx` — empty state "No regions found"; border `border-transparent` → `border-gray-800` (elimina layout shift de 1px no hover)
+- `JourneyDetails.tsx` — botão download GPX com `whitespace-nowrap`
+
+**Erro e UX minor (Fase E)**
+- `RouteDetails.tsx` — botão "Download GPX" com loading state (spinner + `disabled` durante download)
+
 ## [0.9.0] - 2026-02-25
 
 ### Adicionado — Phase 7: Frontend Users (Auth + Favourites + History)

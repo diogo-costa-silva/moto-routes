@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+/* Dark theme for Mapbox POI popups */
+.dark-popup .mapboxgl-popup-content {
+  background: #030712;
+  color: #f9fafb;
+  border: 1px solid #1f2937;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  font-family: inherit;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.8);
+}
+
+.dark-popup .mapboxgl-popup-tip {
+  border-top-color: #1f2937;
+}

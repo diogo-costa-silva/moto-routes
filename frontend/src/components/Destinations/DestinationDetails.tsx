@@ -101,7 +101,7 @@ export function DestinationDetails({
 
 export function DestinationDetailsMobile(props: DestinationDetailsProps) {
   return (
-    <div className="md:hidden fixed bottom-0 left-0 right-0 h-[55vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20 pb-[env(safe-area-inset-bottom,0px)]">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 h-[55vh] bg-gray-950 border-t border-gray-800 rounded-t-2xl overflow-y-auto z-20 pb-20">
       <div className="mx-auto mt-2 mb-4 h-1 w-12 rounded-full bg-gray-700" />
       <DestinationDetails {...props} />
     </div>

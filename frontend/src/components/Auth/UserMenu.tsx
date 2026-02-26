@@ -28,14 +28,33 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open])
 
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Escape') {
+      setOpen(false)
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      if (!open) { setOpen(true); return }
+      const items = menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]')
+      if (!items?.length) return
+      const current = Array.from(items).indexOf(document.activeElement as HTMLElement)
+      if (e.key === 'ArrowDown') {
+        items[(current + 1) % items.length]?.focus()
+      } else {
+        items[(current - 1 + items.length) % items.length]?.focus()
+      }
+      e.preventDefault()
+    }
+  }
+
   const avatarUrl = user.user_metadata.avatar_url
 
   return (
-    <div ref={menuRef} className="relative">
+    <div ref={menuRef} className="relative" onKeyDown={handleKeyDown}>
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity"
-        aria-label="User menu"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="User account menu"
+        className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
       >
         {avatarUrl ? (
           <img
@@ -51,24 +70,30 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-44 bg-gray-900 border border-gray-800 rounded-xl shadow-xl overflow-hidden z-50">
+        <div
+          role="menu"
+          aria-label="User account options"
+          className="absolute right-0 top-full mt-2 w-44 bg-gray-900 border border-gray-800 rounded-xl shadow-xl overflow-hidden z-50"
+        >
           <div className="px-3 py-2 border-b border-gray-800">
             <p className="text-xs text-gray-500 truncate">{user.email}</p>
           </div>
           <button
+            role="menuitem"
             onClick={() => { setOpen(false); navigate('/profile') }}
-            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors text-left"
+            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-gray-300 hover:bg-gray-800 hover:text-white transition-colors text-left focus:outline-none focus-visible:bg-gray-800"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
             My Profile
           </button>
           <button
+            role="menuitem"
             onClick={() => { setOpen(false); onLogout() }}
-            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-colors text-left"
+            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-colors text-left focus:outline-none focus-visible:bg-gray-800"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
             Sign out

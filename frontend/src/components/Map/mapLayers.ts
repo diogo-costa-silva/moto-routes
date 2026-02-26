@@ -278,6 +278,31 @@ export function addDestinationSources(map: MapboxMap): void {
 }
 
 export function addDestinationLayers(map: MapboxMap): void {
+  // Amber fill for destination bounding box polygon
+  map.addLayer({
+    id: LAYER_DESTINATION_FILL,
+    type: 'fill',
+    source: SOURCE_DESTINATION_BBOX,
+    paint: {
+      'fill-color': '#f59e0b',
+      'fill-opacity': 0.2,
+    },
+  })
+
+  // Dashed amber outline for bounding box
+  map.addLayer({
+    id: LAYER_DESTINATION_OUTLINE,
+    type: 'line',
+    source: SOURCE_DESTINATION_BBOX,
+    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    paint: {
+      'line-color': '#f59e0b',
+      'line-width': 3,
+      'line-opacity': 0.85,
+      'line-dasharray': [6, 3],
+    },
+  })
+
   // Orange solid lines for featured routes
   map.addLayer({
     id: LAYER_DESTINATION_ROUTES,

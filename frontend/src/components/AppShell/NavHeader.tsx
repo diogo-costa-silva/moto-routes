@@ -19,8 +19,20 @@ export function NavHeader() {
     <>
       <div className="flex items-center justify-between border-b border-gray-800 px-4 py-3 flex-shrink-0 min-w-0">
         <div className="flex items-center gap-3 min-w-0">
-          <Link to="/" className="text-sm font-semibold text-gray-400 hover:text-white transition-colors whitespace-nowrap">
-            Moto Routes
+          <Link to="/" aria-label="Moto Routes home">
+            <svg
+              className="h-6 w-6 text-gray-400 hover:text-white transition-colors"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.5}
+              aria-hidden="true"
+            >
+              <circle cx="5.5" cy="17" r="2.5" />
+              <circle cx="18.5" cy="17" r="2.5" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 17h7M5.5 17l1-6h5l2 4h2.5M13 11l-1.5-5H8.5" />
+              <path strokeLinecap="round" d="M3 11h2" />
+            </svg>
           </Link>
 
           <span className="text-gray-700">|</span>

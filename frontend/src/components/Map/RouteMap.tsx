@@ -199,16 +199,16 @@ export function RouteMap({
             : 'Detour'
 
       popupRef.current?.remove()
-      popupRef.current = new mapboxgl.Popup({ closeButton: true, maxWidth: '260px' })
+      popupRef.current = new mapboxgl.Popup({ closeButton: false, maxWidth: '260px', className: 'dark-popup' })
         .setLngLat(coords)
         .setHTML(
-          `<div style="font-family:system-ui,sans-serif;padding:4px 0">
+          `<div>
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
               <span style="font-size:18px">${emoji}</span>
-              <strong style="font-size:14px;color:#111">${props.name}</strong>
+              <strong style="font-size:14px">${props.name}</strong>
             </div>
             <span style="display:inline-block;background:${colour}22;color:${colour};border:1px solid ${colour}55;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:600;margin-bottom:${props.description ? '6px' : '0'}">${assocLabel}</span>
-            ${props.description ? `<p style="margin:0;font-size:12px;color:#555;line-clamp:3">${props.description}</p>` : ''}
+            ${props.description ? `<p style="margin:0;font-size:12px;opacity:0.7;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical">${props.description}</p>` : ''}
           </div>`,
         )
         .addTo(mapRef.current!)
@@ -272,10 +272,10 @@ export function RouteMap({
       [Math.max(...lons), Math.max(...lats)],
     )
 
-    const bottomPad = isMobile ? (bottomPanelHeight ?? window.innerHeight * 0.5) + 20 : 60
+    const bottomPad = isMobile ? (bottomPanelHeight ?? window.innerHeight * 0.55) + 20 : 60
     const padding = isMobile
       ? { top: 40, bottom: bottomPad, left: 40, right: 40 }
-      : { top: 60, bottom: 60, left: 40, right: 60 }
+      : { top: 60, bottom: 60, left: 340, right: 60 }
 
     map.fitBounds(bounds, { padding, duration: 1500, maxZoom: 13 })
     map.once('moveend', () => setAnimating(true))
