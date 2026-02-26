@@ -395,6 +395,5 @@ Phase 2 (Data) ─── routes, journeys, destinations, POIs, translations
 
 ## Related Documents
 
-- [Progress](../PROGRESS.md) - Current status
 - [Architecture](./ARCHITECTURE.md) - System design
 - [Schema](./SCHEMA.md) - Database structure

@@ -113,7 +113,6 @@ Python 3.11+
 ```
 moto-routes-v4/
 ├── CLAUDE.md              # Instructions for Claude
-├── PROGRESS.md            # Current state
 ├── CHANGELOG.md           # History
 │
 ├── docs/                  # Documentation

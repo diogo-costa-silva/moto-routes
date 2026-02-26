@@ -54,7 +54,6 @@ venv/
 # Claude Code plans (optional - remove if you want to track plans)
 .claude/
 CONTEXT.md
-PROGRESS.md
 
 
 # CodeGraph (generated locally, not committed)

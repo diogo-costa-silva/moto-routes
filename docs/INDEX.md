@@ -51,7 +51,6 @@ For new developers joining the project:
 
 | Document | Description |
 |----------|-------------|
-| [Progress](../PROGRESS.md) | Current phase and task status |
 | [Changelog](../CHANGELOG.md) | Version history |
 | [Decisions](./DECISIONS.md) | Architecture Decision Records (ADRs) |
 

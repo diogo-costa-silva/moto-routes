@@ -72,7 +72,7 @@ See [Setup Guide](./docs/SETUP.md) for detailed instructions.
 | [Vision](./docs/VISION.md) | Project goals and philosophy |
 | [Roadmap](./docs/ROADMAP.md) | Implementation phases |
 | [Architecture](./docs/ARCHITECTURE.md) | System design |
-| [Progress](./PROGRESS.md) | Current status |
+
 
 ---
 
@@ -82,7 +82,7 @@ See [Setup Guide](./docs/SETUP.md) for detailed instructions.
 
 **Next Phase**: 1 - Foundation (Supabase + Vite setup)
 
-See [Progress](./PROGRESS.md) for detailed status.
+See [Changelog](./CHANGELOG.md) for detailed history.
 
 ---
 

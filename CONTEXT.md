@@ -3,7 +3,7 @@
 ## Em 30 Segundos
 
 Plataforma de rotas de mota. React + Supabase + PostGIS.
-7 rotas GPX prontas. Fase actual: 5 — Journeys. Ver PROGRESS.md para detalhe.
+7 rotas GPX prontas. Fase actual: 10 — Deploy. Correr `/status` para estado actual.
 
 ---
 
@@ -56,7 +56,6 @@ Portugal: lon -9 a -6, lat 37 a 42
 | [docs/INDEX.md](./docs/INDEX.md) | Mapa de navegação |
 | [docs/ROADMAP.md](./docs/ROADMAP.md) | Fases de implementação |
 | [docs/SCHEMA.md](./docs/SCHEMA.md) | Schema da BD |
-| [PROGRESS.md](./PROGRESS.md) | Estado actual |
 | [docs/DECISIONS.md](./docs/DECISIONS.md) | Porquê assim |
 | [CLAUDE.md](./CLAUDE.md) | Regras de dev |
 
