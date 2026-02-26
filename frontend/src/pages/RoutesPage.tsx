@@ -33,7 +33,7 @@ export function RoutesPage() {
   const [landscapeFilters, setLandscapeFilters] = useState<string[]>([])
 
   const availableTypes = useMemo(
-    () => [...new Set(routes.map(r => r.landscape_type).filter(Boolean))] as string[],
+    () => [...new Set(routes.map(r => r.landscape_type).filter(Boolean))].sort() as string[],
     [routes]
   )
   const filteredRoutes = useMemo(
@@ -47,6 +47,15 @@ export function RoutesPage() {
   const [showList, setShowList] = useState(false)
   const [loginModalOpen, setLoginModalOpen] = useState(false)
   const historyDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Clear selection when active filter excludes the selected route
+  useEffect(() => {
+    if (selectedRoute && !filteredRoutes.find(r => r.id === selectedRoute.id)) {
+      selectRoute(null)
+      navigate('/routes', { replace: true })
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredRoutes, selectedRoute?.id])
 
   // Pre-select from URL slug — runs once when routes load
   useEffect(() => {
