@@ -120,6 +120,7 @@
   },
   "common": {
     "close": "Fechar",
+    "back": "Voltar",
     "loading": "A carregar…"
   }
 }

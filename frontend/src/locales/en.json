@@ -120,6 +120,7 @@
   },
   "common": {
     "close": "Close",
+    "back": "Back",
     "loading": "Loading…"
   }
 }
