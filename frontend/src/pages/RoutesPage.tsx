@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
+import { toast } from 'sonner'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { NavHeader } from '../components/AppShell/NavHeader'
 import { MobileTabBar } from '../components/AppShell/MobileTabBar'
@@ -38,6 +39,10 @@ export function RoutesPage() {
       if (match) {
         didPreSelect.current = true
         selectRoute(match)
+      } else {
+        didPreSelect.current = true
+        toast.info('Route not found')
+        navigate('/routes', { replace: true })
       }
     }
   }, [slug, routes, selectRoute])
@@ -206,7 +211,7 @@ export function RoutesPage() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto pb-16">
             <RouteList
               routes={routes}
               loading={loading}

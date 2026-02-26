@@ -90,7 +90,7 @@ function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthentica
           <p className="text-xs font-mono text-orange-400 uppercase tracking-widest mb-1">
             {route.code}
           </p>
-          <h2 className="text-xl font-bold text-white leading-tight">{route.name}</h2>
+          <h2 className="text-lg font-bold text-white leading-tight">{route.name}</h2>
         </div>
         <div className="flex items-center gap-1 ml-2 flex-shrink-0">
           {onToggleFavorite && (

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
+import { toast } from 'sonner'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { NavHeader } from '../components/AppShell/NavHeader'
 import { MobileTabBar } from '../components/AppShell/MobileTabBar'
@@ -17,6 +18,7 @@ export function JourneysPage() {
     selectJourney,
     stages,
     loadingStages,
+    stagesError,
     selectedStage,
     selectStage,
   } = useJourneys()
@@ -37,6 +39,10 @@ export function JourneysPage() {
       if (match) {
         didPreSelect.current = true
         selectJourney(match)
+      } else {
+        didPreSelect.current = true
+        toast.info('Journey not found')
+        navigate('/journeys', { replace: true })
       }
     }
   }, [slug, journeys, selectJourney])
@@ -106,6 +112,7 @@ export function JourneysPage() {
               stages={stages}
               selectedStage={selectedStage}
               loadingStages={loadingStages}
+              stagesError={stagesError}
               onClose={handleClose}
               onStageSelect={selectStage}
             />
@@ -144,6 +151,7 @@ export function JourneysPage() {
             stages={stages}
             selectedStage={selectedStage}
             loadingStages={loadingStages}
+            stagesError={stagesError}
             onClose={handleClose}
             onStageSelect={selectStage}
           />
@@ -187,7 +195,7 @@ export function JourneysPage() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto pb-16">
             {error && (
               <div className="p-4 text-sm text-red-400">
                 Unable to load journeys. Please try again.

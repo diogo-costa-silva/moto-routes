@@ -33,7 +33,7 @@ export function DestinationDetails({
           <p className="text-xs font-mono text-amber-400 uppercase tracking-widest mb-1">
             Destination
           </p>
-          <h2 className="text-xl font-bold text-white leading-tight">{destination.name}</h2>
+          <h2 className="text-lg font-bold text-white leading-tight">{destination.name}</h2>
         </div>
         <button
           onClick={onClose}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
+import { toast } from 'sonner'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { NavHeader } from '../components/AppShell/NavHeader'
 import { MobileTabBar } from '../components/AppShell/MobileTabBar'
@@ -35,6 +36,10 @@ export function DestinationsPage() {
       if (match) {
         lastPreSelectedSlug.current = slug
         selectDestination(match)
+      } else {
+        lastPreSelectedSlug.current = slug
+        toast.info('Region not found')
+        navigate('/destinations', { replace: true })
       }
     }
   }, [slug, destinations, selectDestination])
@@ -178,7 +183,12 @@ export function DestinationsPage() {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto pb-16">
+            {error && (
+              <div className="p-4 text-sm text-red-400">
+                Unable to load regions. Please try again.
+              </div>
+            )}
             <DestinationList
               destinations={destinations}
               loading={loadingDestinations}
