@@ -20,7 +20,7 @@ export function NavHeader() {
 
   return (
     <>
-      <div className="flex items-center justify-between border-b border-gray-800 px-4 py-3 min-w-0">
+      <div className="hidden lg:flex items-center justify-between border-b border-gray-800 px-4 py-3 min-w-0">
         <div className="flex items-center gap-3 min-w-0">
           <Link to="/" aria-label="Moto Routes home">
             <svg
@@ -38,9 +38,9 @@ export function NavHeader() {
             </svg>
           </Link>
 
-          <span className="text-gray-700">|</span>
+          <span className="hidden lg:block text-gray-700">|</span>
 
-          <nav className="flex gap-3 min-w-0">
+          <nav className="hidden lg:flex gap-3 min-w-0">
             {navSections.map(({ path, label }) => {
               const isActive = pathname === path || pathname.startsWith(path + '/')
               return (
