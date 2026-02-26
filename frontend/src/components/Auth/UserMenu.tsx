@@ -28,6 +28,12 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
     return () => document.removeEventListener('mousedown', handleClick)
   }, [open])
 
+  function handleBlur(e: React.FocusEvent) {
+    if (menuRef.current && !menuRef.current.contains(e.relatedTarget as Node)) {
+      setOpen(false)
+    }
+  }
+
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Escape') {
       setOpen(false)
@@ -48,7 +54,7 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
   const avatarUrl = user.user_metadata.avatar_url
 
   return (
-    <div ref={menuRef} className="relative" onKeyDown={handleKeyDown}>
+    <div ref={menuRef} className="relative" onKeyDown={handleKeyDown} onBlur={handleBlur}>
       <button
         onClick={() => setOpen(o => !o)}
         aria-haspopup="menu"
