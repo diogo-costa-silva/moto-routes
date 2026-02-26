@@ -8,6 +8,17 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-02-26
+
+### Adicionado — Fase 10: Deploy Vercel
+
+- `frontend/vercel.json` — `outputDirectory: "dist"` + SPA rewrites para BrowserRouter; ficheiro deve estar em `frontend/` com Root Directory = `frontend` nas settings Vercel
+- `frontend/package.json` — script `typecheck: tsc --noEmit` adicionado
+- `docs/DEPLOYMENT.md` — guia completo e discriminado com os passos reais: criar repo GitHub, importar no Vercel, configurar env vars, definir Root Directory, Supabase Auth pós-deploy, troubleshooting
+- GitHub repo: `diogo-costa-silva/moto-routes` (público)
+- Vercel: `moto-routes.vercel.app` — deploy production activo
+- Supabase Auth: Site URL + Redirect URLs actualizados para `https://moto-routes.vercel.app`
+
 ## [0.11.1] - 2026-02-26
 
 ### Fixed — Auditoria UI/UX (Phase 10 prep)
