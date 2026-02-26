@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { Route } from '../../hooks/useRoutes'
+import { LANDSCAPE_STYLES } from './LandscapeFilter'
 
 interface RouteListProps {
   routes: Route[]
@@ -8,6 +9,7 @@ interface RouteListProps {
   hoveredRouteId: string | null
   onSelect: (route: Route) => void
   onHover: (id: string | null) => void
+  showHeader?: boolean
 }
 
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -36,19 +38,22 @@ export function RouteList({
   hoveredRouteId,
   onSelect,
   onHover,
+  showHeader = true,
 }: RouteListProps) {
   const { t } = useTranslation()
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <div className="border-b border-gray-800 px-4 py-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
-          {t('route.heading')}
-          {!loading && (
-            <span className="ml-2 font-normal text-gray-600">({routes.length})</span>
-          )}
-        </h2>
-      </div>
+      {showHeader && (
+        <div className="border-b border-gray-800 px-4 py-3">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
+            {t('route.heading')}
+            {!loading && (
+              <span className="ml-2 font-normal text-gray-600">({routes.length})</span>
+            )}
+          </h2>
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
         {loading ? (
@@ -78,11 +83,14 @@ export function RouteList({
                   <p className="mb-1 font-semibold text-white leading-tight">{route.name}</p>
 
                   <div className="mb-2 flex flex-wrap gap-1.5">
-                    {route.landscape_type && (
-                      <span className="rounded-full bg-gray-700 px-2 py-0.5 text-xs text-gray-300">
-                        {t(`landscape.${route.landscape_type}`, { defaultValue: route.landscape_type })}
-                      </span>
-                    )}
+                    {route.landscape_type && (() => {
+                      const style = LANDSCAPE_STYLES[route.landscape_type] ?? { badge: 'bg-gray-700 text-gray-300', icon: '' }
+                      return (
+                        <span className={`rounded-full px-2 py-0.5 text-xs ${style.badge}`}>
+                          {style.icon} {t(`landscape.${route.landscape_type}`, { defaultValue: route.landscape_type })}
+                        </span>
+                      )
+                    })()}
                     {route.difficulty && (
                       <span
                         className={`text-xs font-medium capitalize ${DIFFICULTY_COLORS[route.difficulty] ?? 'text-gray-400'}`}

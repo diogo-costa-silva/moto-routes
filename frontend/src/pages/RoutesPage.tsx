@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
@@ -8,6 +8,7 @@ import { MobileTabBar } from '../components/AppShell/MobileTabBar'
 import { RouteMap } from '../components/Map/RouteMap'
 import { DetailsContent, RouteDetails } from '../components/Routes/RouteDetails'
 import { RouteList } from '../components/Routes/RouteList'
+import { LandscapeFilter } from '../components/Routes/LandscapeFilter'
 import { LoginModal } from '../components/Auth/LoginModal'
 import { useRoutePOIs } from '../hooks/useRoutePOIs'
 import { useRoutes } from '../hooks/useRoutes'
@@ -28,6 +29,19 @@ export function RoutesPage() {
   const location = useLocation()
   // Guard: pre-select only once (prevents re-select loop when closing)
   const didPreSelect = useRef(false)
+
+  const [landscapeFilters, setLandscapeFilters] = useState<string[]>([])
+
+  const availableTypes = useMemo(
+    () => [...new Set(routes.map(r => r.landscape_type).filter(Boolean))] as string[],
+    [routes]
+  )
+  const filteredRoutes = useMemo(
+    () => landscapeFilters.length > 0
+      ? routes.filter(r => r.landscape_type != null && landscapeFilters.includes(r.landscape_type))
+      : routes,
+    [routes, landscapeFilters]
+  )
 
   const isMobile = useIsMobile()
   const [showList, setShowList] = useState(false)
@@ -137,8 +151,13 @@ export function RoutesPage() {
                 {t('route.unableToLoad')}
               </div>
             )}
+            <LandscapeFilter
+              availableTypes={availableTypes}
+              selected={landscapeFilters}
+              onChange={setLandscapeFilters}
+            />
             <RouteList
-              routes={routes}
+              routes={filteredRoutes}
               loading={loading}
               selectedRoute={selectedRoute}
               hoveredRouteId={hoveredRouteId}
@@ -152,7 +171,7 @@ export function RoutesPage() {
       {/* Map area */}
       <div className="relative flex-1">
         <RouteMap
-          routes={routes}
+          routes={filteredRoutes}
           selectedRoute={selectedRoute}
           hoveredRouteId={hoveredRouteId}
           isMobile={isMobile}
@@ -182,9 +201,14 @@ export function RoutesPage() {
         <button
           onClick={() => setShowList(true)}
           aria-label={t('route.showList')}
-          className="fixed bottom-16 left-1/2 -translate-x-1/2 z-30 bg-gray-900 text-white px-5 py-2 rounded-full shadow-lg text-sm font-medium"
+          className="fixed bottom-16 left-1/2 -translate-x-1/2 z-30 bg-gray-900 text-white px-5 py-2 rounded-full shadow-lg text-sm font-medium flex items-center gap-2"
         >
-          {t('route.heading')} ({loading ? '…' : routes.length})
+          {t('route.heading')} ({loading ? '…' : filteredRoutes.length})
+          {landscapeFilters.length > 0 && (
+            <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-xs text-white">
+              {landscapeFilters.length}
+            </span>
+          )}
         </button>
       )}
 
@@ -202,7 +226,10 @@ export function RoutesPage() {
           </div>
 
           <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-800">
-            <span className="text-sm font-semibold text-gray-300">{t('route.heading')}</span>
+            <span className="text-sm font-semibold text-gray-300">
+              {t('route.heading')}
+              {!loading && <span className="ml-1.5 font-normal text-gray-500">({filteredRoutes.length})</span>}
+            </span>
             <button
               onClick={() => setShowList(false)}
               className="rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
@@ -214,14 +241,23 @@ export function RoutesPage() {
             </button>
           </div>
 
+          {availableTypes.length > 0 && (
+            <LandscapeFilter
+              availableTypes={availableTypes}
+              selected={landscapeFilters}
+              onChange={setLandscapeFilters}
+            />
+          )}
+
           <div className="flex-1 overflow-y-auto pb-16">
             <RouteList
-              routes={routes}
+              routes={filteredRoutes}
               loading={loading}
               selectedRoute={selectedRoute}
               hoveredRouteId={hoveredRouteId}
               onSelect={selectRoute}
               onHover={hoverRoute}
+              showHeader={false}
             />
           </div>
         </div>

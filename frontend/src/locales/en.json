@@ -97,6 +97,11 @@
     "mixed": "Mixed",
     "plains": "Plains"
   },
+  "filter": {
+    "allTypes": "All",
+    "filterBy": "Filter",
+    "clearAll": "Clear"
+  },
   "common": {
     "close": "Close",
     "loading": "Loading…"

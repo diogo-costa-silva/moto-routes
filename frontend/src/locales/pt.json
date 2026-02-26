@@ -97,6 +97,11 @@
     "mixed": "Misto",
     "plains": "Planícies"
   },
+  "filter": {
+    "allTypes": "Todos",
+    "filterBy": "Filtrar",
+    "clearAll": "Limpar"
+  },
   "common": {
     "close": "Fechar",
     "loading": "A carregar…"

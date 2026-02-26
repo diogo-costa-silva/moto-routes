@@ -2,7 +2,7 @@
 
 > Actualizar este ficheiro sempre que uma tarefa é concluída.
 
-## Fase Atual: 5 - Frontend Journeys (em progresso)
+## Fase Atual: 9 - Landscape Tags (em progresso)
 
 ### Phase 5 — Em Progresso (2026-02-25)
 - [x] `hooks/useJourneys.ts` — fetch journeys + stages com type guards GeoJSON
@@ -192,14 +192,14 @@ Ver critérios completos em [docs/ROADMAP.md](./docs/ROADMAP.md)
 | 2 | Pipeline de Dados | ✓ Completa | 2026-02-24 | 2026-02-24 |
 | 3 | Frontend - Routes | ✓ Completa | 2026-02-24 | 2026-02-24 |
 | 4 | Frontend - POIs | ✓ Completa | 2026-02-24 | 2026-02-24 |
-| 5 | Frontend - Journeys | Em Progresso | 2026-02-25 | - |
-| 6 | Frontend - Destinations | Pendente | - | - |
-| 7 | Frontend - Users | Pendente | - | - |
-| 8 | Multilingue | Pendente | - | - |
-| 9 | Tags Paisagem | Pendente | - | - |
+| 5 | Frontend - Journeys | ✓ Completa | 2026-02-25 | 2026-02-25 |
+| 6 | Frontend - Destinations | ✓ Completa | 2026-02-25 | 2026-02-25 |
+| 7 | Frontend - Users | ✓ Completa | 2026-02-25 | 2026-02-25 |
+| 8 | Multilingue | ✓ Completa | 2026-02-26 | 2026-02-26 |
+| 9 | Tags Paisagem | Em Progresso | 2026-02-26 | - |
 | 10 | Polish & Deploy | Pendente | - | - |
 
 ---
 
 ## Última Actualização
-2026-02-25 (Fase 5 em progresso: 3/4 critérios completos, falta merged GPX download)
+2026-02-26 (Fase 9 em progresso: Fases 5–8 completas, a iniciar Landscape Tags)
