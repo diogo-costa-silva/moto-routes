@@ -7,15 +7,19 @@ import {
   addDestinationSources,
   updateDestinationBBoxSource,
   updateDestinationRoutesSource,
+  LAYER_DESTINATION_FILL,
+  LAYER_DESTINATION_ROUTES,
 } from './mapLayers'
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN as string | undefined
 
 interface DestinationMapProps {
+  destinations: Destination[]
   destination: Destination | null
   featuredRoutes: DestinationRoute[]
   isMobile: boolean
   bottomPanelHeight?: number
+  onDeselect?: () => void
 }
 
 function boundsFromRoutes(routes: DestinationRoute[]): mapboxgl.LngLatBounds | null {
@@ -43,10 +47,12 @@ function boundsFromPolygon(polygon: GeoJSON.Polygon): mapboxgl.LngLatBounds {
 }
 
 export function DestinationMap({
+  destinations,
   destination,
   featuredRoutes,
   isMobile,
   bottomPanelHeight,
+  onDeselect,
 }: DestinationMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -60,8 +66,8 @@ export function DestinationMap({
     const map = new mapboxgl.Map({
       container: containerRef.current,
       style: 'mapbox://styles/mapbox/outdoors-v12',
-      center: [-7.5, 41.3],
-      zoom: 8,
+      center: [-7.9, 41.0],
+      zoom: 7,
     })
 
     map.addControl(new mapboxgl.NavigationControl(), 'top-right')
@@ -70,6 +76,13 @@ export function DestinationMap({
       addDestinationSources(map)
       addDestinationLayers(map)
       setMapReady(true)
+
+      map.on('click', (e) => {
+        const features = map.queryRenderedFeatures(e.point, {
+          layers: [LAYER_DESTINATION_FILL, LAYER_DESTINATION_ROUTES],
+        })
+        if (features.length === 0) onDeselect?.()
+      })
     })
 
     mapRef.current = map
@@ -89,6 +102,26 @@ export function DestinationMap({
     if (!destination) {
       updateDestinationRoutesSource(map, [])
       updateDestinationBBoxSource(map, null)
+      // Fit to all destinations for overview
+      if (destinations.length > 0) {
+        const allCoords = destinations.flatMap((d) => {
+          const ring = d.bounding_box_geojson.coordinates[0] as [number, number][]
+          return ring
+        })
+        if (allCoords.length > 0) {
+          const lons = allCoords.map((c) => c[0])
+          const lats = allCoords.map((c) => c[1])
+          const allBounds = new mapboxgl.LngLatBounds(
+            [Math.min(...lons), Math.min(...lats)],
+            [Math.max(...lons), Math.max(...lats)],
+          )
+          map.fitBounds(allBounds, {
+            padding: { top: 60, bottom: 80, left: 60, right: 60 },
+            duration: 800,
+            maxZoom: 10,
+          })
+        }
+      }
       return
     }
 
@@ -109,7 +142,7 @@ export function DestinationMap({
       duration: 1200,
       maxZoom: 12,
     })
-  }, [destination, featuredRoutes, mapReady, isMobile, bottomPanelHeight])
+  }, [destination, destinations, featuredRoutes, mapReady, isMobile, bottomPanelHeight])
 
   // Update featured routes
   useEffect(() => {
