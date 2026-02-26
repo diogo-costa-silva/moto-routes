@@ -1,6 +1,6 @@
 ---
 name: status
-description: Mostra o estado actual do projecto Moto Routes. Multi-source (ROADMAP + CHANGELOG + git). Gera state.md e oferece corrigir PROGRESS.md se desactualizado.
+description: Mostra o estado actual do projecto Moto Routes. Multi-source (ROADMAP + CHANGELOG + git). Gera state.md.
 user_invocable: true
 allowed_tools:
   - Read
@@ -12,7 +12,7 @@ allowed_tools:
 
 ## Objectivo
 
-Dar uma visão precisa do projecto mesmo que `PROGRESS.md` esteja desactualizado. Usa múltiplas fontes ordenadas por fiabilidade. Gera `state.md` como cache de estado para os agents.
+Dar uma visão precisa do projecto. Usa múltiplas fontes ordenadas por fiabilidade. Gera `state.md` como cache de estado para os agents.
 
 ## Passo 1 — Recolher dados de múltiplas fontes
 
@@ -21,18 +21,15 @@ Ler em paralelo:
 1. **`docs/ROADMAP.md`** → fase actual e critérios de validação (fonte estável)
 2. **`CHANGELOG.md`** → últimas entradas, o que foi shipped (fiável)
 3. **`git log --oneline -10`** → ground truth dos commits recentes (sempre correcto)
-4. **`PROGRESS.md`** → contexto histórico suplementar (pode estar desactualizado)
 
 ## Passo 2 — Reconciliar e determinar estado real
 
-Com base nas 4 fontes, determinar:
+Com base nas 3 fontes, determinar:
 
-- Qual é a fase actual (baseado no ROADMAP + CHANGELOG + git, **não** apenas no PROGRESS)
+- Qual é a fase actual (baseado no ROADMAP + CHANGELOG + git)
 - Quais critérios da fase actual estão ✓ completos vs ○ pendentes
 - O que foi feito recentemente
 - Qual é o próximo passo concreto
-
-Regra: se o CHANGELOG ou git mostram trabalho que o PROGRESS.md não reflecte, confiar no CHANGELOG/git.
 
 ## Passo 3 — Apresentar ao utilizador
 
@@ -76,27 +73,3 @@ Phase [N] — [Nome] ([X]/[Y] criteria)
 - [mensagem commit 3]
 ```
 
-## Passo 5 — Verificar consistência do PROGRESS.md
-
-Comparar estado real (Passo 2) com o que está no PROGRESS.md.
-
-Se detectares inconsistências, listar claramente e perguntar:
-
-```
-⚠ PROGRESS.md parece desactualizado:
-  - [inconsistência 1]
-  - [inconsistência 2]
-
-Actualizar estas secções? [y/n]
-```
-
-Se o utilizador confirmar, actualizar APENAS estas secções "seguras":
-- A linha `## Fase Atual:` no topo
-- A coluna "Estado" na tabela `## Histórico de Fases`
-- A linha `## Última Actualização` no final
-
-**NUNCA modificar:**
-- Listas de tarefas detalhadas (`- [x]`, `- [ ]`)
-- Notas técnicas e detalhes de implementação
-- Histórico detalhado de fases anteriores
-- Métricas
