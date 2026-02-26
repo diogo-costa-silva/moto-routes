@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+
 interface FavoriteButtonProps {
   routeId: string
   isFavorite: boolean
@@ -14,6 +16,8 @@ export function FavoriteButton({
   onLoginRequired,
   loading = false,
 }: FavoriteButtonProps) {
+  const { t } = useTranslation()
+
   function handleClick() {
     if (!isAuthenticated) {
       onLoginRequired()
@@ -26,7 +30,7 @@ export function FavoriteButton({
     <button
       onClick={handleClick}
       disabled={loading}
-      aria-label={isFavorite ? 'Remove from favourites' : 'Add to favourites'}
+      aria-label={isFavorite ? t('favorite.remove') : t('favorite.add')}
       className="flex-shrink-0 flex items-center justify-center h-11 w-11 rounded-full hover:bg-gray-800 transition-colors disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
     >
       {loading ? (

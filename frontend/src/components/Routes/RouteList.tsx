@@ -1,5 +1,5 @@
+import { useTranslation } from 'react-i18next'
 import type { Route } from '../../hooks/useRoutes'
-import { LANDSCAPE_LABELS } from '../../lib/labels'
 
 interface RouteListProps {
   routes: Route[]
@@ -37,11 +37,13 @@ export function RouteList({
   onSelect,
   onHover,
 }: RouteListProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <div className="border-b border-gray-800 px-4 py-3">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
-          Routes
+          {t('route.heading')}
           {!loading && (
             <span className="ml-2 font-normal text-gray-600">({routes.length})</span>
           )}
@@ -52,7 +54,7 @@ export function RouteList({
         {loading ? (
           Array.from({ length: 7 }).map((_, i) => <SkeletonCard key={i} />)
         ) : routes.length === 0 ? (
-          <p className="p-4 text-sm text-gray-500">No routes found.</p>
+          <p className="p-4 text-sm text-gray-500">{t('route.noRoutes')}</p>
         ) : (
           routes.map((route) => {
               const isSelected = selectedRoute?.id === route.id
@@ -78,7 +80,7 @@ export function RouteList({
                   <div className="mb-2 flex flex-wrap gap-1.5">
                     {route.landscape_type && (
                       <span className="rounded-full bg-gray-700 px-2 py-0.5 text-xs text-gray-300">
-                        {LANDSCAPE_LABELS[route.landscape_type] ?? route.landscape_type}
+                        {t(`landscape.${route.landscape_type}`, { defaultValue: route.landscape_type })}
                       </span>
                     )}
                     {route.difficulty && (

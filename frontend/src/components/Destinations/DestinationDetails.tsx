@@ -1,5 +1,5 @@
+import { useTranslation } from 'react-i18next'
 import type { Destination, DestinationRoute } from '../../hooks/useDestinations'
-import { LANDSCAPE_LABELS } from '../../lib/labels'
 
 interface DestinationDetailsProps {
   destination: Destination
@@ -25,20 +25,22 @@ export function DestinationDetails({
   loadingRoutes,
   onClose,
 }: DestinationDetailsProps) {
+  const { t } = useTranslation()
+
   return (
     <div className="p-6 flex flex-col gap-5">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-mono text-amber-400 uppercase tracking-widest mb-1">
-            Destination
+            {t('destination.destination')}
           </p>
           <h2 className="text-lg font-bold text-white leading-tight">{destination.name}</h2>
         </div>
         <button
           onClick={onClose}
           className="ml-4 flex-shrink-0 rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
-          aria-label="Close"
+          aria-label={t('common.close')}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -63,14 +65,14 @@ export function DestinationDetails({
       {/* Featured routes */}
       <section>
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">
-          Featured Routes
+          {t('destination.featuredRoutes')}
         </h3>
 
         <div className="space-y-1.5">
           {loadingRoutes
             ? Array.from({ length: 3 }).map((_, i) => <SkeletonRoute key={i} />)
             : featuredRoutes.length === 0
-              ? <p className="text-xs text-gray-400 italic">No featured routes.</p>
+              ? <p className="text-xs text-gray-400 italic">{t('destination.noFeaturedRoutes')}</p>
               : featuredRoutes.map((route) => (
                   <div
                     key={route.id}
@@ -86,7 +88,7 @@ export function DestinationDetails({
                         )}
                         {route.landscape_type && (
                           <span className="text-xs bg-gray-800 text-amber-400 px-2 py-0.5 rounded-full">
-                            {LANDSCAPE_LABELS[route.landscape_type] ?? route.landscape_type}
+                            {t(`landscape.${route.landscape_type}`, { defaultValue: route.landscape_type })}
                           </span>
                         )}
                       </div>

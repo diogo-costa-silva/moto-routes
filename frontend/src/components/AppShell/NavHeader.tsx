@@ -1,19 +1,22 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
+import { LanguageSwitcher } from './LanguageSwitcher'
 import { LoginModal } from '../Auth/LoginModal'
 import { UserMenu } from '../Auth/UserMenu'
 import { useAuth } from '../../hooks/useAuth'
 
-const NAV_SECTIONS = [
-  { path: '/routes', label: 'Routes' },
-  { path: '/journeys', label: 'Journeys' },
-  { path: '/destinations', label: 'Regions' },
-]
-
 export function NavHeader() {
+  const { t } = useTranslation()
   const { pathname } = useLocation()
   const { user, logout } = useAuth()
   const [loginOpen, setLoginOpen] = useState(false)
+
+  const navSections = [
+    { path: '/routes', label: t('nav.routes') },
+    { path: '/journeys', label: t('nav.journeys') },
+    { path: '/destinations', label: t('nav.regions') },
+  ]
 
   return (
     <>
@@ -38,7 +41,7 @@ export function NavHeader() {
           <span className="text-gray-700">|</span>
 
           <nav className="flex gap-3 min-w-0">
-            {NAV_SECTIONS.map(({ path, label }) => {
+            {navSections.map(({ path, label }) => {
               const isActive = pathname === path || pathname.startsWith(path + '/')
               return (
                 <Link
@@ -56,7 +59,8 @@ export function NavHeader() {
           </nav>
         </div>
 
-        <div className="flex-shrink-0 ml-3">
+        <div className="flex items-center gap-2 flex-shrink-0 ml-3">
+          <LanguageSwitcher />
           {user ? (
             <UserMenu user={user} onLogout={logout} />
           ) : (
@@ -64,7 +68,7 @@ export function NavHeader() {
               onClick={() => setLoginOpen(true)}
               className="text-xs font-medium text-gray-400 hover:text-white transition-colors whitespace-nowrap"
             >
-              Sign in
+              {t('nav.signIn')}
             </button>
           )}
         </div>

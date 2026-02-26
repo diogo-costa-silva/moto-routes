@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { NavHeader } from '../components/AppShell/NavHeader'
@@ -7,9 +9,9 @@ import { useAuth } from '../hooks/useAuth'
 import { useFavorites } from '../hooks/useFavorites'
 import { useHistory } from '../hooks/useHistory'
 import type { Route } from '../hooks/useRoutes'
-import { LANDSCAPE_LABELS } from '../lib/labels'
 
 function RouteCard({ route, subtitle, onClick }: { route: Route; subtitle?: string; onClick: () => void }) {
+  const { t } = useTranslation()
   return (
     <button
       onClick={onClick}
@@ -26,7 +28,7 @@ function RouteCard({ route, subtitle, onClick }: { route: Route; subtitle?: stri
         )}
         {route.landscape_type && (
           <span className="text-xs text-gray-600">
-            {LANDSCAPE_LABELS[route.landscape_type] ?? route.landscape_type}
+            {t(`landscape.${route.landscape_type}`, { defaultValue: route.landscape_type })}
           </span>
         )}
       </div>
@@ -53,19 +55,20 @@ function EmptyState({ icon, title, body }: { icon: string; title: string; body: 
   )
 }
 
-function relativeTime(iso: string): string {
+function relativeTime(iso: string, t: TFunction, lang: string): string {
   const diff = Date.now() - new Date(iso).getTime()
   const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'Just now'
-  if (mins < 60) return `${mins}m ago`
+  if (mins < 1) return t('profile.justNow')
+  if (mins < 60) return t('profile.minutesAgo_one', { count: mins })
   const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs}h ago`
+  if (hrs < 24) return t('profile.hoursAgo_one', { count: hrs })
   const days = Math.floor(hrs / 24)
-  if (days < 7) return `${days}d ago`
-  return new Date(iso).toLocaleDateString()
+  if (days < 7) return t('profile.daysAgo_one', { count: days })
+  return new Date(iso).toLocaleDateString(lang)
 }
 
 export function ProfilePage() {
+  const { t, i18n } = useTranslation()
   const { user, loading: authLoading } = useAuth()
   const { favoriteRoutes, loading: favLoading } = useFavorites()
   const { entries, loading: histLoading } = useHistory()
@@ -88,12 +91,12 @@ export function ProfilePage() {
         <div className="max-w-lg mx-auto px-4 py-6">
           {/* Profile header */}
           <div className="mb-6">
-            <p className="text-xs text-gray-500 mb-1">Signed in as</p>
+            <p className="text-xs text-gray-500 mb-1">{t('profile.signedInAs')}</p>
             <p className="text-sm font-medium text-white">{user?.email}</p>
           </div>
 
           {/* Tab switcher */}
-          <div role="tablist" aria-label="Profile sections" className="flex gap-1 mb-6 bg-gray-900 rounded-full p-1 border border-gray-800">
+          <div role="tablist" aria-label={t('profile.sections')} className="flex gap-1 mb-6 bg-gray-900 rounded-full p-1 border border-gray-800">
             <button
               role="tab"
               id="tab-favourites"
@@ -105,7 +108,7 @@ export function ProfilePage() {
                 tab === 'favourites' ? 'bg-gray-800 text-white' : 'text-gray-500 hover:text-gray-300',
               ].join(' ')}
             >
-              Favourites ({favoriteRoutes.length})
+              {t('profile.favourites')} ({favoriteRoutes.length})
             </button>
             <button
               role="tab"
@@ -118,7 +121,7 @@ export function ProfilePage() {
                 tab === 'history' ? 'bg-gray-800 text-white' : 'text-gray-500 hover:text-gray-300',
               ].join(' ')}
             >
-              History
+              {t('profile.history')}
             </button>
           </div>
 
@@ -130,8 +133,8 @@ export function ProfilePage() {
               ) : favoriteRoutes.length === 0 ? (
                 <EmptyState
                   icon="♡"
-                  title="No favourites yet"
-                  body="Heart a route while browsing to save it here."
+                  title={t('profile.noFavourites')}
+                  body={t('profile.noFavouritesBody')}
                 />
               ) : (
                 favoriteRoutes.map(route => (
@@ -153,8 +156,8 @@ export function ProfilePage() {
               ) : entries.length === 0 ? (
                 <EmptyState
                   icon="🗺"
-                  title="No routes viewed yet"
-                  body="Routes you open will appear here."
+                  title={t('profile.noHistory')}
+                  body={t('profile.noHistoryBody')}
                 />
               ) : (
                 entries.map(entry => (
@@ -162,7 +165,7 @@ export function ProfilePage() {
                     <RouteCard
                       key={entry.id}
                       route={entry.route}
-                      subtitle={relativeTime(entry.viewed_at)}
+                      subtitle={relativeTime(entry.viewed_at, t, i18n.language)}
                       onClick={() => navigate(`/routes/${entry.route!.slug}`)}
                     />
                   )

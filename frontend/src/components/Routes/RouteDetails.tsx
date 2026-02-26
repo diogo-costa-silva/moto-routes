@@ -1,7 +1,7 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { RoutePOI } from '../../hooks/useRoutePOIs'
 import type { Route } from '../../hooks/useRoutes'
-import { LANDSCAPE_LABELS } from '../../lib/labels'
 import { FavoriteButton } from './FavoriteButton'
 import { POIList } from './POIList'
 
@@ -72,6 +72,7 @@ export function RouteDetails({ route, onClose, pois, isFavorite, isAuthenticated
 export { DetailsContent }
 
 function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthenticated = false, onToggleFavorite, onLoginRequired }: RouteDetailsProps) {
+  const { t } = useTranslation()
   const [gpxLoading, setGpxLoading] = useState(false)
 
   async function handleDownloadGpx() {
@@ -105,7 +106,7 @@ function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthentica
           <button
             onClick={onClose}
             className="flex-shrink-0 rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
-            aria-label="Close"
+            aria-label={t('common.close')}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -126,7 +127,7 @@ function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthentica
       <div className="flex flex-wrap gap-2">
         {route.landscape_type && (
           <span className="rounded-full bg-gray-800 px-3 py-1 text-sm text-gray-300">
-            {LANDSCAPE_LABELS[route.landscape_type] ?? route.landscape_type}
+            {t(`landscape.${route.landscape_type}`, { defaultValue: route.landscape_type })}
           </span>
         )}
         {route.surface && (
@@ -143,19 +144,19 @@ function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthentica
 
       <div className="grid grid-cols-2 gap-2">
         <Stat
-          label="Distance"
+          label={t('route.distance')}
           value={route.distance_km != null ? `${route.distance_km.toFixed(0)} km` : null}
         />
         <Stat
-          label="Elevation Gain"
+          label={t('route.elevationGain')}
           value={route.elevation_gain != null ? `${route.elevation_gain.toFixed(0)} m` : null}
         />
         <Stat
-          label="Max Elevation"
+          label={t('route.maxElevation')}
           value={route.elevation_max != null ? `${route.elevation_max.toFixed(0)} m` : null}
         />
         <Stat
-          label="Total Curves"
+          label={t('route.totalCurves')}
           value={route.curve_count_total != null ? String(route.curve_count_total) : null}
         />
       </div>
@@ -163,7 +164,7 @@ function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthentica
       {pois && pois.length > 0 && (
         <section>
           <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
-            Points of Interest
+            {t('route.pointsOfInterest')}
           </h3>
           <POIList pois={pois} />
         </section>
@@ -194,7 +195,7 @@ function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthentica
             />
           </svg>
         )}
-        Download GPX
+        {t('route.downloadGpx')}
       </button>
     </div>
   )

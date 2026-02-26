@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { STAGE_COLORS } from '../Map/mapLayers'
 import type { Journey, JourneyStage } from '../../hooks/useJourneys'
 
@@ -83,6 +84,7 @@ export function JourneyDetails({
   onClose,
   onStageSelect,
 }: JourneyDetailsProps) {
+  const { t } = useTranslation()
   const totalKm = stages.reduce((sum, s) => sum + (s.route.distance_km ?? 0), 0)
 
   return (
@@ -91,14 +93,14 @@ export function JourneyDetails({
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-mono text-amber-400 uppercase tracking-widest mb-1">
-            Journey
+            {t('journey.journey')}
           </p>
           <h2 className="text-lg font-bold text-white leading-tight">{journey.name}</h2>
         </div>
         <button
           onClick={onClose}
           className="ml-4 flex-shrink-0 rounded-full p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
-          aria-label="Close"
+          aria-label={t('common.close')}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path
@@ -120,13 +122,13 @@ export function JourneyDetails({
         {totalKm > 0 && (
           <div className="rounded-lg bg-gray-800 p-3 text-center">
             <p className="text-lg font-bold text-white">{totalKm.toFixed(0)} km</p>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Total</p>
+            <p className="text-xs text-gray-500 uppercase tracking-wide">{t('journey.total')}</p>
           </div>
         )}
         {journey.suggested_days != null && (
           <div className="rounded-lg bg-gray-800 p-3 text-center">
             <p className="text-lg font-bold text-white">{journey.suggested_days}</p>
-            <p className="text-xs text-gray-500 uppercase tracking-wide">Days</p>
+            <p className="text-xs text-gray-500 uppercase tracking-wide">{t('journey.days')}</p>
           </div>
         )}
       </div>
@@ -140,14 +142,14 @@ export function JourneyDetails({
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
           </svg>
-          Download merged GPX ({totalKm.toFixed(0)} km)
+          {t('journey.downloadMergedGpx')} ({totalKm.toFixed(0)} km)
         </button>
       )}
 
       {/* Stages */}
       <section>
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">
-          Stages
+          {t('journey.stages')}
         </h3>
 
         <div className="space-y-1.5">
@@ -179,7 +181,7 @@ export function JourneyDetails({
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate">{stageName}</p>
                       <p className="text-xs text-gray-500">
-                        Stage {stage.stage_order}
+                        {t('journey.stage')} {stage.stage_order}
                         {stage.route.distance_km != null &&
                           ` · ${stage.route.distance_km.toFixed(0)} km`}
                         {stage.route.elevation_gain != null &&
@@ -194,8 +196,8 @@ export function JourneyDetails({
                         generateGpx(stageName, stage.route.slug, stage.route.geometry_geojson)
                       }}
                       className="flex-shrink-0 rounded p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-500 hover:text-white hover:bg-gray-700 transition-colors"
-                      aria-label={`Download GPX for ${stageName}`}
-                      title="Download GPX"
+                      aria-label={`${t('route.downloadGpx')} — ${stageName}`}
+                      title={t('route.downloadGpx')}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                         <path

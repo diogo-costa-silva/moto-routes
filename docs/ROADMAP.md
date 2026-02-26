@@ -15,7 +15,7 @@
 | 4 | POIs | Points of interest ✓ |
 | 5 | Journeys | Multi-stage trips ✓ |
 | 6 | Destinations | Geographic regions ✓ |
-| 7 | Users | Authentication, favorites, history |
+| 7 | Users | Authentication, favorites, history ✓ |
 | 8 | i18n | Portuguese + English |
 | 9 | Filters | Landscape type tags |
 | 10 | Deploy | Polish and launch |
@@ -226,7 +226,7 @@ Note: `POIMarkers.tsx` and `POIPopup.tsx` were not created as separate component
 
 ---
 
-## Phase 7: Frontend - Users
+## Phase 7: Frontend - Users ✓ COMPLETE
 
 **Objective**: Authentication and user features.
 
@@ -247,13 +247,13 @@ Note: `POIMarkers.tsx` and `POIPopup.tsx` were not created as separate component
 5. User menu (profile, logout)
 
 ### Validation Criteria
-- [ ] Login works (email + Google)
-- [ ] Favorites persist across sessions
-- [ ] History shows recently viewed routes
+- [x] Login works (email + Google)
+- [x] Favorites persist across sessions
+- [x] History shows recently viewed routes
 
 ---
 
-## Phase 8: Multilingual (PT/EN)
+## Phase 8: Multilingual (PT/EN) ✓ COMPLETE
 
 **Objective**: Interface in two languages.
 
@@ -270,9 +270,9 @@ Note: `POIMarkers.tsx` and `POIPopup.tsx` were not created as separate component
 4. Preference persistence
 
 ### Validation Criteria
-- [ ] Switch language → all UI updates
-- [ ] Content also updates (route names)
-- [ ] Preference remembered on reload
+- [x] Switch language → all UI updates
+- [x] Content also updates (route names)
+- [x] Preference remembered on reload
 
 ---
 

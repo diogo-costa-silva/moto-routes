@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { Journey } from '../../hooks/useJourneys'
 
 interface JourneyListProps {
@@ -20,18 +21,20 @@ function SkeletonCard() {
   )
 }
 
-const TYPE_LABELS: Record<string, string> = {
-  linear: 'Linear',
-  circular: 'Circular',
-  loop: 'Loop',
-}
-
 export function JourneyList({ journeys, loading, selectedJourney, onSelect }: JourneyListProps) {
+  const { t } = useTranslation()
+
+  const typeLabels: Record<string, string> = {
+    linear: t('journey.typeLinear'),
+    circular: t('journey.typeCircular'),
+    loop: t('journey.typeLoop'),
+  }
+
   return (
     <div className="flex h-full flex-col overflow-hidden">
       <div className="border-b border-gray-800 px-4 py-3">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
-          Journeys
+          {t('journey.heading')}
           {!loading && <span className="ml-2 font-normal text-gray-600">({journeys.length})</span>}
         </h2>
       </div>
@@ -40,7 +43,7 @@ export function JourneyList({ journeys, loading, selectedJourney, onSelect }: Jo
         {loading ? (
           Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={i} />)
         ) : journeys.length === 0 ? (
-          <p className="p-4 text-sm text-gray-500">No journeys found.</p>
+          <p className="p-4 text-sm text-gray-500">{t('journey.noJourneys')}</p>
         ) : (
           journeys.map((journey) => {
               const isSelected = selectedJourney?.id === journey.id
@@ -60,12 +63,12 @@ export function JourneyList({ journeys, loading, selectedJourney, onSelect }: Jo
                   <div className="flex flex-wrap gap-1.5 mb-2">
                     {journey.type && (
                       <span className="rounded-full bg-gray-700 px-2 py-0.5 text-xs text-gray-300">
-                        {TYPE_LABELS[journey.type] ?? journey.type}
+                        {typeLabels[journey.type] ?? journey.type}
                       </span>
                     )}
                     {journey.suggested_days != null && (
                       <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 text-xs text-amber-400">
-                        {journey.suggested_days} day{journey.suggested_days !== 1 ? 's' : ''}
+                        {journey.suggested_days} {journey.suggested_days !== 1 ? t('journey.days_plural') : t('journey.day')}
                       </span>
                     )}
                   </div>

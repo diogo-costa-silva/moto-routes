@@ -1,0 +1,104 @@
+{
+  "nav": {
+    "routes": "Rotas",
+    "journeys": "Viagens",
+    "regions": "Regiões",
+    "signIn": "Entrar",
+    "profile": "Perfil"
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "createAccount": "Criar conta",
+    "continueWithGoogle": "Continuar com Google",
+    "email": "Email",
+    "password": "Palavra-passe",
+    "orSeparator": "ou",
+    "noAccount": "Não tens conta?",
+    "alreadyAccount": "Já tens conta?",
+    "signUp": "Regista-te",
+    "closeDialog": "Fechar diálogo de autenticação"
+  },
+  "userMenu": {
+    "myProfile": "O meu perfil",
+    "signOut": "Terminar sessão",
+    "accountMenu": "Menu da conta",
+    "accountOptions": "Opções da conta"
+  },
+  "route": {
+    "heading": "Rotas",
+    "noRoutes": "Nenhuma rota encontrada.",
+    "distance": "Distância",
+    "elevationGain": "Subida",
+    "maxElevation": "Altitude Máx.",
+    "totalCurves": "Total de Curvas",
+    "pointsOfInterest": "Pontos de Interesse",
+    "downloadGpx": "Descarregar GPX",
+    "unableToLoad": "Não foi possível carregar as rotas. Tente novamente.",
+    "showList": "Mostrar lista de rotas"
+  },
+  "poi": {
+    "onRoute": "na rota",
+    "nearby": "próximo",
+    "detour": "desvio"
+  },
+  "favorite": {
+    "add": "Adicionar aos favoritos",
+    "remove": "Remover dos favoritos"
+  },
+  "journey": {
+    "heading": "Viagens",
+    "noJourneys": "Nenhuma viagem encontrada.",
+    "journey": "Viagem",
+    "total": "Total",
+    "days": "Dias",
+    "stages": "Etapas",
+    "stage": "Etapa",
+    "downloadMergedGpx": "Descarregar GPX combinado",
+    "typeLinear": "Linear",
+    "typeCircular": "Circular",
+    "typeLoop": "Loop",
+    "day": "dia",
+    "days_plural": "dias",
+    "unableToLoad": "Não foi possível carregar as viagens. Tente novamente.",
+    "showList": "Mostrar lista de viagens"
+  },
+  "destination": {
+    "heading": "Regiões",
+    "noRegions": "Nenhuma região encontrada",
+    "destination": "Destino",
+    "featuredRoutes": "Rotas em Destaque",
+    "noFeaturedRoutes": "Sem rotas em destaque.",
+    "unableToLoad": "Não foi possível carregar as regiões. Tente novamente.",
+    "showList": "Mostrar lista de regiões"
+  },
+  "profile": {
+    "signedInAs": "Sessão iniciada como",
+    "favourites": "Favoritos",
+    "history": "Histórico",
+    "noFavourites": "Sem favoritos ainda",
+    "noFavouritesBody": "Dá gosto a uma rota enquanto navegas para a guardar aqui.",
+    "noHistory": "Nenhuma rota visualizada ainda",
+    "noHistoryBody": "As rotas que abres vão aparecer aqui.",
+    "justNow": "Agora mesmo",
+    "minutesAgo_one": "{{count}}m atrás",
+    "minutesAgo_other": "{{count}}m atrás",
+    "hoursAgo_one": "{{count}}h atrás",
+    "hoursAgo_other": "{{count}}h atrás",
+    "daysAgo_one": "{{count}}d atrás",
+    "daysAgo_other": "{{count}}d atrás",
+    "sections": "Secções do perfil"
+  },
+  "landscape": {
+    "coast": "Costa",
+    "mountain": "Montanha",
+    "forest": "Floresta",
+    "urban": "Urbano",
+    "river_valley": "Vale do Rio",
+    "mixed": "Misto",
+    "plains": "Planícies"
+  },
+  "common": {
+    "close": "Fechar",
+    "loading": "A carregar…"
+  }
+}

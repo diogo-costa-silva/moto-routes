@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { RoutePOI } from '../../hooks/useRoutePOIs'
 
 const TYPE_EMOJI: Record<string, string> = {
@@ -7,12 +8,6 @@ const TYPE_EMOJI: Record<string, string> = {
   waterfall: '💧',
   village: '🏘',
   historical_site: '🏛',
-}
-
-const ASSOCIATION_LABEL: Record<string, string> = {
-  on_route: 'on route',
-  near_route: 'nearby',
-  detour: 'detour',
 }
 
 const ASSOCIATION_CLASS: Record<string, string> = {
@@ -27,6 +22,14 @@ interface POIListProps {
 }
 
 export function POIList({ pois, onPOIClick }: POIListProps) {
+  const { t } = useTranslation()
+
+  const associationLabel: Record<string, string> = {
+    on_route: t('poi.onRoute'),
+    near_route: t('poi.nearby'),
+    detour: t('poi.detour'),
+  }
+
   if (pois.length === 0) return null
 
   return (
@@ -54,7 +57,7 @@ export function POIList({ pois, onPOIClick }: POIListProps) {
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-medium ${ASSOCIATION_CLASS[poi.association_type] ?? 'bg-gray-700 text-gray-400'}`}
               >
-                {ASSOCIATION_LABEL[poi.association_type] ?? poi.association_type}
+                {associationLabel[poi.association_type] ?? poi.association_type}
               </span>
               {poi.km_marker != null && (
                 <span className="rounded-full bg-gray-700 px-2 py-0.5 text-xs text-gray-300">

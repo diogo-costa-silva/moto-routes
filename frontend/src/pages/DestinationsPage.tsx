@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
 import { useIsMobile } from '../hooks/useIsMobile'
@@ -10,6 +11,7 @@ import { DestinationList } from '../components/Destinations/DestinationList'
 import { useDestinations } from '../hooks/useDestinations'
 
 export function DestinationsPage() {
+  const { i18n, t } = useTranslation()
   const {
     destinations,
     loadingDestinations,
@@ -18,7 +20,7 @@ export function DestinationsPage() {
     selectDestination,
     featuredRoutes,
     loadingRoutes,
-  } = useDestinations()
+  } = useDestinations(i18n.language)
 
   const { slug } = useParams<{ slug?: string }>()
   const navigate = useNavigate()
@@ -103,7 +105,7 @@ export function DestinationsPage() {
 
         {error && (
           <div className="p-4 text-sm text-red-400">
-            Unable to load regions. Please try again.
+            {t('destination.unableToLoad')}
           </div>
         )}
 
@@ -150,10 +152,10 @@ export function DestinationsPage() {
       {isMobile && !showList && !selectedDestination && (
         <button
           onClick={() => setShowList(true)}
-          aria-label="Show regions list"
+          aria-label={t('destination.showList')}
           className="fixed bottom-16 left-1/2 -translate-x-1/2 z-30 bg-gray-900 text-white px-5 py-2 rounded-full shadow-lg text-sm font-medium"
         >
-          Regions ({loadingDestinations ? '…' : destinations.length})
+          {t('destination.heading')} ({loadingDestinations ? '…' : destinations.length})
         </button>
       )}
 
@@ -171,11 +173,11 @@ export function DestinationsPage() {
           </div>
 
           <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-800">
-            <span className="text-sm font-semibold text-gray-300">Regions</span>
+            <span className="text-sm font-semibold text-gray-300">{t('destination.heading')}</span>
             <button
               onClick={() => setShowList(false)}
               className="rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
-              aria-label="Close"
+              aria-label={t('common.close')}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -186,7 +188,7 @@ export function DestinationsPage() {
           <div className="flex-1 overflow-y-auto pb-16">
             {error && (
               <div className="p-4 text-sm text-red-400">
-                Unable to load regions. Please try again.
+                {t('destination.unableToLoad')}
               </div>
             )}
             <DestinationList

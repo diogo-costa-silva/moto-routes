@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 
 interface LoginModalProps {
@@ -7,6 +8,7 @@ interface LoginModalProps {
 }
 
 export function LoginModal({ isOpen, onClose }: LoginModalProps) {
+  const { t } = useTranslation()
   const { login, signup, loginWithGoogle } = useAuth()
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [email, setEmail] = useState('')
@@ -73,7 +75,6 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     setGoogleLoading(true)
     try {
       await loginWithGoogle()
-      // Page will redirect — no need to close
     } finally {
       setGoogleLoading(false)
     }
@@ -99,11 +100,11 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <h2 id="login-modal-title" className="text-lg font-bold text-white">
-            {mode === 'login' ? 'Sign in' : 'Create account'}
+            {mode === 'login' ? t('auth.signIn') : t('auth.createAccount')}
           </h2>
           <button
             onClick={onClose}
-            aria-label="Close sign in dialog"
+            aria-label={t('auth.closeDialog')}
             className="rounded-full p-1.5 text-gray-500 hover:bg-gray-800 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -131,38 +132,38 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
             </svg>
           )}
-          Continue with Google
+          {t('auth.continueWithGoogle')}
         </button>
 
         <div className="relative flex items-center gap-3 mb-4">
           <div className="flex-1 border-t border-gray-800" />
-          <span className="text-xs text-gray-600">or</span>
+          <span className="text-xs text-gray-600">{t('auth.orSeparator')}</span>
           <div className="flex-1 border-t border-gray-800" />
         </div>
 
         {/* Email/password form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <div>
-            <label htmlFor="login-email" className="sr-only">Email</label>
+            <label htmlFor="login-email" className="sr-only">{t('auth.email')}</label>
             <input
               id="login-email"
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="Email"
+              placeholder={t('auth.email')}
               required
               autoComplete="email"
               className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-amber-500 focus:outline-none"
             />
           </div>
           <div>
-            <label htmlFor="login-password" className="sr-only">Password</label>
+            <label htmlFor="login-password" className="sr-only">{t('auth.password')}</label>
             <input
               id="login-password"
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              placeholder="Password"
+              placeholder={t('auth.password')}
               required
               minLength={6}
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
@@ -187,18 +188,18 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
               </svg>
             ) : null}
-            {mode === 'login' ? 'Sign in' : 'Create account'}
+            {mode === 'login' ? t('auth.signIn') : t('auth.createAccount')}
           </button>
         </form>
 
         {/* Mode toggle */}
         <p className="mt-4 text-center text-xs text-gray-500">
-          {mode === 'login' ? "Don't have an account?" : 'Already have an account?'}{' '}
+          {mode === 'login' ? t('auth.noAccount') : t('auth.alreadyAccount')}{' '}
           <button
             onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(null) }}
             className="text-amber-500 hover:text-amber-400 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
           >
-            {mode === 'login' ? 'Sign up' : 'Sign in'}
+            {mode === 'login' ? t('auth.signUp') : t('auth.signIn')}
           </button>
         </p>
       </div>

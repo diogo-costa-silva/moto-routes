@@ -8,6 +8,28 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-02-26
+
+### Adicionado — Fase 8: Multilingue PT/EN
+
+- `i18n/index.ts` — configuração i18next com `i18next-browser-languagedetector`; detecção por `localStorage` key `language`, fallback `navigator`
+- `locales/pt.json` + `locales/en.json` — 87 strings em PT/EN (nav, auth, route, poi, favorite, journey, destination, profile, landscape, common)
+- `lib/translations.ts` — utilitário para buscar traduções da tabela `translations` por `entity_type` + `lang`
+- `LanguageSwitcher.tsx` — componente PT/EN pill; visível no `NavHeader` (desktop) e floating acima da `MobileTabBar` (mobile)
+- `useRoutes`, `useJourneys`, `useDestinations` — recebem `lang` param; buscam traduções em paralelo via `Promise.all`; nomes e descrições substituídos pelos valores da BD
+
+### Alterado
+
+- `NavHeader.tsx` — `navSections` movido para dentro do componente; labels via `t()`; `LanguageSwitcher` + `Sign in` → `t('nav.signIn')`
+- `MobileTabBar.tsx` — `navTabs` movido para dentro do componente; labels via `t()`; `LanguageSwitcher` floating acima da tab bar
+- `RoutesPage`, `JourneysPage`, `DestinationsPage` — passam `i18n.language` aos hooks de dados; error messages via `t()`
+- `ProfilePage` — `relativeTime()` recebe `t` e `lang` para localização; all strings via `t()`
+- 9 componentes — todas as strings hardcoded substituídas por `t()` (LoginModal, UserMenu, RouteList, RouteDetails, POIList, FavoriteButton, JourneyList, JourneyDetails, DestinationList, DestinationDetails)
+
+### Removido
+
+- `lib/labels.ts` — substituído por `t('landscape.*')` em todos os call sites
+
 ## [0.9.1] - 2026-02-26
 
 ### Corrigido — Reorganização UI/UX estratégica (Fases A–E)

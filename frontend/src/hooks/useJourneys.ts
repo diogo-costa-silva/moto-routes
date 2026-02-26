@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { supabase } from '../lib/supabase'
+import { fetchTranslations } from '../lib/translations'
 
 export interface JourneyStageRoute {
   id: string
@@ -21,9 +22,9 @@ export interface JourneyStage {
 export interface Journey {
   id: string
   name: string
+  description: string | null
   slug: string
   type: string | null
-  description: string | null
   suggested_days: number | null
 }
 
@@ -46,7 +47,7 @@ function isLineString(value: unknown): value is GeoJSON.LineString {
   return obj['type'] === 'LineString' && Array.isArray(obj['coordinates'])
 }
 
-export function useJourneys(): UseJourneysState {
+export function useJourneys(lang: string = 'pt'): UseJourneysState {
   const [journeys, setJourneys] = useState<Journey[]>([])
   const [loadingJourneys, setLoadingJourneys] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -56,22 +57,33 @@ export function useJourneys(): UseJourneysState {
   const [stagesError, setStagesError] = useState<string | null>(null)
   const [selectedStage, setSelectedStage] = useState<JourneyStage | null>(null)
 
-  // Fetch all journeys on mount
+  // Fetch all journeys on mount or lang change
   useEffect(() => {
-    supabase
-      .from('journeys')
-      .select('id, name, slug, type, description, suggested_days')
-      .then(({ data, error }) => {
-        if (error) {
-          toast.error('Failed to load journeys')
-          setError('Failed to load journeys')
-          setLoadingJourneys(false)
-          return
-        }
-        setJourneys((data ?? []) as Journey[])
+    setLoadingJourneys(true)
+
+    Promise.all([
+      supabase.from('journeys').select('id, name, slug, type, description, suggested_days'),
+      fetchTranslations('journey', lang),
+    ]).then(([{ data, error }, translations]) => {
+      if (error) {
+        toast.error('Failed to load journeys')
+        setError('Failed to load journeys')
         setLoadingJourneys(false)
+        return
+      }
+      const raw = (data ?? []) as Journey[]
+      const translated = raw.map((j) => {
+        const t = translations.get(j.id) ?? {}
+        return {
+          ...j,
+          name: t['name'] ?? j.name,
+          description: t['description'] ?? j.description,
+        }
       })
-  }, [])
+      setJourneys(translated)
+      setLoadingJourneys(false)
+    })
+  }, [lang])
 
   // Fetch stages when a journey is selected
   useEffect(() => {
@@ -85,59 +97,62 @@ export function useJourneys(): UseJourneysState {
     setStagesError(null)
     setSelectedStage(null)
 
-    supabase
-      .from('journey_stages')
-      .select(
-        'id, stage_order, stage_name, routes(id, slug, name, distance_km, elevation_gain, geometry_geojson)',
-      )
-      .eq('journey_id', selectedJourney.id)
-      .order('stage_order')
-      .then(({ data, error }) => {
-        if (error) {
-          toast.error('Failed to load journey stages')
-          setStagesError('Failed to load journey stages')
-          setLoadingStages(false)
-          return
-        }
-
-        type RawStageRow = {
-          id: string
-          stage_order: number
-          stage_name: string | null
-          routes: {
-            id: string
-            slug: string
-            name: string
-            distance_km: number | null
-            elevation_gain: number | null
-            geometry_geojson: unknown
-          } | null
-        }
-
-        const parsed: JourneyStage[] = []
-        for (const row of (data ?? []) as unknown as RawStageRow[]) {
-          const routeRaw = row.routes
-          if (!routeRaw || !isLineString(routeRaw.geometry_geojson)) continue
-
-          parsed.push({
-            id: row.id,
-            stage_order: row.stage_order,
-            stage_name: row.stage_name ?? null,
-            route: {
-              id: routeRaw.id,
-              slug: routeRaw.slug,
-              name: routeRaw.name,
-              distance_km: routeRaw.distance_km ?? null,
-              elevation_gain: routeRaw.elevation_gain ?? null,
-              geometry_geojson: routeRaw.geometry_geojson as GeoJSON.LineString,
-            },
-          })
-        }
-
-        setStages(parsed)
+    Promise.all([
+      supabase
+        .from('journey_stages')
+        .select(
+          'id, stage_order, stage_name, routes(id, slug, name, distance_km, elevation_gain, geometry_geojson)',
+        )
+        .eq('journey_id', selectedJourney.id)
+        .order('stage_order'),
+      fetchTranslations('route', lang),
+    ]).then(([{ data, error }, routeTranslations]) => {
+      if (error) {
+        toast.error('Failed to load journey stages')
+        setStagesError('Failed to load journey stages')
         setLoadingStages(false)
-      })
-  }, [selectedJourney])
+        return
+      }
+
+      type RawStageRow = {
+        id: string
+        stage_order: number
+        stage_name: string | null
+        routes: {
+          id: string
+          slug: string
+          name: string
+          distance_km: number | null
+          elevation_gain: number | null
+          geometry_geojson: unknown
+        } | null
+      }
+
+      const parsed: JourneyStage[] = []
+      for (const row of (data ?? []) as unknown as RawStageRow[]) {
+        const routeRaw = row.routes
+        if (!routeRaw || !isLineString(routeRaw.geometry_geojson)) continue
+
+        const rt = routeTranslations.get(routeRaw.id) ?? {}
+        parsed.push({
+          id: row.id,
+          stage_order: row.stage_order,
+          stage_name: row.stage_name ?? null,
+          route: {
+            id: routeRaw.id,
+            slug: routeRaw.slug,
+            name: rt['name'] ?? routeRaw.name,
+            distance_km: routeRaw.distance_km ?? null,
+            elevation_gain: routeRaw.elevation_gain ?? null,
+            geometry_geojson: routeRaw.geometry_geojson as GeoJSON.LineString,
+          },
+        })
+      }
+
+      setStages(parsed)
+      setLoadingStages(false)
+    })
+  }, [selectedJourney, lang])
 
   return {
     journeys,

@@ -1,0 +1,104 @@
+{
+  "nav": {
+    "routes": "Routes",
+    "journeys": "Journeys",
+    "regions": "Regions",
+    "signIn": "Sign in",
+    "profile": "Profile"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "createAccount": "Create account",
+    "continueWithGoogle": "Continue with Google",
+    "email": "Email",
+    "password": "Password",
+    "orSeparator": "or",
+    "noAccount": "Don't have an account?",
+    "alreadyAccount": "Already have an account?",
+    "signUp": "Sign up",
+    "closeDialog": "Close sign in dialog"
+  },
+  "userMenu": {
+    "myProfile": "My Profile",
+    "signOut": "Sign out",
+    "accountMenu": "User account menu",
+    "accountOptions": "User account options"
+  },
+  "route": {
+    "heading": "Routes",
+    "noRoutes": "No routes found.",
+    "distance": "Distance",
+    "elevationGain": "Elevation Gain",
+    "maxElevation": "Max Elevation",
+    "totalCurves": "Total Curves",
+    "pointsOfInterest": "Points of Interest",
+    "downloadGpx": "Download GPX",
+    "unableToLoad": "Unable to load routes. Please try again.",
+    "showList": "Show routes list"
+  },
+  "poi": {
+    "onRoute": "on route",
+    "nearby": "nearby",
+    "detour": "detour"
+  },
+  "favorite": {
+    "add": "Add to favourites",
+    "remove": "Remove from favourites"
+  },
+  "journey": {
+    "heading": "Journeys",
+    "noJourneys": "No journeys found.",
+    "journey": "Journey",
+    "total": "Total",
+    "days": "Days",
+    "stages": "Stages",
+    "stage": "Stage",
+    "downloadMergedGpx": "Download merged GPX",
+    "typeLinear": "Linear",
+    "typeCircular": "Circular",
+    "typeLoop": "Loop",
+    "day": "day",
+    "days_plural": "days",
+    "unableToLoad": "Unable to load journeys. Please try again.",
+    "showList": "Show journeys list"
+  },
+  "destination": {
+    "heading": "Regions",
+    "noRegions": "No regions found",
+    "destination": "Destination",
+    "featuredRoutes": "Featured Routes",
+    "noFeaturedRoutes": "No featured routes.",
+    "unableToLoad": "Unable to load regions. Please try again.",
+    "showList": "Show regions list"
+  },
+  "profile": {
+    "signedInAs": "Signed in as",
+    "favourites": "Favourites",
+    "history": "History",
+    "noFavourites": "No favourites yet",
+    "noFavouritesBody": "Heart a route while browsing to save it here.",
+    "noHistory": "No routes viewed yet",
+    "noHistoryBody": "Routes you open will appear here.",
+    "justNow": "Just now",
+    "minutesAgo_one": "{{count}}m ago",
+    "minutesAgo_other": "{{count}}m ago",
+    "hoursAgo_one": "{{count}}h ago",
+    "hoursAgo_other": "{{count}}h ago",
+    "daysAgo_one": "{{count}}d ago",
+    "daysAgo_other": "{{count}}d ago",
+    "sections": "Profile sections"
+  },
+  "landscape": {
+    "coast": "Coast",
+    "mountain": "Mountain",
+    "forest": "Forest",
+    "urban": "Urban",
+    "river_valley": "River Valley",
+    "mixed": "Mixed",
+    "plains": "Plains"
+  },
+  "common": {
+    "close": "Close",
+    "loading": "Loading…"
+  }
+}
