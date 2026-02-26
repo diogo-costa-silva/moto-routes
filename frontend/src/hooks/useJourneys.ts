@@ -57,13 +57,15 @@ export function useJourneys(lang: string = 'pt'): UseJourneysState {
   const [stagesError, setStagesError] = useState<string | null>(null)
   const [selectedStage, setSelectedStage] = useState<JourneyStage | null>(null)
 
+  const normalizedLang = lang.split('-')[0]
+
   // Fetch all journeys on mount or lang change
   useEffect(() => {
     setLoadingJourneys(true)
 
     Promise.all([
       supabase.from('journeys').select('id, name, slug, type, description, suggested_days'),
-      fetchTranslations('journey', lang),
+      fetchTranslations('journeys', normalizedLang),
     ]).then(([{ data, error }, translations]) => {
       if (error) {
         toast.error('Failed to load journeys')
@@ -81,9 +83,10 @@ export function useJourneys(lang: string = 'pt'): UseJourneysState {
         }
       })
       setJourneys(translated)
+      setSelectedJourney(prev => prev ? (translated.find(j => j.id === prev.id) ?? prev) : null)
       setLoadingJourneys(false)
     })
-  }, [lang])
+  }, [normalizedLang])
 
   // Fetch stages when a journey is selected
   useEffect(() => {
@@ -105,7 +108,7 @@ export function useJourneys(lang: string = 'pt'): UseJourneysState {
         )
         .eq('journey_id', selectedJourney.id)
         .order('stage_order'),
-      fetchTranslations('route', lang),
+      fetchTranslations('routes', normalizedLang),
     ]).then(([{ data, error }, routeTranslations]) => {
       if (error) {
         toast.error('Failed to load journey stages')
@@ -152,7 +155,7 @@ export function useJourneys(lang: string = 'pt'): UseJourneysState {
       setStages(parsed)
       setLoadingStages(false)
     })
-  }, [selectedJourney, lang])
+  }, [selectedJourney, normalizedLang])
 
   return {
     journeys,

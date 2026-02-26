@@ -53,13 +53,15 @@ export function useDestinations(lang: string = 'pt'): UseDestinationsState {
   const [featuredRoutes, setFeaturedRoutes] = useState<DestinationRoute[]>([])
   const [loadingRoutes, setLoadingRoutes] = useState(false)
 
+  const normalizedLang = lang.split('-')[0]
+
   // Fetch all destinations on mount or lang change
   useEffect(() => {
     setLoadingDestinations(true)
 
     Promise.all([
       supabase.rpc('get_destinations', {} as never),
-      fetchTranslations('destination', lang),
+      fetchTranslations('destinations', normalizedLang),
     ]).then(([{ data, error }, translations]) => {
       if (error) {
         toast.error('Failed to load destinations')
@@ -90,9 +92,10 @@ export function useDestinations(lang: string = 'pt'): UseDestinationsState {
       }
 
       setDestinations(parsed)
+      setSelectedDestination(prev => prev ? (parsed.find(d => d.id === prev.id) ?? prev) : null)
       setLoadingDestinations(false)
     })
-  }, [lang])
+  }, [normalizedLang])
 
   // Fetch featured routes when a destination is selected
   useEffect(() => {
@@ -111,7 +114,7 @@ export function useDestinations(lang: string = 'pt'): UseDestinationsState {
         )
         .eq('destination_id', selectedDestination.id)
         .order('display_order'),
-      fetchTranslations('route', lang),
+      fetchTranslations('routes', normalizedLang),
     ]).then(([{ data, error }, routeTranslations]) => {
       if (error) {
         toast.error('Failed to load destination routes')
@@ -152,7 +155,7 @@ export function useDestinations(lang: string = 'pt'): UseDestinationsState {
       setFeaturedRoutes(parsed)
       setLoadingRoutes(false)
     })
-  }, [selectedDestination, lang])
+  }, [selectedDestination, normalizedLang])
 
   return {
     destinations,

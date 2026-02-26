@@ -1,7 +1,7 @@
 import { supabase } from './supabase'
 
 export async function fetchTranslations(
-  entityType: 'route' | 'journey' | 'destination',
+  entityType: 'routes' | 'journeys' | 'destinations',
   lang: string
 ): Promise<Map<string, Record<string, string>>> {
   type TranslationRow = { entity_id: string; field: string; value: string }

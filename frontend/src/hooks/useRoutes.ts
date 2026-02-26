@@ -58,12 +58,14 @@ export function useRoutes(lang: string = 'pt'): UseRoutesState {
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null)
   const [hoveredRouteId, setHoveredRouteId] = useState<string | null>(null)
 
+  const normalizedLang = lang.split('-')[0]
+
   useEffect(() => {
     setLoading(true)
 
     Promise.all([
       supabase.from('routes').select('*'),
-      fetchTranslations('route', lang),
+      fetchTranslations('routes', normalizedLang),
     ]).then(([{ data, error: fetchError }, translations]) => {
       if (fetchError) {
         setError(fetchError.message)
@@ -98,9 +100,10 @@ export function useRoutes(lang: string = 'pt'): UseRoutesState {
       }
 
       setRoutes(parsed)
+      setSelectedRoute(prev => prev ? (parsed.find(r => r.id === prev.id) ?? prev) : null)
       setLoading(false)
     })
-  }, [lang])
+  }, [normalizedLang])
 
   return {
     routes,
