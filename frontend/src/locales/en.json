@@ -16,7 +16,12 @@
     "noAccount": "Don't have an account?",
     "alreadyAccount": "Already have an account?",
     "signUp": "Sign up",
-    "closeDialog": "Close sign in dialog"
+    "closeDialog": "Close sign in dialog",
+    "errorInvalidCredentials": "Invalid email or password.",
+    "errorEmailNotConfirmed": "Please confirm your email before signing in.",
+    "errorUserAlreadyRegistered": "An account with this email already exists.",
+    "errorPasswordTooShort": "Password must be at least 6 characters.",
+    "errorGeneric": "An error occurred. Please try again."
   },
   "userMenu": {
     "myProfile": "My Profile",

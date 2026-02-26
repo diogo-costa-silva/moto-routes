@@ -16,7 +16,12 @@
     "noAccount": "Não tens conta?",
     "alreadyAccount": "Já tens conta?",
     "signUp": "Regista-te",
-    "closeDialog": "Fechar diálogo de autenticação"
+    "closeDialog": "Fechar diálogo de autenticação",
+    "errorInvalidCredentials": "Email ou palavra-passe incorretos.",
+    "errorEmailNotConfirmed": "Confirma o teu email antes de entrar.",
+    "errorUserAlreadyRegistered": "Já existe uma conta com este email.",
+    "errorPasswordTooShort": "A palavra-passe deve ter pelo menos 6 caracteres.",
+    "errorGeneric": "Ocorreu um erro. Tenta novamente."
   },
   "userMenu": {
     "myProfile": "O meu perfil",

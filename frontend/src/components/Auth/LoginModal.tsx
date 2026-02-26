@@ -19,6 +19,16 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
 
+  // Reset form state when modal opens (Bug fix: stale fields on reopen)
+  useEffect(() => {
+    if (isOpen) {
+      setEmail('')
+      setPassword('')
+      setError(null)
+      setMode('login')
+    }
+  }, [isOpen])
+
   // Close on ESC
   useEffect(() => {
     if (!isOpen) return
@@ -65,7 +75,18 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
     setSubmitting(false)
     if (err) {
-      setError(err)
+      const lower = err.toLowerCase()
+      if (lower.includes('invalid login credentials') || lower.includes('invalid email or password')) {
+        setError(t('auth.errorInvalidCredentials'))
+      } else if (lower.includes('email not confirmed')) {
+        setError(t('auth.errorEmailNotConfirmed'))
+      } else if (lower.includes('user already registered')) {
+        setError(t('auth.errorUserAlreadyRegistered'))
+      } else if (lower.includes('password should be at least')) {
+        setError(t('auth.errorPasswordTooShort'))
+      } else {
+        setError(t('auth.errorGeneric'))
+      }
     } else {
       onClose()
     }
