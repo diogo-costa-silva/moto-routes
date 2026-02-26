@@ -9,9 +9,7 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 ## [Unreleased]
 
 ### Corrigido — Google OAuth bloqueado no Brave e Chrome
-- `useAuth.ts` — dois problemas corrigidos em `loginWithGoogle`:
-  1. `skipBrowserCheck: true` — sem esta opção o Supabase tentava abrir um popup que o Brave bloqueia silenciosamente; com a opção força sempre o redirect flow
-  2. `redirectTo: window.location.origin + window.location.pathname` — antes era só `window.location.origin` (`/`); o React Router tem `<Navigate to="/routes" replace />` na raiz que fazia strip dos query params `?code=` do PKCE callback antes do Supabase os processar; com o pathname incluído o callback cai em `/routes` directamente e a sessão é estabelecida correctamente
+- `useAuth.ts` — `redirectTo` corrigido de `window.location.origin` para `window.location.origin + window.location.pathname`; o React Router tem `<Navigate to="/routes" replace />` na raiz que fazia strip dos query params `?code=` do PKCE callback antes do Supabase os processar; com o pathname incluído o callback cai directamente em `/routes` e a sessão é estabelecida correctamente
 - Supabase Dashboard — adicionados `http://localhost:5174/**` e `https://moto-routes.vercel.app/**` à whitelist de redirect URLs para cobrir todos os paths
 
 ### Corrigido — Mouse drag no bottom sheet

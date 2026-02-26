@@ -66,7 +66,6 @@ export function useAuth(): UseAuthState {
       provider: 'google',
       options: {
         redirectTo: window.location.origin + window.location.pathname,
-        skipBrowserCheck: true,
       },
     })
   }
