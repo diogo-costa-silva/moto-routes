@@ -8,6 +8,22 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-02-26
+
+### Adicionado — Fase 9: Landscape Tags
+
+- `LandscapeFilter.tsx` — componente de filtro multi-select por tipo de paisagem; pills coloridos por tipo (cyan costa, purple montanha, green floresta, cyan vale do rio, orange misto, yellow planícies); botão "✕ Limpar" quando há filtros activos; `aria-pressed` em cada pill; scrollable horizontal
+- `LANDSCAPE_STYLES` — mapa de estilos (icon + pill + badge) exportado e partilhado com `RouteList`
+- Filtro integrado no sidebar desktop (acima da lista) e no bottom sheet mobile (entre header e lista)
+- Estado `landscapeFilters` + `filteredRoutes` via `useMemo` em `RoutesPage` — apenas rotas do tipo seleccionado aparecem na lista e no mapa
+- Pill flutuante "Rotas (N)" mostra badge laranja com contagem de filtros activos
+- Strings i18n `filter.allTypes`, `filter.filterBy`, `filter.clearAll` em PT/EN
+
+### Alterado
+
+- `RouteList.tsx` — badges de landscape agora coloridos (usa `LANDSCAPE_STYLES`); prop `showHeader` permite ocultar o cabeçalho quando embebido no bottom sheet
+- `NavHeader.tsx` — `hidden lg:flex`: header oculto em mobile/tablet (<1024px); `MobileTabBar` serve toda a navegação abaixo desse breakpoint
+
 ### Fixed — Desktop navigation layout
 
 - Lifted `NavHeader` out of the 320px sidebar in `RoutesPage`, `JourneysPage`, `DestinationsPage`

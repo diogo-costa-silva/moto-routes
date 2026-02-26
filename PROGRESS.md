@@ -2,7 +2,7 @@
 
 > Actualizar este ficheiro sempre que uma tarefa é concluída.
 
-## Fase Atual: 9 - Landscape Tags (em progresso)
+## Fase Atual: 10 - Polish & Deploy (em progresso)
 
 ### Phase 5 — Em Progresso (2026-02-25)
 - [x] `hooks/useJourneys.ts` — fetch journeys + stages com type guards GeoJSON
@@ -196,10 +196,10 @@ Ver critérios completos em [docs/ROADMAP.md](./docs/ROADMAP.md)
 | 6 | Frontend - Destinations | ✓ Completa | 2026-02-25 | 2026-02-25 |
 | 7 | Frontend - Users | ✓ Completa | 2026-02-25 | 2026-02-25 |
 | 8 | Multilingue | ✓ Completa | 2026-02-26 | 2026-02-26 |
-| 9 | Tags Paisagem | Em Progresso | 2026-02-26 | - |
-| 10 | Polish & Deploy | Pendente | - | - |
+| 9 | Tags Paisagem | ✓ Completa | 2026-02-26 | 2026-02-26 |
+| 10 | Polish & Deploy | Em Progresso | 2026-02-26 | - |
 
 ---
 
 ## Última Actualização
-2026-02-26 (Fase 9 em progresso: Fases 5–8 completas, a iniciar Landscape Tags)
+2026-02-26 (Fase 10 em progresso: Fases 0–9 completas, a iniciar Polish & Deploy)
