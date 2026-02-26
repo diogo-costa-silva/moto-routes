@@ -14,6 +14,7 @@ interface UseSheetDragResult {
     onTouchStart: (e: React.TouchEvent) => void
     onTouchMove: (e: React.TouchEvent) => void
     onTouchEnd: (e: React.TouchEvent) => void
+    onMouseDown: (e: React.MouseEvent) => void
   }
 }
 
@@ -77,11 +78,63 @@ export function useSheetDrag({ snapPoints, onDismiss }: UseSheetDragOptions): Us
     }
   }
 
+  function onMouseDown(e: React.MouseEvent) {
+    if (!sheetRef.current) return
+    // Prevent text selection during drag
+    e.preventDefault()
+    touchStartY.current = e.clientY
+    startHeightPx.current = sheetRef.current.getBoundingClientRect().height
+    isDragging.current = true
+    sheetRef.current.style.transition = 'none'
+
+    function handleMouseMove(ev: MouseEvent) {
+      if (!isDragging.current || !sheetRef.current) return
+      const delta = ev.clientY - touchStartY.current
+      const newPx = startHeightPx.current - delta
+      const minPx = (snapPoints[0] * window.innerHeight) / 100 * 0.4
+      const maxPx = window.innerHeight * 0.97
+      sheetRef.current.style.height = `${Math.max(minPx, Math.min(maxPx, newPx))}px`
+    }
+
+    function handleMouseUp(ev: MouseEvent) {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+
+      if (!isDragging.current || !sheetRef.current) return
+      isDragging.current = false
+      const delta = ev.clientY - touchStartY.current
+
+      // Real drag: swallow the upcoming click so onClick={toggleSnap} doesn't fire
+      if (Math.abs(delta) >= TAP_THRESHOLD_PX) {
+        document.addEventListener('click', (ce) => ce.stopPropagation(), { capture: true, once: true })
+      }
+
+      if (Math.abs(delta) < TAP_THRESHOLD_PX) {
+        snapTo(snapIndex === 0 ? 1 : 0)
+      } else if (delta < -50) {
+        snapTo(1)
+      } else if (delta > 80) {
+        if (snapIndex === 0) {
+          sheetRef.current.style.transition = 'height 0.3s ease-in'
+          sheetRef.current.style.height = '0px'
+          setTimeout(onDismiss, 300)
+        } else {
+          snapTo(0)
+        }
+      } else {
+        snapTo(snapIndex)
+      }
+    }
+
+    document.addEventListener('mousemove', handleMouseMove, { passive: true })
+    document.addEventListener('mouseup', handleMouseUp)
+  }
+
   return {
     height: snapPoints[snapIndex],
     snapIndex,
     sheetRef,
     toggleSnap: () => snapTo(snapIndex === 0 ? 1 : 0),
-    dragHandlers: { onTouchStart, onTouchMove, onTouchEnd },
+    dragHandlers: { onTouchStart, onTouchMove, onTouchEnd, onMouseDown },
   }
 }
