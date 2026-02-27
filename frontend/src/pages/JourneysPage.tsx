@@ -49,7 +49,7 @@ export function JourneysPage() {
         navigate('/journeys', { replace: true })
       }
     }
-  }, [slug, journeys, selectJourney])
+  }, [slug, journeys, selectJourney, navigate])
 
   // Sync URL when a journey is selected (only push if URL doesn't match)
   useEffect(() => {

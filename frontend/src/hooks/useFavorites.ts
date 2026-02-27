@@ -57,7 +57,7 @@ export function useFavorites(): UseFavoritesState {
         setFavoriteRoutes(routes)
         setLoading(false)
       })
-  }, [user?.id])
+  }, [user])
 
   async function toggleFavorite(routeId: string): Promise<void> {
     if (!user) {

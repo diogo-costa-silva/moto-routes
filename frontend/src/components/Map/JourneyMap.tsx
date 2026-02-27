@@ -55,6 +55,7 @@ export function JourneyMap({
 }: JourneyMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
+  const [mapInstance, setMapInstance] = useState<mapboxgl.Map | null>(null)
   const [mapReady, setMapReady] = useState(false)
   const [animating, setAnimating] = useState(false)
 
@@ -81,6 +82,7 @@ export function JourneyMap({
     map.on('load', () => {
       addJourneySources(map)
       addJourneyLayers(map)
+      setMapInstance(map)
       setMapReady(true)
     })
 
@@ -89,6 +91,7 @@ export function JourneyMap({
     return () => {
       map.remove()
       mapRef.current = null
+      setMapInstance(null)
       setMapReady(false)
     }
   }, [])
@@ -202,9 +205,9 @@ export function JourneyMap({
   return (
     <div className="relative h-full w-full">
       <div ref={containerRef} className="h-full w-full" />
-      {animating && selectedStage && mapRef.current && (
+      {animating && selectedStage && mapInstance && (
         <RouteAnimation
-          map={mapRef.current}
+          map={mapInstance}
           layerId={LAYER_JOURNEY_SELECTED}
           onComplete={handleAnimationComplete}
         />

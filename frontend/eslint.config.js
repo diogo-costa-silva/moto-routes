@@ -19,5 +19,10 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // New rule in react-hooks v5 (React 19). Setting loading state synchronously
+      // at the start of an effect is an intentional pattern in this codebase.
+      'react-hooks/set-state-in-effect': 'warn',
+    },
   },
 ])

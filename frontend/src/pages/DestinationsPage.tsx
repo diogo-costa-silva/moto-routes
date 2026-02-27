@@ -46,7 +46,7 @@ export function DestinationsPage() {
         navigate('/destinations', { replace: true })
       }
     }
-  }, [slug, destinations, selectDestination])
+  }, [slug, destinations, selectDestination, navigate])
 
   // Sync URL when a destination is selected (only push if URL doesn't match)
   useEffect(() => {

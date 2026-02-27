@@ -59,7 +59,7 @@ export function useHistory(): UseHistoryState {
         setEntries(parseRows((data as unknown) as HistoryRow[]))
         setLoading(false)
       })
-  }, [user?.id])
+  }, [user])
 
   function refreshHistory(userId: string) {
     supabase

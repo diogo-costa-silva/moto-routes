@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import type { Route } from '../../hooks/useRoutes'
-import { LANDSCAPE_STYLES } from './LandscapeFilter'
+import { LANDSCAPE_STYLES } from './landscapeStyles'
 
 interface RouteListProps {
   routes: Route[]

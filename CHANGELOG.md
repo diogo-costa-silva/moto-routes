@@ -8,6 +8,12 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+### Corrigido — CI (GitHub Actions)
+- `eslint.config.js` — `react-hooks/set-state-in-effect` configurado como `warn` (era `error` por default no react-hooks v5/React 19); o padrão `setLoading(true)` no início de effects é intencional nesta codebase
+- `JourneyMap.tsx` + `RouteMap.tsx` — `mapRef.current` no JSX substituído por `useState<Map>` (`mapInstance`) para cumprir a regra `react-hooks/refs`; o estado é definido no `map.on('load')` e limpo no cleanup
+- `LandscapeFilter.tsx` — constante `LANDSCAPE_STYLES` extraída para `landscapeStyles.ts` para cumprir `react-refresh/only-export-components`
+- `useFavorites.ts` + `useHistory.ts` + `DestinationsPage.tsx` + `JourneysPage.tsx` — dependências em falta adicionadas aos arrays de `useEffect`
+
 ### Corrigido — Google OAuth bloqueado no Brave e Chrome
 - `useAuth.ts` — `redirectTo` corrigido de `window.location.origin` para `window.location.origin + window.location.pathname`; o React Router tem `<Navigate to="/routes" replace />` na raiz que fazia strip dos query params `?code=` do PKCE callback antes do Supabase os processar; com o pathname incluído o callback cai directamente em `/routes` e a sessão é estabelecida correctamente
 - Supabase Dashboard — adicionados `http://localhost:5174/**` e `https://moto-routes.vercel.app/**` à whitelist de redirect URLs para cobrir todos os paths

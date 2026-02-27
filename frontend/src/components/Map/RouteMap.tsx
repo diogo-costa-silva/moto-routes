@@ -62,6 +62,7 @@ export function RouteMap({
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
   const popupRef = useRef<mapboxgl.Popup | null>(null)
+  const [mapInstance, setMapInstance] = useState<mapboxgl.Map | null>(null)
   const [mapReady, setMapReady] = useState(false)
   const [animating, setAnimating] = useState(false)
 
@@ -92,6 +93,7 @@ export function RouteMap({
       addRouteLayers(map)
       addPOISources(map)
       addPOILayers(map)
+      setMapInstance(map)
       setMapReady(true)
     })
 
@@ -102,6 +104,7 @@ export function RouteMap({
       popupRef.current = null
       map.remove()
       mapRef.current = null
+      setMapInstance(null)
       setMapReady(false)
     }
   }, [])
@@ -292,9 +295,9 @@ export function RouteMap({
   return (
     <div className="relative h-full w-full">
       <div ref={containerRef} className="h-full w-full" />
-      {animating && selectedRoute && mapRef.current && (
+      {animating && selectedRoute && mapInstance && (
         <RouteAnimation
-          map={mapRef.current}
+          map={mapInstance}
           layerId={LAYER_SELECTED}
           onComplete={handleAnimationComplete}
         />
