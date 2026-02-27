@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { RoutePOI } from '../../hooks/useRoutePOIs'
 import type { Route } from '../../hooks/useRoutes'
+import { getRelationType } from '../../hooks/useRoutes'
 import { useSheetDrag } from '../../hooks/useSheetDrag'
 import { FavoriteButton } from './FavoriteButton'
 import { POIList } from './POIList'
@@ -15,6 +16,10 @@ interface RouteDetailsProps {
   onToggleFavorite?: () => void
   onLoginRequired?: () => void
   onHeightChange?: (vh: number) => void
+  children?: Route[]
+  parentRoute?: Route
+  onSelectSubRoute?: (route: Route) => void
+  onBackToParent?: () => void
 }
 
 function generateGpx(route: Route): string {
@@ -59,7 +64,7 @@ function Stat({ label, value }: StatProps) {
   )
 }
 
-export function RouteDetails({ route, onClose, pois, isFavorite, isAuthenticated, onToggleFavorite, onLoginRequired, onHeightChange }: RouteDetailsProps) {
+export function RouteDetails({ route, onClose, pois, isFavorite, isAuthenticated, onToggleFavorite, onLoginRequired, onHeightChange, children, parentRoute, onSelectSubRoute, onBackToParent }: RouteDetailsProps) {
   const { height, sheetRef, toggleSnap, dragHandlers } = useSheetDrag({
     snapPoints: [65, 92],
     onDismiss: onClose,
@@ -88,7 +93,7 @@ export function RouteDetails({ route, onClose, pois, isFavorite, isAuthenticated
       </div>
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto pb-20">
-        <DetailsContent route={route} onClose={onClose} pois={pois} isFavorite={isFavorite} isAuthenticated={isAuthenticated} onToggleFavorite={onToggleFavorite} onLoginRequired={onLoginRequired} />
+        <DetailsContent route={route} onClose={onClose} pois={pois} isFavorite={isFavorite} isAuthenticated={isAuthenticated} onToggleFavorite={onToggleFavorite} onLoginRequired={onLoginRequired} children={children} parentRoute={parentRoute} onSelectSubRoute={onSelectSubRoute} onBackToParent={onBackToParent} />
       </div>
     </div>
   )
@@ -96,9 +101,56 @@ export function RouteDetails({ route, onClose, pois, isFavorite, isAuthenticated
 
 export { DetailsContent }
 
-function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthenticated = false, onToggleFavorite, onLoginRequired }: RouteDetailsProps) {
+interface SubRouteSectionProps {
+  label: string
+  routes: Route[]
+  onSelect: (route: Route) => void
+}
+
+function SubRouteSection({ label, routes, onSelect }: SubRouteSectionProps) {
+  return (
+    <section>
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">{label}</h3>
+      <div className="flex flex-col gap-1.5">
+        {routes.map((r) => (
+          <button
+            key={r.id}
+            onClick={() => onSelect(r)}
+            className="flex items-center justify-between rounded-lg border border-gray-800 bg-gray-900 px-3 py-2.5 text-left transition-colors hover:border-orange-500/40 hover:bg-gray-800"
+          >
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-white leading-tight truncate">{r.name}</p>
+              <div className="mt-0.5 flex gap-3 text-xs text-gray-500">
+                {r.distance_km != null && <span>{r.distance_km.toFixed(0)} km</span>}
+                {r.elevation_gain != null && <span>↑ {r.elevation_gain.toFixed(0)} m</span>}
+              </div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" className="ml-2 h-4 w-4 flex-shrink-0 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+            </svg>
+          </button>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthenticated = false, onToggleFavorite, onLoginRequired, children = [], parentRoute, onSelectSubRoute, onBackToParent }: RouteDetailsProps) {
   const { t } = useTranslation()
   const [gpxLoading, setGpxLoading] = useState(false)
+
+  const extensions = useMemo(
+    () => children.filter(c => getRelationType(c) === 'extension'),
+    [children],
+  )
+  const variants = useMemo(
+    () => children.filter(c => getRelationType(c) === 'variant'),
+    [children],
+  )
+  const segments = useMemo(
+    () => children.filter(c => getRelationType(c) === 'segment'),
+    [children],
+  )
 
   async function handleDownloadGpx() {
     setGpxLoading(true)
@@ -111,6 +163,19 @@ function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthentica
 
   return (
     <div className="p-6 flex flex-col gap-4">
+      {/* Breadcrumb — shown when viewing a sub-route */}
+      {parentRoute && onBackToParent && (
+        <button
+          onClick={onBackToParent}
+          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-orange-400 transition-colors -mb-1"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+          </svg>
+          <span className="truncate">{parentRoute.name}</span>
+        </button>
+      )}
+
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <p className="text-xs font-mono text-orange-400 uppercase tracking-widest mb-1">
@@ -185,6 +250,29 @@ function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthentica
           value={route.curve_count_total != null ? String(route.curve_count_total) : null}
         />
       </div>
+
+      {/* Sub-routes section: extensions, variants, segments */}
+      {extensions.length > 0 && onSelectSubRoute && (
+        <SubRouteSection
+          label={t('route.extensions', { defaultValue: 'Extensions' })}
+          routes={extensions}
+          onSelect={onSelectSubRoute}
+        />
+      )}
+      {variants.length > 0 && onSelectSubRoute && (
+        <SubRouteSection
+          label={t('route.variants', { defaultValue: 'Variants' })}
+          routes={variants}
+          onSelect={onSelectSubRoute}
+        />
+      )}
+      {segments.length > 0 && onSelectSubRoute && (
+        <SubRouteSection
+          label={t('route.segments', { defaultValue: 'Segments' })}
+          routes={segments}
+          onSelect={onSelectSubRoute}
+        />
+      )}
 
       {pois && pois.length > 0 && (
         <section>
