@@ -8,6 +8,15 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+### Adicionado — Hierarquia de rotas (N222 como entidade única)
+
+- `hooks/useRoutes.ts` — `Route` interface com campos `is_segment_of`, `is_extension_of`, `is_variant_of`; funções utilitárias exportadas `getParentId()`, `getRelationType()`, `RouteRelationType`; `rootRoutes` (routes sem parent) e `getChildren(id)` derivados via `useMemo` e expostos pelo hook
+- `components/Map/mapLayers.ts` — `SOURCE_SUB_ROUTES` + `LAYER_SUB_ROUTES` (linha laranja dashed 40% opacidade); `addSubRouteSources`, `addSubRouteLayers`, `updateSubRouteSource`
+- `components/Map/RouteMap.tsx` — prop `subRoutes?: Route[]`; inicializa sub-route source/layer após route layers; effect para sincronizar source quando `subRoutes` muda
+- `components/Routes/RouteList.tsx` — prop `childrenCount?: Record<string, number>`; badge `+N` laranja quando route tem filhos
+- `components/Routes/RouteDetails.tsx` — `SubRouteSection` (extensões / variantes / segmentos); breadcrumb `← Parent Name` quando `parentRoute` está set; novas props `children`, `parentRoute`, `onSelectSubRoute`, `onBackToParent`
+- `pages/RoutesPage.tsx` — `activeSubRoute` state; `effectiveRoute = activeSubRoute ?? selectedRoute`; `mapSubRoutes` (filhos da rota base quando não há sub-rota activa); `rootFilteredRoutes` e `childrenCount` via `useMemo`; handlers `handleSelectSubRoute` + `handleBackToParent`; `RouteList` recebe `rootFilteredRoutes` (4 entradas em vez de 7); history debounce regista `effectiveRoute`
+
 ### Corrigido — CI (GitHub Actions)
 - `eslint.config.js` — `react-hooks/set-state-in-effect` configurado como `warn` (era `error` por default no react-hooks v5/React 19); o padrão `setLoading(true)` no início de effects é intencional nesta codebase
 - `JourneyMap.tsx` + `RouteMap.tsx` — `mapRef.current` no JSX substituído por `useState<Map>` (`mapInstance`) para cumprir a regra `react-hooks/refs`; o estado é definido no `map.on('load')` e limpo no cleanup
