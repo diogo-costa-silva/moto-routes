@@ -10,6 +10,7 @@ interface RouteListProps {
   onSelect: (route: Route) => void
   onHover: (id: string | null) => void
   showHeader?: boolean
+  childrenCount?: Record<string, number>
 }
 
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -39,6 +40,7 @@ export function RouteList({
   onSelect,
   onHover,
   showHeader = true,
+  childrenCount = {},
 }: RouteListProps) {
   const { t } = useTranslation()
 
@@ -100,12 +102,17 @@ export function RouteList({
                     )}
                   </div>
 
-                  <div className="flex gap-4 text-xs text-gray-500">
+                  <div className="flex items-center gap-4 text-xs text-gray-500">
                     {route.distance_km != null && (
                       <span>{route.distance_km.toFixed(0)} km</span>
                     )}
                     {route.elevation_gain != null && (
                       <span>↑ {route.elevation_gain.toFixed(0)} m</span>
+                    )}
+                    {(childrenCount[route.id] ?? 0) > 0 && (
+                      <span className="ml-auto rounded-full bg-orange-500/15 px-2 py-0.5 text-orange-400 font-medium">
+                        +{childrenCount[route.id]}
+                      </span>
                     )}
                   </div>
                 </button>
