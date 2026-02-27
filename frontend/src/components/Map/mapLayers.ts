@@ -158,6 +158,38 @@ export function updatePOISource(map: MapboxMap, pois: RoutePOI[]): void {
   source?.setData(buildPOIFeatureCollection(pois))
 }
 
+// --- Sub-route helpers (extensions/variants of selected route) ---
+
+export const SOURCE_SUB_ROUTES = 'sub-routes'
+export const LAYER_SUB_ROUTES = 'sub-routes-line'
+
+export function addSubRouteSources(map: MapboxMap): void {
+  map.addSource(SOURCE_SUB_ROUTES, {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] },
+  })
+}
+
+export function addSubRouteLayers(map: MapboxMap): void {
+  map.addLayer({
+    id: LAYER_SUB_ROUTES,
+    type: 'line',
+    source: SOURCE_SUB_ROUTES,
+    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    paint: {
+      'line-color': '#f97316',
+      'line-width': 3,
+      'line-opacity': 0.45,
+      'line-dasharray': [4, 2],
+    },
+  })
+}
+
+export function updateSubRouteSource(map: MapboxMap, routes: Route[]): void {
+  const source = map.getSource(SOURCE_SUB_ROUTES) as GeoJSONSource | undefined
+  source?.setData(buildFeatureCollection(routes))
+}
+
 // Type alias re-export so RouteMap can get GeoJSONSource type from here
 export type { GeoJSONSource }
 
