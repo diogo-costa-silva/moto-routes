@@ -9,16 +9,16 @@ Moto Routes deploys to Vercel from the `frontend/` subdirectory.
 The repo must be on GitHub before Vercel can import it.
 
 1. Go to https://github.com/new
-2. Owner: `diogo-costa-silva`, Name: `moto-routes`, visibility: **Public**
+2. Owner: `YOUR_GITHUB_USERNAME`, Name: `moto-routes`, visibility: **Public**
 3. Leave "Add a README file", ".gitignore", and "license" all **unchecked** — the repo already has these locally
 4. Click **Create repository**
 5. If you manage multiple GitHub accounts via the CLI, switch to the right one first:
    ```bash
-   gh auth switch --user diogo-costa-silva
+   gh auth switch --user YOUR_GITHUB_USERNAME
    ```
 6. Add the remote and push:
    ```bash
-   git remote add origin https://github.com/diogo-costa-silva/moto-routes.git
+   git remote add origin https://github.com/YOUR_GITHUB_USERNAME/moto-routes.git
    git branch -M main
    git push -u origin main
    ```
@@ -134,4 +134,4 @@ Without this step, Google OAuth will redirect to `localhost` instead of producti
 
 **Map blank / no tiles** — `VITE_MAPBOX_ACCESS_TOKEN` is missing or invalid in Vercel environment variables.
 
-**Wrong GitHub account used** — If the import picked up the wrong account, run `gh auth switch --user diogo-costa-silva` before pushing, then disconnect and reconnect the repository in Vercel.
+**Wrong GitHub account used** — If the import picked up the wrong account, run `gh auth switch --user YOUR_GITHUB_USERNAME` before pushing, then disconnect and reconnect the repository in Vercel.

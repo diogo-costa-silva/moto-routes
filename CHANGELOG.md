@@ -8,6 +8,30 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+### Documentação — Transformação e limpeza de docs/
+- `docs/COMMANDS.md` eliminado — duplicava CLAUDE.md, porta errada (5173), skills obsoletos
+- `docs/STACK.md` eliminado — conteúdo absorvido em ARCHITECTURE.md como secção "Stack Rationale"
+- `docs/ARCHITECTURE.md` — nova secção Stack Rationale (condensado de STACK.md); nova secção Route Hierarchy (self-referential FKs, rootRoutes, activeSubRoute, breadcrumb UI, dashed map lines); nova secção User Data (user_favorites, user_history, useAuth/useFavorites/useHistory); nova secção Translations & i18n; folder tree corrigido (services/ removido, lib/ confirmado); diagrama Data Model actualizado com 11 tabelas
+- `docs/SCHEMA.md` — RPC get_pois_for_route corrigido (coluna poi_type, não type); get_destinations actualizado com description + landscape_type; landscape_type ENUM corrigido para 7 valores reais; destination_featured_routes adicionado; RLS menção a roads + translations
+- `docs/SETUP.md` — porta 5173→5174; npm run type-check→typecheck; VITE_MAPBOX_TOKEN→VITE_MAPBOX_ACCESS_TOKEN; Python pipeline venv→uv run; passo Auth Redirect URLs adicionado
+- `docs/DECISIONS.md` — questão aberta sobre variantes marcada resolvida; DEC-010 (Google OAuth), DEC-011 (Route Hierarchy), DEC-012 (i18n via Translations Table), DEC-013 (Landscape Type ENUM) adicionados
+- `docs/Google-Auth.md` — redirectTo corrigido para incluir pathname; nota explicativa adicionada
+- `docs/ROADMAP.md` — Fase 9 marcada completa; Fase 10 actualizada com estado real do CHANGELOG
+- `docs/DATA.md` — contagem actualizada para 8 rotas; n2-tras-os-montes adicionado; referências COMMANDS.md→CLAUDE.md
+- `docs/TROUBLESHOOTING.md` — entrada TypeScript types corrigida (hand-written, não gerado); nova entrada Google OAuth callback; nova entrada bottom sheet drag mobile
+- `docs/INDEX.md` — COMMANDS.md + STACK.md removidos; DEPLOYMENT.md + Google-Auth.md adicionados; secção Contributing removida (CONTRIBUTING.md não existe)
+- `docs/DEPLOYMENT.md` — diogo-costa-silva→YOUR_GITHUB_USERNAME
+- `docs/PATTERNS.md` — nota canónica CLAUDE.md adicionada no início
+
+### Adicionado — Hierarquia de rotas (N222 como entidade única)
+
+- `hooks/useRoutes.ts` — `Route` interface com campos `is_segment_of`, `is_extension_of`, `is_variant_of`; funções utilitárias exportadas `getParentId()`, `getRelationType()`, `RouteRelationType`; `rootRoutes` (routes sem parent) e `getChildren(id)` derivados via `useMemo` e expostos pelo hook
+- `components/Map/mapLayers.ts` — `SOURCE_SUB_ROUTES` + `LAYER_SUB_ROUTES` (linha laranja dashed 40% opacidade); `addSubRouteSources`, `addSubRouteLayers`, `updateSubRouteSource`
+- `components/Map/RouteMap.tsx` — prop `subRoutes?: Route[]`; inicializa sub-route source/layer após route layers; effect para sincronizar source quando `subRoutes` muda
+- `components/Routes/RouteList.tsx` — prop `childrenCount?: Record<string, number>`; badge `+N` laranja quando route tem filhos
+- `components/Routes/RouteDetails.tsx` — `SubRouteSection` (extensões / variantes / segmentos); breadcrumb `← Parent Name` quando `parentRoute` está set; novas props `children`, `parentRoute`, `onSelectSubRoute`, `onBackToParent`
+- `pages/RoutesPage.tsx` — `activeSubRoute` state; `effectiveRoute = activeSubRoute ?? selectedRoute`; `mapSubRoutes` (filhos da rota base quando não há sub-rota activa); `rootFilteredRoutes` e `childrenCount` via `useMemo`; handlers `handleSelectSubRoute` + `handleBackToParent`; `RouteList` recebe `rootFilteredRoutes` (4 entradas em vez de 7); history debounce regista `effectiveRoute`
+
 ### Corrigido — CI (GitHub Actions)
 - `eslint.config.js` — `react-hooks/set-state-in-effect` configurado como `warn` (era `error` por default no react-hooks v5/React 19); o padrão `setLoading(true)` no início de effects é intencional nesta codebase
 - `JourneyMap.tsx` + `RouteMap.tsx` — `mapRef.current` no JSX substituído por `useState<Map>` (`mapInstance`) para cumprir a regra `react-hooks/refs`; o estado é definido no `map.on('load')` e limpo no cleanup

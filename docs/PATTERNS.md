@@ -2,6 +2,9 @@
 
 > Lessons learned from previous iterations of this project.
 
+> **Note:** The canonical TypeScript and Supabase patterns used by Claude Code are in [`CLAUDE.md`](../CLAUDE.md).
+> This document contains expanded examples and the reasoning behind each pattern.
+
 ---
 
 ## Overview
@@ -408,4 +411,3 @@ components/
 
 - [Architecture](./ARCHITECTURE.md) - System design
 - [Schema](./SCHEMA.md) - Database structure
-- [Stack](./STACK.md) - Technology choices

@@ -14,8 +14,11 @@ import {
   addPOISources,
   addRouteLayers,
   addRouteSources,
+  addSubRouteLayers,
+  addSubRouteSources,
   buildFeatureCollection,
   updatePOISource,
+  updateSubRouteSource,
 } from './mapLayers'
 import { RouteAnimation } from './RouteAnimation'
 
@@ -46,6 +49,7 @@ interface RouteMapProps {
   onRouteHover: (id: string | null) => void
   pois: RoutePOI[]
   onPOIClick: (poi: RoutePOI) => void
+  subRoutes?: Route[]
 }
 
 export function RouteMap({
@@ -58,6 +62,7 @@ export function RouteMap({
   onRouteHover,
   pois,
   onPOIClick,
+  subRoutes = [],
 }: RouteMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -91,6 +96,8 @@ export function RouteMap({
     map.on('load', () => {
       addRouteSources(map, [])
       addRouteLayers(map)
+      addSubRouteSources(map)
+      addSubRouteLayers(map)
       addPOISources(map)
       addPOILayers(map)
       setMapInstance(map)
@@ -117,6 +124,13 @@ export function RouteMap({
     const source = map.getSource(SOURCE_ALL) as mapboxgl.GeoJSONSource | undefined
     source?.setData(buildFeatureCollection(routes))
   }, [routes, mapReady])
+
+  // Sync sub-routes source (extensions/variants of selected route)
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapReady) return
+    updateSubRouteSource(map, subRoutes)
+  }, [subRoutes, mapReady])
 
   // Sync POI source when pois list changes
   useEffect(() => {

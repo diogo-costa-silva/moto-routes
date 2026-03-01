@@ -41,7 +41,7 @@
 
 > Questions to resolve during development.
 
-- [ ] How to present variants/extensions in UI?
+- [x] How to present variants/extensions in UI? **RESOLVED** — Implemented as breadcrumb navigation (`← Parent Name`) + `SubRouteSection` component (extensions / variants / segments) + dashed lines on map for child routes (Phase 10).
 - [ ] Merged or separate GPX export for Journeys? (both available?)
 
 ---
@@ -238,6 +238,84 @@ Use `mapboxgl.Popup` with an HTML string template, managed via `useRef`. The pop
 - (+) Popup auto-positions to stay within viewport
 - (-) HTML is a string template — no access to React state or components
 - (-) Styling must be inline or via Mapbox popup CSS classes, not Tailwind
+
+---
+
+## DEC-010: Google OAuth via Supabase Auth
+
+**Date**: 2026-02-25
+**Status**: Accepted
+
+**Context**
+User authentication is required for favourites and history. Email/password alone creates friction and high drop-off rates.
+
+**Decision**
+Use Supabase Auth with Google OAuth as the primary sign-in method, with email/password as a fallback. The `loginWithGoogle` function calls `supabase.auth.signInWithOAuth` with `redirectTo: window.location.origin + window.location.pathname`.
+
+**Consequences**
+- (+) Single-click sign-in with Google reduces friction
+- (+) Supabase handles token exchange and session management
+- (+) No password storage or reset flow needed
+- (-) Redirect URL must be registered in both Google Cloud Console and Supabase Dashboard
+- (-) `redirectTo` must include `window.location.pathname` — using only `window.location.origin` causes React Router's root `<Navigate>` to strip the `?code=` PKCE callback parameter before Supabase can process it
+
+---
+
+## DEC-011: Route Hierarchy via Self-Referential FKs
+
+**Date**: 2026-03-01
+**Status**: Accepted
+
+**Context**
+Some routes are extensions or variants of base routes (e.g. N222 has segments and variants). A flat route model cannot express these relationships.
+
+**Decision**
+Add three nullable self-referential FK columns to the `routes` table: `is_segment_of`, `is_extension_of`, `is_variant_of` — all `uuid` references to `routes.id`. Routes with no parent FK are treated as root routes.
+
+**Consequences**
+- (+) Relationships are explicit and queryable in SQL
+- (+) `rootRoutes` and `getChildren(id)` can be derived client-side via `useMemo`
+- (+) Map can display child routes with dashed lines without a separate table
+- (-) UI needs breadcrumb navigation and a `SubRouteSection` component to expose the hierarchy
+- (-) Route list must filter to `rootRoutes` only to avoid showing duplicates
+
+---
+
+## DEC-012: i18n via Translations Table + i18next
+
+**Date**: 2026-01-24
+**Status**: Accepted
+
+**Context**
+MVP requires Portuguese and English. Options considered: columns per language (rigid), JSON fields (no SQL type safety), or a separate translations table (flexible).
+
+**Decision**
+Use a separate `translations` table keyed by `(entity_type, entity_id, language)` for content strings (names, descriptions). Use i18next with `i18next-browser-languagedetector` for UI strings stored in `locales/pt.json` and `locales/en.json`.
+
+**Consequences**
+- (+) Adding a third language requires only new rows in `translations`, no schema change
+- (+) UI strings and content strings are clearly separated
+- (-) Each data hook must call `fetchTranslations()` and merge results
+- (-) Language detection order: `localStorage` key `language` → `navigator.language` fallback
+
+---
+
+## DEC-013: Landscape Type as PostgreSQL ENUM
+
+**Date**: 2026-01-24
+**Status**: Accepted
+
+**Context**
+Users want to filter routes and destinations by landscape type. The set of types is small and stable.
+
+**Decision**
+Define a PostgreSQL ENUM `landscape_type` with values: `mountain`, `coast`, `valley`, `plains`, `forest`, `mixed`, `urban`. Used on both `routes` and `destinations` tables.
+
+**Consequences**
+- (+) Database enforces valid values — no invalid strings possible
+- (+) Easy to filter with a `WHERE landscape_type = $1` clause
+- (-) Adding a new type requires an `ALTER TYPE` migration
+- (-) Manual classification required in the Python import pipeline (`scripts/import_gpx.py`)
 
 ---
 

@@ -81,6 +81,15 @@ https://supabase.com/dashboard/project/[PROJECT_REF]
                                         ^^^^^^^^^^^^
 ```
 
+### 5. Configure Auth Redirect URLs
+
+In the Supabase Dashboard → **Authentication** → **URL Configuration**, add the following to the **Redirect URLs** list:
+
+- `http://localhost:5174` (development)
+- Your production domain (e.g. `https://moto-routes.vercel.app`)
+
+This is required for Google OAuth and email magic-link flows to work correctly.
+
 ---
 
 ## MCP Configuration
@@ -155,7 +164,7 @@ mcp__supabase__list_extensions
 
 ### 3. Copy Token
 
-Use the token starting with `pk.` for `VITE_MAPBOX_TOKEN`.
+Use the token starting with `pk.` for `VITE_MAPBOX_ACCESS_TOKEN`.
 
 ---
 
@@ -165,7 +174,7 @@ Use the token starting with `pk.` for `VITE_MAPBOX_TOKEN`.
 
 ```env
 # Mapbox
-VITE_MAPBOX_TOKEN=pk.eyJ...your_token
+VITE_MAPBOX_ACCESS_TOKEN=pk.eyJ...your_token
 
 # Supabase
 VITE_SUPABASE_URL=https://your-project.supabase.co
@@ -211,7 +220,7 @@ npm install
 npm run dev
 ```
 
-Server runs at `http://localhost:5173`
+Server runs at `http://localhost:5174`
 
 ### Build for Production
 
@@ -224,34 +233,20 @@ Output in `frontend/dist/`
 ### Type Checking
 
 ```bash
-npm run type-check
+npm run typecheck
 ```
 
 ---
 
 ## Python Pipeline
 
-### Create Virtual Environment
+Run from the **project root** (not `frontend/`):
 
 ```bash
-cd scripts
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# or
-.\venv\Scripts\activate   # Windows
+uv run --with gpxpy==1.6.2 --with geopy==2.4.1 --with "supabase>=2.10,<3" python scripts/import_gpx.py
 ```
 
-### Install Dependencies
-
-```bash
-pip install gpxpy geopy supabase python-dotenv
-```
-
-### Run Import Script
-
-```bash
-python import_gpx.py
-```
+`uv` fetches dependencies on the fly — no virtual environment setup required.
 
 ---
 
@@ -331,7 +326,7 @@ mcp__supabase__get_advisors
 
 ### Frontend
 - [ ] `npm run dev` starts without errors
-- [ ] Map loads at localhost:5173
+- [ ] Map loads at localhost:5174
 - [ ] No console errors about missing env vars
 
 ### Python
@@ -361,7 +356,7 @@ Run `CREATE EXTENSION IF NOT EXISTS postgis;` in SQL Editor.
 
 Add your development URL to Supabase URL Configuration:
 - Settings > API > URL Configuration
-- Add `http://localhost:5173`
+- Add `http://localhost:5174`
 
 ### "MCP Authentication failed"
 

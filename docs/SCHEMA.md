@@ -6,7 +6,7 @@
 
 ## Overview
 
-The database uses **PostgreSQL with PostGIS** for geographic data. All geometry is stored as `LineString` in SRID 4326 (WGS84).
+The database uses **PostgreSQL with PostGIS** for geographic data. All geometry is stored in SRID 4326 (WGS84).
 
 **Critical Rule**: Coordinates are always `(longitude, latitude)` - longitude first!
 
@@ -64,6 +64,7 @@ erDiagram
         text name
         text slug UK
         geometry bounding_box "Polygon 4326"
+        text description
     }
 
     destination_featured_routes {
@@ -176,7 +177,7 @@ The main entity. Every route **must have** a geometry.
 | curve_count_sharp | integer | Sharp curves |
 | surface | text | Road surface type |
 | difficulty | text | Difficulty rating |
-| landscape_type | landscape_type | Type of landscape |
+| landscape_type | landscape_type | Type of landscape (ENUM) |
 | data_source | text | Source of GPX data |
 | road_id | uuid | Reference to abstract road |
 | is_segment_of | uuid | Parent route (if segment) |
@@ -206,6 +207,7 @@ Links journeys to routes with ordering.
 
 | Column | Type | Description |
 |--------|------|-------------|
+| id | uuid | Primary key |
 | journey_id | uuid | Reference to journey |
 | route_id | uuid | Reference to route |
 | stage_order | integer | Order in journey |
@@ -220,8 +222,20 @@ Geographic regions for discovery.
 | id | uuid | Primary key |
 | name | text | Destination name |
 | slug | text | URL-friendly identifier |
-| bounding_box | geometry | Geographic bounds |
+| bounding_box | geometry(Polygon, 4326) | Geographic bounds |
 | description | text | Destination description |
+| created_at | timestamp | Creation timestamp |
+| updated_at | timestamp | Last update timestamp |
+
+#### `destination_featured_routes`
+
+Links destinations to their highlighted routes.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| destination_id | uuid | Reference to destination |
+| route_id | uuid | Reference to route |
+| display_order | integer | Sort order (default: 0) |
 
 #### `pois`
 
@@ -231,11 +245,13 @@ Points of interest.
 |--------|------|-------------|
 | id | uuid | Primary key |
 | name | text | POI name |
-| type | text | POI type |
+| type | text | POI type (viewpoint, restaurant, fuel_station, etc.) |
 | geometry | geometry(Point, 4326) | Location |
 | description | text | POI description |
 | association_type | poi_association_type | Relation to route |
 | distance_meters | integer | Distance from route |
+| created_at | timestamp | Creation timestamp |
+| updated_at | timestamp | Last update timestamp |
 
 #### `route_pois`
 
@@ -245,7 +261,7 @@ Links routes to POIs.
 |--------|------|-------------|
 | route_id | uuid | Reference to route |
 | poi_id | uuid | Reference to POI |
-| km_marker | decimal | Position on route (km) |
+| km_marker | decimal | Position on route (km from start) |
 
 ---
 
@@ -253,20 +269,21 @@ Links routes to POIs.
 
 #### `user_favorites`
 
-User's saved routes.
+User's saved routes. RLS enforces users can only access their own rows.
 
 | Column | Type | Description |
 |--------|------|-------------|
-| user_id | uuid | Reference to auth.users |
-| route_id | uuid | Reference to route |
+| user_id | uuid | Reference to auth.users (PK) |
+| route_id | uuid | Reference to route (PK) |
 | created_at | timestamp | When favorited |
 
 #### `user_history`
 
-Routes viewed by user.
+Routes viewed by user. RLS enforces users can only access their own rows.
 
 | Column | Type | Description |
 |--------|------|-------------|
+| id | uuid | Primary key |
 | user_id | uuid | Reference to auth.users |
 | route_id | uuid | Reference to route |
 | viewed_at | timestamp | When viewed |
@@ -288,24 +305,31 @@ Abstract road designations (optional reference).
 | is_continuous | boolean | Is continuous road |
 | description | text | Road description |
 | wikipedia_url | text | Wikipedia link |
+| created_at | timestamp | Creation timestamp |
+| updated_at | timestamp | Last update timestamp |
 
 #### `translations`
 
-i18n support for content.
+i18n support for content. One row per `(entity_type, entity_id, field, lang)`.
 
 | Column | Type | Description |
 |--------|------|-------------|
-| entity_type | text | Table name |
+| id | uuid | Primary key |
+| entity_type | text | Table name (routes, journeys, destinations, pois) |
 | entity_id | uuid | Record ID |
-| field | text | Field name |
+| field | text | Field name (name, description) |
 | lang | text | Language code (pt, en) |
 | value | text | Translated value |
+| created_at | timestamp | Creation timestamp |
+| updated_at | timestamp | Last update timestamp |
 
 ---
 
 ## ENUMs
 
 ### `landscape_type`
+
+Used on `routes.landscape_type`. The `get_destinations()` RPC also casts this field from `destinations`.
 
 ```sql
 CREATE TYPE landscape_type AS ENUM (
@@ -378,7 +402,7 @@ CREATE INDEX translations_entity_idx ON translations (entity_type, entity_id);
 ### Public Read Access
 
 ```sql
--- Routes, journeys, destinations, POIs are public
+-- Routes, journeys, destinations, POIs, roads, translations are public
 CREATE POLICY "Public read access" ON routes
   FOR SELECT TO public USING (true);
 
@@ -426,19 +450,18 @@ PostgreSQL functions exposed via Supabase REST API (`supabase.rpc()`).
 
 ### `get_pois_for_route`
 
-Returns POIs for a given route with extracted coordinates (PostGIS geometry columns return `null` in the JS client — this function uses `ST_X`/`ST_Y` to convert).
+Returns POIs for a given route with extracted coordinates. PostGIS geometry columns return `null` in the JS client — this function uses `ST_X`/`ST_Y` to convert coordinates.
 
-**Signature**:
+**Signature** (from `schema.sql`):
 ```sql
 get_pois_for_route(p_route_id uuid)
 RETURNS TABLE (
   id               uuid,
   name             text,
-  type             text,
   description      text,
-  association_type text,        -- 'on_route' | 'near_route' | 'detour'
-  distance_meters  integer,
-  km_marker        numeric,     -- position on route in km
+  poi_type         text,         -- POI category
+  association_type poi_association_type,
+  km_marker        numeric,      -- position on route in km
   longitude        double precision,
   latitude         double precision
 )
@@ -448,10 +471,35 @@ RETURNS TABLE (
 ```typescript
 const { data } = await supabase
   .rpc('get_pois_for_route', { p_route_id: routeId } as never)
-// Note: `as never` needed due to Supabase RPC TypeScript inference — see TROUBLESHOOTING.md
+// Note: `as never` needed due to Supabase RPC TypeScript inference
 ```
 
 **Orders by**: `km_marker ASC`
+
+---
+
+### `get_destinations`
+
+Returns all destinations with bounding box as GeoJSON (PostGIS geometry columns return `null` in the JS client — this function uses `ST_AsGeoJSON` to convert).
+
+**Signature** (from `schema.sql`):
+```sql
+get_destinations()
+RETURNS TABLE (
+  id                  uuid,
+  name                text,
+  slug                text,
+  description         text,
+  landscape_type      text,
+  bounding_box_geojson json
+)
+```
+
+**Usage (TypeScript)**:
+```typescript
+const { data } = await supabase
+  .rpc('get_destinations', {} as never)
+```
 
 ---
 
@@ -475,7 +523,7 @@ WHERE slug = 'n222-vale-do-douro';
 // Use RPC — PostGIS geometry columns return null in JS client
 const { data } = await supabase
   .rpc('get_pois_for_route', { p_route_id: routeId } as never)
-// Returns: { id, name, type, description, association_type, km_marker, longitude, latitude }[]
+// Returns: { id, name, description, poi_type, association_type, km_marker, longitude, latitude }[]
 ```
 
 ### Get POIs for a route (SQL — backend/migrations)
@@ -520,5 +568,4 @@ WHERE id = $1;
 ## Related Documents
 
 - [Architecture](./ARCHITECTURE.md) - System design
-- [Setup](./SETUP.md) - Database setup instructions
 - [Patterns](./PATTERNS.md) - Query patterns and best practices

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { supabase } from '../lib/supabase'
 import { fetchTranslations } from '../lib/translations'
@@ -27,6 +27,22 @@ export interface Route {
   curve_count_total: number | null
   curve_count_sharp: number | null
   geometry_geojson: RouteGeoJSON
+  is_segment_of: string | null
+  is_extension_of: string | null
+  is_variant_of: string | null
+}
+
+export type RouteRelationType = 'extension' | 'variant' | 'segment' | null
+
+export function getParentId(route: Route): string | null {
+  return route.is_segment_of ?? route.is_extension_of ?? route.is_variant_of ?? null
+}
+
+export function getRelationType(route: Route): RouteRelationType {
+  if (route.is_extension_of) return 'extension'
+  if (route.is_variant_of) return 'variant'
+  if (route.is_segment_of) return 'segment'
+  return null
 }
 
 // Use unknown so the predicate is compatible with Json | null at call sites
@@ -43,6 +59,8 @@ function isRouteGeoJSON(value: unknown): value is RouteGeoJSON {
 
 interface UseRoutesState {
   routes: Route[]
+  rootRoutes: Route[]
+  getChildren: (id: string) => Route[]
   loading: boolean
   error: string | null
   selectedRoute: Route | null
@@ -96,6 +114,9 @@ export function useRoutes(lang: string = 'pt'): UseRoutesState {
           curve_count_total: row.curve_count_total,
           curve_count_sharp: row.curve_count_sharp,
           geometry_geojson: row.geometry_geojson as RouteGeoJSON,
+          is_segment_of: row.is_segment_of,
+          is_extension_of: row.is_extension_of,
+          is_variant_of: row.is_variant_of,
         })
       }
 
@@ -105,8 +126,17 @@ export function useRoutes(lang: string = 'pt'): UseRoutesState {
     })
   }, [normalizedLang])
 
+  const rootRoutes = useMemo(() => routes.filter(r => getParentId(r) === null), [routes])
+
+  const getChildren = useMemo(() => {
+    return (id: string) =>
+      routes.filter(r => r.is_segment_of === id || r.is_extension_of === id || r.is_variant_of === id)
+  }, [routes])
+
   return {
     routes,
+    rootRoutes,
+    getChildren,
     loading,
     error,
     selectedRoute,
