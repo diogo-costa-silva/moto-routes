@@ -72,7 +72,7 @@ export function RouteDetails({ route, onClose, pois, isFavorite, isAuthenticated
 
   useEffect(() => {
     onHeightChange?.(height)
-  }, [height])
+  }, [height, onHeightChange])
 
   return (
     /* Mobile: bottom sheet */

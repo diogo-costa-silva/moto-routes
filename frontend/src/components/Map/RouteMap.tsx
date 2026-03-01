@@ -215,6 +215,8 @@ export function RouteMap({
             ? 'Nearby'
             : 'Detour'
 
+      const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
       popupRef.current?.remove()
       popupRef.current = new mapboxgl.Popup({ closeButton: false, maxWidth: '260px', className: 'dark-popup' })
         .setLngLat(coords)
@@ -222,10 +224,10 @@ export function RouteMap({
           `<div>
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
               <span style="font-size:18px">${emoji}</span>
-              <strong style="font-size:14px">${props.name}</strong>
+              <strong style="font-size:14px">${esc(props.name)}</strong>
             </div>
             <span style="display:inline-block;background:${colour}22;color:${colour};border:1px solid ${colour}55;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:600;margin-bottom:${props.description ? '6px' : '0'}">${assocLabel}</span>
-            ${props.description ? `<p style="margin:0;font-size:12px;opacity:0.7;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical">${props.description}</p>` : ''}
+            ${props.description ? `<p style="margin:0;font-size:12px;opacity:0.7;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical">${esc(props.description)}</p>` : ''}
           </div>`,
         )
         .addTo(mapRef.current!)
