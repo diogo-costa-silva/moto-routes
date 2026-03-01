@@ -3,6 +3,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { RoutePOI } from '../../hooks/useRoutePOIs'
 import type { Route } from '../../hooks/useRoutes'
+import type { RoadAlternative } from '../../types/database'
 import {
   LAYER_BASE,
   LAYER_HOVER,
@@ -10,6 +11,10 @@ import {
   LAYER_SELECTED,
   SOURCE_ALL,
   SOURCE_SELECTED,
+  addContextDimLayer,
+  addContextDimSources,
+  addGeoBoundaryLayers,
+  addGeoBoundarySources,
   addPOILayers,
   addPOISources,
   addRouteLayers,
@@ -17,6 +22,8 @@ import {
   addSubRouteLayers,
   addSubRouteSources,
   buildFeatureCollection,
+  updateContextSegmentsSource,
+  updateGeoBoundarySource,
   updatePOISource,
   updateSubRouteSource,
 } from './mapLayers'
@@ -50,6 +57,9 @@ interface RouteMapProps {
   pois: RoutePOI[]
   onPOIClick: (poi: RoutePOI) => void
   subRoutes?: Route[]
+  selectedAlternative?: RoadAlternative | null
+  contextSegments?: Route[]
+  geoBoundary?: GeoJSON.MultiPolygon | null
 }
 
 export function RouteMap({
@@ -63,6 +73,9 @@ export function RouteMap({
   pois,
   onPOIClick,
   subRoutes = [],
+  selectedAlternative = null,
+  contextSegments = [],
+  geoBoundary = null,
 }: RouteMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -94,10 +107,14 @@ export function RouteMap({
     map.addControl(new mapboxgl.NavigationControl(), 'top-right')
 
     map.on('load', () => {
+      addGeoBoundarySources(map)
+      addGeoBoundaryLayers(map)
       addRouteSources(map, [])
       addRouteLayers(map)
       addSubRouteSources(map)
       addSubRouteLayers(map)
+      addContextDimSources(map)
+      addContextDimLayer(map)
       addPOISources(map)
       addPOILayers(map)
       setMapInstance(map)
@@ -131,6 +148,20 @@ export function RouteMap({
     if (!map || !mapReady) return
     updateSubRouteSource(map, subRoutes)
   }, [subRoutes, mapReady])
+
+  // Sync context dim segments (non-active routes of the same road)
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapReady) return
+    updateContextSegmentsSource(map, contextSegments)
+  }, [contextSegments, mapReady])
+
+  // Sync geographic boundary
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !mapReady) return
+    updateGeoBoundarySource(map, geoBoundary ?? null)
+  }, [geoBoundary, mapReady])
 
   // Sync POI source when pois list changes
   useEffect(() => {
@@ -259,7 +290,7 @@ export function RouteMap({
     map.setFilter(LAYER_HOVER, ['==', ['get', 'id'], hoveredRouteId ?? ''])
   }, [hoveredRouteId, mapReady])
 
-  // Handle route selection: update selected source + fit-to-bounds + trigger animation
+  // Handle route/alternative selection: update selected source + fit-to-bounds + trigger animation
   useEffect(() => {
     const map = mapRef.current
     if (!map || !mapReady) return
@@ -267,25 +298,35 @@ export function RouteMap({
     const source = map.getSource(SOURCE_SELECTED) as mapboxgl.GeoJSONSource | undefined
     if (!source) return
 
-    if (!selectedRoute) {
+    // Use alternative geometry if available, otherwise route geometry; clear if neither
+    const altGeom = selectedAlternative?.geometry_geojson
+    const geometry = altGeom ?? selectedRoute?.geometry_geojson
+
+    if (!geometry) {
       source.setData({ type: 'FeatureCollection', features: [] })
       map.flyTo({ center: [-7.9, 41.0], zoom: 7, duration: 1000 })
       return
     }
 
-    source.setData({
-      type: 'Feature',
-      properties: {},
-      geometry: selectedRoute.geometry_geojson,
-    })
+    source.setData({ type: 'Feature', properties: {}, geometry: geometry as GeoJSON.Geometry })
 
     // Reset dasharray before animation
     map.setPaintProperty(LAYER_SELECTED, 'line-dasharray', [0, 2])
 
-    // Compute bounds from route coordinates
-    const coords = selectedRoute.geometry_geojson.coordinates as [number, number][]
-    const lons = coords.map(c => c[0])
-    const lats = coords.map(c => c[1])
+    // Compute bounds — handle LineString and MultiLineString
+    let allCoords: [number, number][] = []
+    if (geometry.type === 'LineString') {
+      allCoords = geometry.coordinates as [number, number][]
+    } else if (geometry.type === 'MultiLineString') {
+      allCoords = (geometry.coordinates as [number, number][][]).flat()
+    } else if (selectedRoute) {
+      allCoords = selectedRoute.geometry_geojson.coordinates as [number, number][]
+    }
+
+    if (allCoords.length === 0) return
+
+    const lons = allCoords.map(c => c[0])
+    const lats = allCoords.map(c => c[1])
     const bounds = new mapboxgl.LngLatBounds(
       [Math.min(...lons), Math.min(...lats)],
       [Math.max(...lons), Math.max(...lats)],
@@ -298,7 +339,7 @@ export function RouteMap({
 
     map.fitBounds(bounds, { padding, duration: 1500, maxZoom: 13 })
     map.once('moveend', () => setAnimating(true))
-  }, [selectedRoute, mapReady, isMobile, bottomPanelHeight])
+  }, [selectedRoute, selectedAlternative, mapReady, isMobile, bottomPanelHeight])
 
   if (!MAPBOX_TOKEN) {
     return (

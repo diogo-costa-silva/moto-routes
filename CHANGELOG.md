@@ -8,6 +8,39 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+### REFORM Phase 11 — Roads → Alternatives → Geographic Areas
+
+#### Sprint A — Database Schema + Data
+- **`roads`** — 3 new columns: `hero_image_url`, `country_code`, `total_distance_km`
+- **`routes`** — 3 new columns: `is_featured`, `highlight_note_pt`, `highlight_note_en`
+- **`road_alternatives`** — new table: curated alternatives per road with merged `geometry_geojson` (JSONB), stats, slug, `is_default` flag
+- **`alternative_segments`** — junction table linking which routes compose each alternative (ordered)
+- **`geographic_areas`** — hierarchical areas (continent → municipality) with PostGIS MultiPolygon, `geo_level` ENUM, self-referencing `parent_id`
+- **`route_geographic_areas`** — m:m junction for route ↔ area membership (auto-populated via PostGIS intersection)
+- **`geo_level` ENUM** — 7 levels: continent, country, macro_region, historic_province, natural_park, district, municipality
+- **RPCs added**: `get_roads_with_alternatives()`, `get_geographic_areas()`, `get_routes_in_area()`, `populate_route_geographic_areas()`, `get_area_boundary()`
+- **Data**: 5 roads inserted (N222, N304, N2, N103, ES-Figueres-Cadaqués), all routes linked via `road_id`, 8 alternatives created with merged geometry (N222 ×4, N2 ×2, N304 ×1, ES ×1), 12 alternative_segments
+- **`scripts/schema.sql`** — REFORM Phase 11 section appended (all migrations + RPCs)
+- **`frontend/src/types/database.ts`** — added `GeoLevel`, `AlternativeGeoJSON`, `Road`, `RoadAlternative`, `RoadWithAlternatives`, `GeographicArea` interfaces; extended `Database` with 4 new tables + 3 new RPCs; added `is_featured`/`highlight_note_*` to routes Row
+
+#### Sprint B — Frontend Roads + Alternatives
+- **`hooks/useRoads.ts`** — new hook: fetches roads + alternatives via RPC, groups by road_id, deduplicates, exposes `selectRoad`/`selectAlternative` state
+- **`components/Routes/RoadList.tsx`** — new component: road cards with code badge, designation, distance/elevation from active alternative, "N alternativas" badge
+- **`components/Routes/AlternativeSelector.tsx`** — new component: tab-style list of alternatives with stats; highlights active, shows "padrão" label on default
+- **`components/Map/mapLayers.ts`** — added `SOURCE_CONTEXT_SEGMENTS`, `LAYER_CONTEXT_DIM` (dark brown dim lines for non-active road segments)
+- **`components/Map/RouteMap.tsx`** — new props `selectedAlternative`, `contextSegments`, `geoBoundary`; uses alternative geometry (LineString/MultiLineString) for map bounds + selected layer; geo boundary layers initialized before route layers
+- **`pages/RoutesPage.tsx`** — refactored from route-list to road-list: uses `useRoads` + `useRoutes` in parallel, `AlternativeSelector` in sidebar, `GeographicFilter` placeholder, context segments derived from selected road
+
+#### Sprint C — Geographic Data
+- **`scripts/import_geographic_areas.py`** — new pipeline: Section 1 anchor hierarchy (Europa/Portugal/Espanha/macro-regions), Section 2 CAOP districts (with GeoJSON + fallback), Section 3 Overpass API natural parks (with manual fallback), Section 4 GADM Spain regions, Section 5 historic provinces PT (manual). Run with `uv run --with requests --with psycopg2-binary python scripts/import_geographic_areas.py`
+- **RPCs**: `get_area_boundary(p_area_id)` added for frontend boundary rendering
+
+#### Sprint D — Frontend Geographic
+- **`hooks/useGeographicAreas.ts`** — new hook: hierarchical navigation with cache, breadcrumb builder, `selectArea`/`resetToRoot`
+- **`components/Routes/GeographicFilter.tsx`** — new component: dropdown with hierarchical drill-down, breadcrumb nav, route count badges, × to clear; auto-hides when no areas loaded
+- **`components/Map/mapLayers.ts`** — added `SOURCE_GEO_BOUNDARY`, `LAYER_GEO_BOUNDARY_FILL`/`_OUTLINE` (dashed blue boundary overlay)
+- **`pages/RoutesPage.tsx`** — wires `GeographicFilter` + `useGeographicAreas`; fetches boundary GeoJSON via `get_area_boundary` RPC on area selection; passes `geoBoundary` to `RouteMap`
+
 ### Documentação — Transformação e limpeza de docs/
 - `docs/COMMANDS.md` eliminado — duplicava CLAUDE.md, porta errada (5173), skills obsoletos
 - `docs/STACK.md` eliminado — conteúdo absorvido em ARCHITECTURE.md como secção "Stack Rationale"

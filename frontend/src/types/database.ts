@@ -17,6 +17,66 @@ export type LandscapeType =
 
 export type PoiAssociationType = 'on_route' | 'near_route' | 'detour'
 
+export type GeoLevel =
+  | 'continent'
+  | 'country'
+  | 'macro_region'
+  | 'historic_province'
+  | 'natural_park'
+  | 'district'
+  | 'municipality'
+
+// ---- Domain interfaces for frontend use ----
+
+export interface AlternativeGeoJSON {
+  type: 'LineString' | 'MultiLineString' | 'GeometryCollection'
+  coordinates: number[][] | number[][][] | unknown[]
+}
+
+export interface Road {
+  id: string
+  code: string
+  designation: string | null
+  hero_image_url: string | null
+  country_code: string | null
+  total_distance_km: number | null
+  description: string | null
+}
+
+export interface RoadAlternative {
+  id: string
+  road_id: string
+  name: string
+  slug: string
+  description: string | null
+  is_default: boolean
+  display_order: number
+  distance_km: number | null
+  elevation_gain: number | null
+  elevation_max: number | null
+  geometry_geojson: AlternativeGeoJSON | null
+  created_by: string | null
+}
+
+export interface RoadWithAlternatives extends Road {
+  alternatives: RoadAlternative[]
+  defaultAlternative: RoadAlternative | null
+  alt_count: number
+}
+
+export interface GeographicArea {
+  id: string
+  name: string
+  slug: string
+  level: GeoLevel
+  parent_id: string | null
+  country_code: string | null
+  display_order: number
+  description: string | null
+  hero_image_url: string | null
+  route_count: number
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -29,6 +89,9 @@ export interface Database {
           is_continuous: boolean | null
           description: string | null
           wikipedia_url: string | null
+          hero_image_url: string | null
+          country_code: string | null
+          total_distance_km: number | null
           created_at: string | null
           updated_at: string | null
         }
@@ -40,10 +103,107 @@ export interface Database {
           is_continuous?: boolean | null
           description?: string | null
           wikipedia_url?: string | null
+          hero_image_url?: string | null
+          country_code?: string | null
+          total_distance_km?: number | null
           created_at?: string | null
           updated_at?: string | null
         }
         Update: Partial<Database['public']['Tables']['roads']['Insert']>
+      }
+      road_alternatives: {
+        Row: {
+          id: string
+          road_id: string
+          name: string
+          slug: string
+          description: string | null
+          is_default: boolean
+          display_order: number
+          distance_km: number | null
+          elevation_gain: number | null
+          elevation_max: number | null
+          geometry_geojson: Json | null
+          created_by: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          road_id: string
+          name: string
+          slug: string
+          description?: string | null
+          is_default?: boolean
+          display_order?: number
+          distance_km?: number | null
+          elevation_gain?: number | null
+          elevation_max?: number | null
+          geometry_geojson?: Json | null
+          created_by?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['road_alternatives']['Insert']>
+      }
+      alternative_segments: {
+        Row: {
+          id: string
+          alternative_id: string
+          route_id: string
+          segment_order: number
+          replaces_route_id: string | null
+        }
+        Insert: {
+          id?: string
+          alternative_id: string
+          route_id: string
+          segment_order: number
+          replaces_route_id?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['alternative_segments']['Insert']>
+      }
+      geographic_areas: {
+        Row: {
+          id: string
+          name: string
+          slug: string
+          level: GeoLevel
+          parent_id: string | null
+          country_code: string | null
+          display_order: number
+          description: string | null
+          hero_image_url: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          slug: string
+          level: GeoLevel
+          parent_id?: string | null
+          country_code?: string | null
+          display_order?: number
+          description?: string | null
+          hero_image_url?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: Partial<Database['public']['Tables']['geographic_areas']['Insert']>
+      }
+      route_geographic_areas: {
+        Row: {
+          route_id: string
+          area_id: string
+          is_auto: boolean
+        }
+        Insert: {
+          route_id: string
+          area_id: string
+          is_auto?: boolean
+        }
+        Update: Partial<Database['public']['Tables']['route_geographic_areas']['Insert']>
       }
       routes: {
         Row: {
@@ -71,6 +231,9 @@ export interface Database {
           is_segment_of: string | null
           is_extension_of: string | null
           is_variant_of: string | null
+          is_featured: boolean
+          highlight_note_pt: string | null
+          highlight_note_en: string | null
           created_at: string | null
           updated_at: string | null
         }
@@ -99,6 +262,9 @@ export interface Database {
           is_segment_of?: string | null
           is_extension_of?: string | null
           is_variant_of?: string | null
+          is_featured?: boolean
+          highlight_note_pt?: string | null
+          highlight_note_en?: string | null
           created_at?: string | null
           updated_at?: string | null
         }
@@ -294,10 +460,49 @@ export interface Database {
           latitude: number
         }[]
       }
+      get_roads_with_alternatives: {
+        Args: Record<string, never>
+        Returns: {
+          road_id: string
+          road_code: string
+          road_designation: string | null
+          road_country_code: string | null
+          road_total_distance_km: number | null
+          alt_id: string | null
+          alt_name: string | null
+          alt_slug: string | null
+          alt_is_default: boolean | null
+          alt_display_order: number | null
+          alt_distance_km: number | null
+          alt_elevation_gain: number | null
+          alt_elevation_max: number | null
+          alt_geometry_geojson: Json | null
+          alt_count: number
+        }[]
+      }
+      get_geographic_areas: {
+        Args: { p_level?: string | null; p_parent_id?: string | null }
+        Returns: {
+          id: string
+          name: string
+          slug: string
+          level: GeoLevel
+          parent_id: string | null
+          country_code: string | null
+          display_order: number
+          description: string | null
+          route_count: number
+        }[]
+      }
+      get_routes_in_area: {
+        Args: { p_area_id: string }
+        Returns: { route_id: string; road_id: string | null }[]
+      }
     }
     Enums: {
       landscape_type: LandscapeType
       poi_association_type: PoiAssociationType
+      geo_level: GeoLevel
     }
   }
 }

@@ -378,3 +378,170 @@ COMMENT ON TABLE pois IS 'Points of interest along routes';
 
 COMMENT ON TYPE landscape_type IS 'Classification of route landscape';
 COMMENT ON TYPE poi_association_type IS 'How a POI relates to a route: on_route (0m), near_route (<500m), detour (>500m)';
+
+-- ============================================================================
+-- REFORM — Phase 11 (2026-03)
+-- Roads → Alternatives → Segments + Geographic Areas
+-- ============================================================================
+
+-- Extend roads table
+ALTER TABLE roads ADD COLUMN IF NOT EXISTS hero_image_url TEXT;
+ALTER TABLE roads ADD COLUMN IF NOT EXISTS country_code TEXT DEFAULT 'pt';
+ALTER TABLE roads ADD COLUMN IF NOT EXISTS total_distance_km NUMERIC(8,2);
+
+-- Extend routes table
+ALTER TABLE routes ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT true;
+ALTER TABLE routes ADD COLUMN IF NOT EXISTS highlight_note_pt TEXT;
+ALTER TABLE routes ADD COLUMN IF NOT EXISTS highlight_note_en TEXT;
+
+-- Geographic level enum
+DO $$ BEGIN
+  CREATE TYPE geo_level AS ENUM (
+    'continent', 'country', 'macro_region', 'historic_province',
+    'natural_park', 'district', 'municipality'
+  );
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- Curated road alternatives (each road has 1+ alternatives with merged geometry)
+CREATE TABLE IF NOT EXISTS road_alternatives (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  road_id UUID NOT NULL REFERENCES roads(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  description TEXT,
+  is_default BOOLEAN DEFAULT false,
+  display_order INTEGER DEFAULT 0,
+  distance_km NUMERIC(8,2),
+  elevation_gain INTEGER,
+  elevation_max INTEGER,
+  geometry_geojson JSONB,
+  created_by UUID REFERENCES auth.users(id),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS road_alternatives_road_id_idx ON road_alternatives(road_id);
+CREATE INDEX IF NOT EXISTS road_alternatives_slug_idx ON road_alternatives(slug);
+ALTER TABLE road_alternatives ENABLE ROW LEVEL SECURITY;
+
+-- Junction: which routes compose each alternative (ordered)
+CREATE TABLE IF NOT EXISTS alternative_segments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  alternative_id UUID NOT NULL REFERENCES road_alternatives(id) ON DELETE CASCADE,
+  route_id UUID NOT NULL REFERENCES routes(id),
+  segment_order INTEGER NOT NULL,
+  replaces_route_id UUID REFERENCES routes(id),
+  UNIQUE(alternative_id, segment_order)
+);
+
+CREATE INDEX IF NOT EXISTS alternative_segments_alternative_id_idx ON alternative_segments(alternative_id);
+CREATE INDEX IF NOT EXISTS alternative_segments_route_id_idx ON alternative_segments(route_id);
+ALTER TABLE alternative_segments ENABLE ROW LEVEL SECURITY;
+
+-- Hierarchical geographic areas (continent → municipality)
+CREATE TABLE IF NOT EXISTS geographic_areas (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  level geo_level NOT NULL,
+  parent_id UUID REFERENCES geographic_areas(id),
+  geom GEOMETRY(MultiPolygon, 4326),
+  country_code TEXT,
+  display_order INTEGER DEFAULT 0,
+  description TEXT,
+  hero_image_url TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS geographic_areas_geom_idx ON geographic_areas USING GIST(geom);
+CREATE INDEX IF NOT EXISTS geographic_areas_parent_id_idx ON geographic_areas(parent_id);
+CREATE INDEX IF NOT EXISTS geographic_areas_level_idx ON geographic_areas(level);
+CREATE INDEX IF NOT EXISTS geographic_areas_country_code_idx ON geographic_areas(country_code);
+ALTER TABLE geographic_areas ENABLE ROW LEVEL SECURITY;
+
+-- Routes ↔ geographic areas (auto-populated via PostGIS intersection)
+CREATE TABLE IF NOT EXISTS route_geographic_areas (
+  route_id UUID NOT NULL REFERENCES routes(id) ON DELETE CASCADE,
+  area_id UUID NOT NULL REFERENCES geographic_areas(id) ON DELETE CASCADE,
+  is_auto BOOLEAN DEFAULT true,
+  PRIMARY KEY (route_id, area_id)
+);
+
+CREATE INDEX IF NOT EXISTS route_geographic_areas_area_id_idx ON route_geographic_areas(area_id);
+ALTER TABLE route_geographic_areas ENABLE ROW LEVEL SECURITY;
+
+-- RPC: roads with their alternatives (for frontend listing)
+CREATE OR REPLACE FUNCTION get_roads_with_alternatives()
+RETURNS TABLE (
+  road_id uuid, road_code text, road_designation text,
+  road_country_code text, road_total_distance_km numeric,
+  alt_id uuid, alt_name text, alt_slug text, alt_is_default boolean,
+  alt_display_order integer, alt_distance_km numeric,
+  alt_elevation_gain integer, alt_elevation_max integer,
+  alt_geometry_geojson jsonb, alt_count bigint
+)
+LANGUAGE sql SECURITY DEFINER AS $$
+  SELECT
+    r.id, r.code, r.designation, r.country_code, r.total_distance_km,
+    ra.id, ra.name, ra.slug, ra.is_default, ra.display_order,
+    ra.distance_km, ra.elevation_gain, ra.elevation_max, ra.geometry_geojson,
+    COUNT(ra2.id) OVER (PARTITION BY r.id)
+  FROM roads r
+  LEFT JOIN road_alternatives ra ON ra.road_id = r.id
+  LEFT JOIN road_alternatives ra2 ON ra2.road_id = r.id
+  ORDER BY r.code, ra.display_order;
+$$;
+GRANT EXECUTE ON FUNCTION get_roads_with_alternatives() TO public;
+
+-- RPC: geographic areas with route counts
+CREATE OR REPLACE FUNCTION get_geographic_areas(p_level geo_level DEFAULT NULL, p_parent_id uuid DEFAULT NULL)
+RETURNS TABLE (
+  id uuid, name text, slug text, level geo_level,
+  parent_id uuid, country_code text, display_order integer,
+  description text, route_count bigint
+)
+LANGUAGE sql SECURITY DEFINER AS $$
+  SELECT
+    ga.id, ga.name, ga.slug, ga.level, ga.parent_id,
+    ga.country_code, ga.display_order, ga.description,
+    COUNT(DISTINCT rga.route_id) AS route_count
+  FROM geographic_areas ga
+  LEFT JOIN route_geographic_areas rga ON rga.area_id = ga.id
+  WHERE (p_level IS NULL OR ga.level = p_level)
+    AND (p_parent_id IS NULL OR ga.parent_id = p_parent_id)
+  GROUP BY ga.id
+  ORDER BY ga.display_order, ga.name;
+$$;
+GRANT EXECUTE ON FUNCTION get_geographic_areas(geo_level, uuid) TO public;
+
+-- RPC: auto-populate route_geographic_areas via PostGIS intersection
+CREATE OR REPLACE FUNCTION populate_route_geographic_areas()
+RETURNS INTEGER
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE rows_inserted INTEGER;
+BEGIN
+  INSERT INTO route_geographic_areas (route_id, area_id, is_auto)
+  SELECT r.id, g.id, true
+  FROM routes r
+  CROSS JOIN geographic_areas g
+  WHERE g.geom IS NOT NULL
+    AND ST_Intersects(r.geometry, g.geom)
+  ON CONFLICT DO NOTHING;
+  GET DIAGNOSTICS rows_inserted = ROW_COUNT;
+  RETURN rows_inserted;
+END;
+$$;
+GRANT EXECUTE ON FUNCTION populate_route_geographic_areas() TO postgres;
+
+-- RPC: routes in a geographic area
+CREATE OR REPLACE FUNCTION get_routes_in_area(p_area_id uuid)
+RETURNS TABLE (route_id uuid, road_id uuid)
+LANGUAGE sql SECURITY DEFINER AS $$
+  SELECT rga.route_id, r.road_id
+  FROM route_geographic_areas rga
+  JOIN routes r ON r.id = rga.route_id
+  WHERE rga.area_id = p_area_id;
+$$;
+GRANT EXECUTE ON FUNCTION get_routes_in_area(uuid) TO public;

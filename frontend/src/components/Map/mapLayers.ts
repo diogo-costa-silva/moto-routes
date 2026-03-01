@@ -193,6 +193,87 @@ export function updateSubRouteSource(map: MapboxMap, routes: Route[]): void {
 // Type alias re-export so RouteMap can get GeoJSONSource type from here
 export type { GeoJSONSource }
 
+// --- Context dim layer (non-active segments of the selected road) ---
+
+export const SOURCE_CONTEXT_SEGMENTS = 'context-segments'
+export const LAYER_CONTEXT_DIM = 'context-dim'
+
+export function addContextDimSources(map: MapboxMap): void {
+  map.addSource(SOURCE_CONTEXT_SEGMENTS, {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] },
+  })
+}
+
+export function addContextDimLayer(map: MapboxMap): void {
+  map.addLayer({
+    id: LAYER_CONTEXT_DIM,
+    type: 'line',
+    source: SOURCE_CONTEXT_SEGMENTS,
+    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    paint: {
+      'line-color': '#7c2d12',
+      'line-width': 3,
+      'line-opacity': 0.4,
+    },
+  })
+}
+
+export function updateContextSegmentsSource(map: MapboxMap, routes: Route[]): void {
+  const source = map.getSource(SOURCE_CONTEXT_SEGMENTS) as GeoJSONSource | undefined
+  source?.setData(buildFeatureCollection(routes))
+}
+
+// --- Geographic boundary layer (selected geographic area) ---
+
+export const SOURCE_GEO_BOUNDARY = 'geo-boundary'
+export const LAYER_GEO_BOUNDARY_FILL = 'geo-boundary-fill'
+export const LAYER_GEO_BOUNDARY_OUTLINE = 'geo-boundary-outline'
+
+export function addGeoBoundarySources(map: MapboxMap): void {
+  map.addSource(SOURCE_GEO_BOUNDARY, {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] },
+  })
+}
+
+export function addGeoBoundaryLayers(map: MapboxMap): void {
+  map.addLayer({
+    id: LAYER_GEO_BOUNDARY_FILL,
+    type: 'fill',
+    source: SOURCE_GEO_BOUNDARY,
+    paint: {
+      'fill-color': '#3b82f6',
+      'fill-opacity': 0.06,
+    },
+  })
+  map.addLayer({
+    id: LAYER_GEO_BOUNDARY_OUTLINE,
+    type: 'line',
+    source: SOURCE_GEO_BOUNDARY,
+    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    paint: {
+      'line-color': '#3b82f6',
+      'line-width': 2,
+      'line-opacity': 0.5,
+      'line-dasharray': [6, 3],
+    },
+  })
+}
+
+export function updateGeoBoundarySource(
+  map: MapboxMap,
+  multipolygon: GeoJSON.MultiPolygon | null,
+): void {
+  const source = map.getSource(SOURCE_GEO_BOUNDARY) as GeoJSONSource | undefined
+  if (!source) return
+  if (!multipolygon) {
+    source.setData({ type: 'FeatureCollection', features: [] })
+  } else {
+    source.setData({ type: 'Feature', properties: {}, geometry: multipolygon })
+  }
+}
+
 // --- Journey helpers ---
 
 export const SOURCE_JOURNEY_STAGES = 'journey-stages'

@@ -8,18 +8,25 @@ import { NavHeader } from '../components/AppShell/NavHeader'
 import { MobileTabBar } from '../components/AppShell/MobileTabBar'
 import { RouteMap } from '../components/Map/RouteMap'
 import { DetailsContent, RouteDetails } from '../components/Routes/RouteDetails'
-import { RouteList } from '../components/Routes/RouteList'
+import { AlternativeSelector } from '../components/Routes/AlternativeSelector'
+import { RoadList } from '../components/Routes/RoadList'
 import { LandscapeFilter } from '../components/Routes/LandscapeFilter'
+import { GeographicFilter } from '../components/Routes/GeographicFilter'
 import { LoginModal } from '../components/Auth/LoginModal'
 import { useRoutePOIs } from '../hooks/useRoutePOIs'
+import { useRoads } from '../hooks/useRoads'
 import { useRoutes, type Route } from '../hooks/useRoutes'
+import { useGeographicAreas } from '../hooks/useGeographicAreas'
 import { useAuth } from '../hooks/useAuth'
 import { useFavorites } from '../hooks/useFavorites'
 import { useHistory } from '../hooks/useHistory'
+import { supabase } from '../lib/supabase'
 
 export function RoutesPage() {
   const { i18n, t } = useTranslation()
-  const { routes, rootRoutes, getChildren, loading, error, selectedRoute, hoveredRouteId, selectRoute, hoverRoute } = useRoutes(i18n.language)
+  const { routes, loading: routesLoading, error, selectedRoute, hoveredRouteId, selectRoute, hoverRoute } = useRoutes(i18n.language)
+  const { roads, loading: roadsLoading, selectedRoad, selectedAlternative, selectRoad, selectAlternative } = useRoads()
+  const geoAreas = useGeographicAreas(null, null)
   const { user } = useAuth()
   const { isFavorite, toggleFavorite } = useFavorites()
   const { recordView } = useHistory()
@@ -27,44 +34,59 @@ export function RoutesPage() {
   const { slug } = useParams<{ slug?: string }>()
   const navigate = useNavigate()
   const location = useLocation()
-  // Guard: pre-select only once (prevents re-select loop when closing)
   const didPreSelect = useRef(false)
 
   const [landscapeFilters, setLandscapeFilters] = useState<string[]>([])
   const [activeSubRoute, setActiveSubRoute] = useState<Route | null>(null)
 
-  // The route shown in details/map: sub-route takes priority over parent
   const effectiveRoute = activeSubRoute ?? selectedRoute
-
   const { pois } = useRoutePOIs(effectiveRoute?.id ?? null)
+  const loading = routesLoading || roadsLoading
 
+  // Fetch geo boundary GeoJSON when an area is selected
+  const [geoBoundary, setGeoBoundary] = useState<GeoJSON.MultiPolygon | null>(null)
+  useEffect(() => {
+    const area = geoAreas.selectedArea
+    if (!area) { setGeoBoundary(null); return }
+    supabase.rpc('get_area_boundary', { p_area_id: area.id } as never).then(({ data }) => {
+      const rows = (data ?? []) as { geojson: string }[]
+      if (rows.length > 0) {
+        try { setGeoBoundary(JSON.parse(rows[0].geojson) as GeoJSON.MultiPolygon) }
+        catch { setGeoBoundary(null) }
+      } else {
+        setGeoBoundary(null)
+      }
+    })
+  }, [geoAreas.selectedArea?.id])
+
+  // Landscape filter options from all routes
   const availableTypes = useMemo(
-    () => [...new Set(rootRoutes.map(r => r.landscape_type).filter(Boolean))].sort() as string[],
-    [rootRoutes]
+    () => [...new Set(routes.map(r => r.landscape_type).filter(Boolean))].sort() as string[],
+    [routes]
   )
-  const filteredRoutes = useMemo(
-    () => landscapeFilters.length > 0
-      ? routes.filter(r => r.landscape_type != null && landscapeFilters.includes(r.landscape_type))
-      : routes,
-    [routes, landscapeFilters]
-  )
-  const rootFilteredRoutes = useMemo(
-    () => landscapeFilters.length > 0
-      ? rootRoutes.filter(r => r.landscape_type != null && landscapeFilters.includes(r.landscape_type))
-      : rootRoutes,
-    [rootRoutes, landscapeFilters]
-  )
-  const childrenCount = useMemo(() => {
-    const counts: Record<string, number> = {}
-    for (const r of routes) {
-      const parentId = r.is_segment_of ?? r.is_extension_of ?? r.is_variant_of
-      if (parentId) counts[parentId] = (counts[parentId] ?? 0) + 1
-    }
-    return counts
+
+  // Routes in the selected alternative's segments (to show as context on map)
+  const contextSegments = useMemo<Route[]>(() => {
+    if (!selectedRoad || !selectedAlternative) return []
+    // All routes belonging to this road, excluding the active alternative's primary route
+    return routes.filter(r =>
+      r.id !== effectiveRoute?.id &&
+      selectedRoad.alternatives.some(alt =>
+        alt.id !== selectedAlternative.id &&
+        alt.geometry_geojson !== null
+      )
+    ).slice(0, 5) // safety limit
+  }, [selectedRoad, selectedAlternative, routes, effectiveRoute?.id])
+
+  // Legacy sub-routes (for route hierarchy within the old system)
+  const getChildren = useMemo(() => {
+    return (id: string) =>
+      routes.filter(r => r.is_segment_of === id || r.is_extension_of === id || r.is_variant_of === id)
   }, [routes])
 
-  // Sub-routes to show on map when viewing a parent (not when a sub-route is active)
-  const mapSubRoutes = !activeSubRoute && selectedRoute ? getChildren(selectedRoute.id) : []
+  const mapSubRoutes = !activeSubRoute && selectedRoute && !selectedRoad
+    ? getChildren(selectedRoute.id)
+    : []
 
   const isMobile = useIsMobile()
   const [showList, setShowList] = useState(false)
@@ -72,24 +94,13 @@ export function RoutesPage() {
   const [loginModalOpen, setLoginModalOpen] = useState(false)
   const historyDebounce = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Clear sub-route when parent route changes
-  useEffect(() => {
-    setActiveSubRoute(null)
-  }, [selectedRoute?.id])
-
-  // Clear selection when active filter excludes the selected route
-  useEffect(() => {
-    if (selectedRoute && !filteredRoutes.find(r => r.id === selectedRoute.id)) {
-      selectRoute(null)
-      navigate('/routes', { replace: true })
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filteredRoutes, selectedRoute?.id])
+  // Clear sub-route when parent changes
+  useEffect(() => { setActiveSubRoute(null) }, [selectedRoute?.id])
 
   // Pre-select from URL slug — runs once when routes load
   useEffect(() => {
     if (!didPreSelect.current && slug && routes.length > 0) {
-      const match = routes.find((r) => r.slug === slug)
+      const match = routes.find(r => r.slug === slug)
       if (match) {
         didPreSelect.current = true
         selectRoute(match)
@@ -101,7 +112,7 @@ export function RoutesPage() {
     }
   }, [slug, routes, selectRoute])
 
-  // Sync URL when a route is selected (only push if URL doesn't match)
+  // Sync URL when a route is selected
   useEffect(() => {
     if (!selectedRoute) return
     const expected = `/routes/${selectedRoute.slug}`
@@ -110,21 +121,15 @@ export function RoutesPage() {
     }
   }, [selectedRoute, navigate, location.pathname])
 
-  // Auto-close list sheet when a route is selected on mobile
-  useEffect(() => {
-    if (effectiveRoute) setShowList(false)
-  }, [effectiveRoute])
+  // Auto-close list sheet when route selected on mobile
+  useEffect(() => { if (effectiveRoute) setShowList(false) }, [effectiveRoute])
 
-  // Debounced history recording — fires 2s after a route is selected
+  // Debounced history recording
   useEffect(() => {
     if (historyDebounce.current) clearTimeout(historyDebounce.current)
     if (!effectiveRoute) return
-    historyDebounce.current = setTimeout(() => {
-      recordView(effectiveRoute.id)
-    }, 2000)
-    return () => {
-      if (historyDebounce.current) clearTimeout(historyDebounce.current)
-    }
+    historyDebounce.current = setTimeout(() => { recordView(effectiveRoute.id) }, 2000)
+    return () => { if (historyDebounce.current) clearTimeout(historyDebounce.current) }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveRoute?.id])
 
@@ -135,28 +140,89 @@ export function RoutesPage() {
 
   function handleClose() {
     selectRoute(null)
+    selectRoad(null)
     setActiveSubRoute(null)
     navigate('/routes', { replace: true })
     if (isMobile) setShowList(true)
   }
 
-  function handleSelectSubRoute(route: Route) {
-    setActiveSubRoute(route)
-  }
-
-  function handleBackToParent() {
-    setActiveSubRoute(null)
-  }
+  const sidebarContent = effectiveRoute ? (
+    <div className="flex-1 overflow-y-auto">
+      <DetailsContent
+        route={effectiveRoute}
+        onClose={handleClose}
+        pois={pois}
+        isFavorite={isFavorite(effectiveRoute.id)}
+        isAuthenticated={!!user}
+        onToggleFavorite={() => toggleFavorite(effectiveRoute.id)}
+        onLoginRequired={() => setLoginModalOpen(true)}
+        children={activeSubRoute ? [] : getChildren(effectiveRoute.id)}
+        parentRoute={activeSubRoute ? selectedRoute ?? undefined : undefined}
+        onSelectSubRoute={setActiveSubRoute}
+        onBackToParent={() => setActiveSubRoute(null)}
+      />
+    </div>
+  ) : (
+    <>
+      {error && <div className="p-4 text-sm text-red-400">{t('route.unableToLoad')}</div>}
+      <LandscapeFilter
+        availableTypes={availableTypes}
+        selected={landscapeFilters}
+        onChange={setLandscapeFilters}
+      />
+      <GeographicFilter
+        selectedArea={geoAreas.selectedArea}
+        breadcrumb={geoAreas.breadcrumb}
+        onSelectArea={geoAreas.selectArea}
+      />
+      {selectedRoad ? (
+        <AlternativeSelector
+          alternatives={selectedRoad.alternatives}
+          selected={selectedAlternative}
+          onSelect={selectAlternative}
+        />
+      ) : null}
+      <RoadList
+        roads={roads}
+        loading={loading}
+        selectedRoad={selectedRoad}
+        selectedAlternative={selectedAlternative}
+        onSelectRoad={selectRoad}
+      />
+    </>
+  )
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-gray-950 text-white">
       <NavHeader />
       <div className="flex flex-1 min-h-0">
-      {/* Sidebar: visible on lg+, hidden on mobile/tablet */}
-      <div className="hidden lg:flex lg:w-80 flex-shrink-0 border-r border-gray-800 flex-col">
-        {effectiveRoute ? (
-          <div className="flex-1 overflow-y-auto">
-            <DetailsContent
+        {/* Desktop sidebar */}
+        <div className="hidden lg:flex lg:w-80 flex-shrink-0 border-r border-gray-800 flex-col">
+          {sidebarContent}
+        </div>
+
+        {/* Map */}
+        <div className="relative flex-1">
+          <RouteMap
+            routes={routes.filter(r =>
+              landscapeFilters.length === 0 || (r.landscape_type != null && landscapeFilters.includes(r.landscape_type))
+            )}
+            selectedRoute={effectiveRoute}
+            hoveredRouteId={hoveredRouteId}
+            isMobile={isMobile}
+            bottomPanelHeight={isMobile ? window.innerHeight * (sheetHeight / 100) : undefined}
+            onRouteClick={selectRoute}
+            onRouteHover={hoverRoute}
+            pois={pois}
+            onPOIClick={() => {}}
+            subRoutes={mapSubRoutes}
+            selectedAlternative={selectedAlternative}
+            contextSegments={contextSegments}
+            geoBoundary={geoBoundary}
+          />
+
+          {effectiveRoute && (
+            <RouteDetails
               route={effectiveRoute}
               onClose={handleClose}
               pois={pois}
@@ -164,79 +230,24 @@ export function RoutesPage() {
               isAuthenticated={!!user}
               onToggleFavorite={() => toggleFavorite(effectiveRoute.id)}
               onLoginRequired={() => setLoginModalOpen(true)}
+              onHeightChange={isMobile ? setSheetHeight : undefined}
               children={activeSubRoute ? [] : getChildren(effectiveRoute.id)}
               parentRoute={activeSubRoute ? selectedRoute ?? undefined : undefined}
-              onSelectSubRoute={handleSelectSubRoute}
-              onBackToParent={handleBackToParent}
+              onSelectSubRoute={setActiveSubRoute}
+              onBackToParent={() => setActiveSubRoute(null)}
             />
-          </div>
-        ) : (
-          <>
-            {error && (
-              <div className="p-4 text-sm text-red-400">
-                {t('route.unableToLoad')}
-              </div>
-            )}
-            <LandscapeFilter
-              availableTypes={availableTypes}
-              selected={landscapeFilters}
-              onChange={setLandscapeFilters}
-            />
-            <RouteList
-              routes={rootFilteredRoutes}
-              loading={loading}
-              selectedRoute={selectedRoute}
-              hoveredRouteId={hoveredRouteId}
-              onSelect={selectRoute}
-              onHover={hoverRoute}
-              childrenCount={childrenCount}
-            />
-          </>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Map area */}
-      <div className="relative flex-1">
-        <RouteMap
-          routes={filteredRoutes}
-          selectedRoute={effectiveRoute}
-          hoveredRouteId={hoveredRouteId}
-          isMobile={isMobile}
-          bottomPanelHeight={isMobile ? window.innerHeight * (sheetHeight / 100) : undefined}
-          onRouteClick={selectRoute}
-          onRouteHover={hoverRoute}
-          pois={pois}
-          onPOIClick={() => {}}
-          subRoutes={mapSubRoutes}
-        />
-
-        {effectiveRoute && (
-          <RouteDetails
-            route={effectiveRoute}
-            onClose={handleClose}
-            pois={pois}
-            isFavorite={isFavorite(effectiveRoute.id)}
-            isAuthenticated={!!user}
-            onToggleFavorite={() => toggleFavorite(effectiveRoute.id)}
-            onLoginRequired={() => setLoginModalOpen(true)}
-            onHeightChange={isMobile ? setSheetHeight : undefined}
-            children={activeSubRoute ? [] : getChildren(effectiveRoute.id)}
-            parentRoute={activeSubRoute ? selectedRoute ?? undefined : undefined}
-            onSelectSubRoute={handleSelectSubRoute}
-            onBackToParent={handleBackToParent}
-          />
-        )}
-      </div>
-      </div>
-
-      {/* Mobile: floating pill — above tab bar (bottom-16 = 64px) */}
+      {/* Mobile: floating pill */}
       {isMobile && !showList && !effectiveRoute && (
         <button
           onClick={() => setShowList(true)}
           aria-label={t('route.showList')}
           className="fixed bottom-16 left-1/2 -translate-x-1/2 z-30 bg-gray-900 text-white px-5 py-2 rounded-full shadow-lg text-sm font-medium flex items-center gap-2"
         >
-          {t('route.heading')} ({loading ? '…' : rootFilteredRoutes.length})
+          Estradas ({loading ? '…' : roads.length})
           {landscapeFilters.length > 0 && (
             <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-xs text-white">
               {landscapeFilters.length}
@@ -245,14 +256,13 @@ export function RoutesPage() {
         </button>
       )}
 
-      {/* Mobile: bottom sheet for route list */}
+      {/* Mobile: bottom sheet for road list */}
       {isMobile && showList && (
         <div
           ref={listSheetRef}
           className="fixed bottom-0 left-0 right-0 z-40 bg-gray-950 rounded-t-2xl flex flex-col overflow-hidden"
           style={{ height: '65vh' }}
         >
-          {/* Handle — drag only here */}
           <div
             style={{ touchAction: 'none' }}
             {...listDragHandlers}
@@ -264,8 +274,8 @@ export function RoutesPage() {
 
           <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-800 flex-shrink-0">
             <span className="text-sm font-semibold text-gray-300">
-              {t('route.heading')}
-              {!loading && <span className="ml-1.5 font-normal text-gray-500">({rootFilteredRoutes.length})</span>}
+              Estradas
+              {!loading && <span className="ml-1.5 font-normal text-gray-500">({roads.length})</span>}
             </span>
             <button
               onClick={() => setShowList(false)}
@@ -278,31 +288,28 @@ export function RoutesPage() {
             </button>
           </div>
 
-          {availableTypes.length > 0 && (
-            <LandscapeFilter
-              availableTypes={availableTypes}
-              selected={landscapeFilters}
-              onChange={setLandscapeFilters}
+          {selectedRoad && (
+            <AlternativeSelector
+              alternatives={selectedRoad.alternatives}
+              selected={selectedAlternative}
+              onSelect={selectAlternative}
             />
           )}
 
           <div className="flex-1 overflow-y-auto pb-16">
-            <RouteList
-              routes={rootFilteredRoutes}
+            <RoadList
+              roads={roads}
               loading={loading}
-              selectedRoute={selectedRoute}
-              hoveredRouteId={hoveredRouteId}
-              onSelect={selectRoute}
-              onHover={hoverRoute}
+              selectedRoad={selectedRoad}
+              selectedAlternative={selectedAlternative}
+              onSelectRoad={selectRoad}
               showHeader={false}
-              childrenCount={childrenCount}
             />
           </div>
         </div>
       )}
 
       <MobileTabBar />
-
       <LoginModal isOpen={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
     </div>
   )
