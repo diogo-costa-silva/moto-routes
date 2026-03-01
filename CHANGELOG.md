@@ -41,6 +41,14 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 - **`components/Map/mapLayers.ts`** — added `SOURCE_GEO_BOUNDARY`, `LAYER_GEO_BOUNDARY_FILL`/`_OUTLINE` (dashed blue boundary overlay)
 - **`pages/RoutesPage.tsx`** — wires `GeographicFilter` + `useGeographicAreas`; fetches boundary GeoJSON via `get_area_boundary` RPC on area selection; passes `geoBoundary` to `RouteMap`
 
+#### Sprint E — Gaps & Data Fix
+- **`scripts/schema.sql`** — added `get_area_boundary` RPC definition (was missing from schema, only existed in DB)
+- **`frontend/src/types/database.ts`** — added `get_area_boundary` to `Functions` for proper TypeScript typing
+- **DB: `geographic_areas`** — populated with 7 areas: Europa → Portugal/Espanha → Norte/Centro/Sul/Catalunha
+- **DB: `route_geographic_areas`** — 8 manual associations: N222×4 + N304×1 → Norte; N2×2 → Centro; Figueres-Cadaqués → Catalunha
+- **DB: `roads`** — N103 `total_distance_km` set to 130 km (no routes imported yet; prevents "0 km" display)
+- **`pages/RoutesPage.tsx`** — added `areaRoadIds` state + `filteredRoads` memo: calls `get_routes_in_area` when area is selected, filters road list to only show roads with routes in that area; road count in UI reflects filtered set
+
 ### Documentação — Transformação e limpeza de docs/
 - `docs/COMMANDS.md` eliminado — duplicava CLAUDE.md, porta errada (5173), skills obsoletos
 - `docs/STACK.md` eliminado — conteúdo absorvido em ARCHITECTURE.md como secção "Stack Rationale"

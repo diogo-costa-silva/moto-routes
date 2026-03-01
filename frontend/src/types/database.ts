@@ -498,6 +498,10 @@ export interface Database {
         Args: { p_area_id: string }
         Returns: { route_id: string; road_id: string | null }[]
       }
+      get_area_boundary: {
+        Args: { p_area_id: string }
+        Returns: { geojson: string }[]
+      }
     }
     Enums: {
       landscape_type: LandscapeType

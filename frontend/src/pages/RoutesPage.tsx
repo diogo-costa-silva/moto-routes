@@ -59,6 +59,23 @@ export function RoutesPage() {
     })
   }, [geoAreas.selectedArea?.id])
 
+  // Fetch road IDs in selected area for filtering the road list
+  const [areaRoadIds, setAreaRoadIds] = useState<Set<string> | null>(null)
+  useEffect(() => {
+    const area = geoAreas.selectedArea
+    if (!area) { setAreaRoadIds(null); return }
+    supabase.rpc('get_routes_in_area', { p_area_id: area.id } as never).then(({ data }) => {
+      const rows = (data ?? []) as { route_id: string; road_id: string | null }[]
+      const ids = new Set(rows.map(r => r.road_id).filter(Boolean) as string[])
+      setAreaRoadIds(ids)
+    })
+  }, [geoAreas.selectedArea?.id])
+
+  const filteredRoads = useMemo(
+    () => areaRoadIds ? roads.filter(r => areaRoadIds.has(r.id)) : roads,
+    [roads, areaRoadIds]
+  )
+
   // Landscape filter options from all routes
   const availableTypes = useMemo(
     () => [...new Set(routes.map(r => r.landscape_type).filter(Boolean))].sort() as string[],
@@ -183,7 +200,7 @@ export function RoutesPage() {
         />
       ) : null}
       <RoadList
-        roads={roads}
+        roads={filteredRoads}
         loading={loading}
         selectedRoad={selectedRoad}
         selectedAlternative={selectedAlternative}
@@ -247,7 +264,7 @@ export function RoutesPage() {
           aria-label={t('route.showList')}
           className="fixed bottom-16 left-1/2 -translate-x-1/2 z-30 bg-gray-900 text-white px-5 py-2 rounded-full shadow-lg text-sm font-medium flex items-center gap-2"
         >
-          Estradas ({loading ? '…' : roads.length})
+          Estradas ({loading ? '…' : filteredRoads.length})
           {landscapeFilters.length > 0 && (
             <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-xs text-white">
               {landscapeFilters.length}
@@ -275,7 +292,7 @@ export function RoutesPage() {
           <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-800 flex-shrink-0">
             <span className="text-sm font-semibold text-gray-300">
               Estradas
-              {!loading && <span className="ml-1.5 font-normal text-gray-500">({roads.length})</span>}
+              {!loading && <span className="ml-1.5 font-normal text-gray-500">({filteredRoads.length})</span>}
             </span>
             <button
               onClick={() => setShowList(false)}
@@ -298,7 +315,7 @@ export function RoutesPage() {
 
           <div className="flex-1 overflow-y-auto pb-16">
             <RoadList
-              roads={roads}
+              roads={filteredRoads}
               loading={loading}
               selectedRoad={selectedRoad}
               selectedAlternative={selectedAlternative}

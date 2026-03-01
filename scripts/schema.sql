@@ -545,3 +545,13 @@ LANGUAGE sql SECURITY DEFINER AS $$
   WHERE rga.area_id = p_area_id;
 $$;
 GRANT EXECUTE ON FUNCTION get_routes_in_area(uuid) TO public;
+
+-- RPC: get boundary GeoJSON for a geographic area
+CREATE OR REPLACE FUNCTION get_area_boundary(p_area_id uuid)
+RETURNS TABLE (geojson text)
+LANGUAGE sql SECURITY DEFINER AS $$
+  SELECT ST_AsGeoJSON(geom)::text AS geojson
+  FROM geographic_areas
+  WHERE id = p_area_id AND geom IS NOT NULL;
+$$;
+GRANT EXECUTE ON FUNCTION get_area_boundary(uuid) TO public;
