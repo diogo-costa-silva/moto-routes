@@ -20,7 +20,7 @@ All route data comes from real GPS recordings. No synthetic or algorithm-generat
 | `pt-n304-alvao.gpx` | PT | 36 km | Serra do Alvao, one of Europe's best |
 | `es-figueres-cadaques.gpx` | ES | ~60 km | Costa Brava coastal route |
 
-**Total: 7 routes** ready for import
+**Total: 7 GPX files** (8 routes in DB — `n2-tras-os-montes` is derived from `pt-n2.gpx` with `trim_south_lat: 41.15`)
 
 ### Naming Convention
 
@@ -69,6 +69,10 @@ The N222 variants demonstrate the data model's relationship types:
 | `pt-n222-ext-mesao-frio.gpx` | `is_extension_of` | pt-n222 |
 | `pt-n222-ext-pias.gpx` | `is_extension_of` | pt-n222 |
 | `pt-n222-var-margem-norte.gpx` | `is_variant_of` | pt-n222 |
+| `pt-n2.gpx` (slug: `pt-n2`) | Base route | - |
+| `pt-n2.gpx` (slug: `n2-tras-os-montes`) | `is_variant_of` | pt-n2 |
+
+Note: `n2-tras-os-montes` (88.71 km, Chaves → Peso da Régua) is the northern section of the N2 imported from the same GPX file with a latitude trim (`lat >= 41.15`). Landscape type: `mountain`, difficulty: `intermediate`.
 
 ---
 
@@ -85,6 +89,7 @@ The N222 variants demonstrate the data model's relationship types:
 | pt-n304-alvao | N304 Alvao | PT | mountain | `pt-n304-alvao.gpx` |
 | pt-n2 | Chaves-Faro | PT | mixed | `pt-n2.gpx` |
 | es-figueres-cadaques | Figueres-Cadaques | ES | coast | `es-figueres-cadaques.gpx` |
+| n2-tras-os-montes | N2 — Tras-os-Montes | PT | mountain | `pt-n2.gpx` (trimmed, lat >= 41.15) |
 
 ### Journeys
 
@@ -160,7 +165,7 @@ python import_gpx.py ../data/pt/pt-new-route.gpx \
 - Extension: `pt-n125-ext-faro-beach.gpx`
 - Variant: `pt-n125-var-inland.gpx`
 
-See [Commands](./COMMANDS.md) for full import options (available in Phase 2).
+See [CLAUDE.md](../CLAUDE.md) for the full pipeline command.
 
 ---
 
@@ -177,4 +182,4 @@ See [Commands](./COMMANDS.md) for full import options (available in Phase 2).
 
 - [Schema](./SCHEMA.md) - How route data is stored
 - [Setup](./SETUP.md) - Import pipeline setup
-- [Commands](./COMMANDS.md) - Import commands
+- [CLAUDE.md](../CLAUDE.md) - Pipeline command and project conventions

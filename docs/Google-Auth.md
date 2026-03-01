@@ -48,11 +48,15 @@ The OAuth flow is triggered from `frontend/src/hooks/useAuth.ts`:
 ```typescript
 await supabase.auth.signInWithOAuth({
   provider: 'google',
-  options: { redirectTo: window.location.origin },
+  options: {
+    redirectTo: window.location.origin + window.location.pathname,
+  },
 })
 ```
 
 `window.location.origin` resolves dynamically — `http://localhost:5174` in development and `https://moto-routes.vercel.app` in production. Both origins are registered as allowed redirect URLs in Supabase.
+
+> **Why include `pathname`:** React Router intercepts navigation to the root path before Supabase can process the `?code=` callback parameter. Including `window.location.pathname` ensures the redirect returns to the current page, preserving the OAuth code for Supabase to complete the authentication flow.
 
 ---
 

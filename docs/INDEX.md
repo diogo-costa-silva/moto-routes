@@ -22,7 +22,6 @@ For new developers joining the project:
 |----------|-------------|
 | [README](../README.md) | Project overview and quick start |
 | [Setup Guide](./SETUP.md) | Environment configuration (includes Supabase & MCP) |
-| [Commands](./COMMANDS.md) | Quick reference for common commands |
 
 ---
 
@@ -32,7 +31,6 @@ For new developers joining the project:
 |----------|-------------|
 | [Vision](./VISION.md) | Project goals, philosophy, and target audience |
 | [Architecture](./ARCHITECTURE.md) | System design and 4-layer data model |
-| [Stack](./STACK.md) | Technology choices and rationale |
 
 ---
 
@@ -44,6 +42,7 @@ For new developers joining the project:
 | [Schema](./SCHEMA.md) | Database structure and queries |
 | [Data](./DATA.md) | Available GPX files and test data |
 | [Patterns](./PATTERNS.md) | Best practices and lessons learned |
+| [Deployment](./DEPLOYMENT.md) | Vercel deploy guide and environment setup |
 
 ---
 
@@ -61,6 +60,7 @@ For new developers joining the project:
 | Document | Description |
 |----------|-------------|
 | [Common Issues](./TROUBLESHOOTING.md) | Solutions to frequent problems |
+| [Google Auth](./Google-Auth.md) | Google OAuth setup and Supabase configuration |
 
 ---
 
@@ -70,11 +70,3 @@ For new developers joining the project:
 |----------|-------------|
 | [Context](../CONTEXT.md) | Quick context for new sessions |
 | [Claude Guide](../CLAUDE.md) | Claude Code configuration and skills |
-
----
-
-## Contributing
-
-| Document | Description |
-|----------|-------------|
-| [Contributing Guide](../CONTRIBUTING.md) | How to contribute to this project |

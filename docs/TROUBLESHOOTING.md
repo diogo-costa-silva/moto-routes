@@ -157,11 +157,9 @@ npm run dev
 
 **Symptom**: Type errors after schema changes
 
-**Solution**: Regenerate types from Supabase
+**Solution**: Types are hand-written in `frontend/src/types/database.ts`. Edit this file manually after schema changes.
 
-```bash
-npx supabase gen types typescript --project-id YOUR_PROJECT_ID > src/types/database.ts
-```
+Add or update the relevant interface in `Database['public']['Tables']` or `Database['public']['Functions']` to match the new schema.
 
 ---
 
@@ -266,6 +264,39 @@ wkt = "LINESTRING(" + " ".join(f"{lon} {lat}" for lon, lat in coords) + ")"
 # CORRECT — comma+space between pairs, space within pair
 wkt = "LINESTRING(" + ", ".join(f"{lon} {lat}" for lon, lat in coords) + ")"
 ```
+
+---
+
+## Google OAuth callback not completing
+
+**Symptom**: After Google login, app redirects back but user is not authenticated. Console shows no error.
+
+**Cause**: React Router strips query parameters when navigating to the root path, so the `?code=` callback parameter is lost before Supabase can process it.
+
+**Solution**: In `useAuth.ts`, use `redirectTo: window.location.origin + window.location.pathname` instead of just `window.location.origin`.
+
+```typescript
+await supabase.auth.signInWithOAuth({
+  provider: 'google',
+  options: {
+    redirectTo: window.location.origin + window.location.pathname,
+  },
+})
+```
+
+Also ensure both `http://localhost:5174/**` and `https://moto-routes.vercel.app/**` are in the Supabase Dashboard Redirect URLs whitelist (Authentication > URL Configuration).
+
+---
+
+## Bottom sheet drag not working on mobile
+
+**Symptom**: The bottom sheet on mobile doesn't respond to drag gestures.
+
+**Cause**: Touch events may not be propagating correctly or the `useSheetDrag` hook state is out of sync.
+
+**Debug**: Check that the drag handle element has the correct event listeners attached via `useSheetDrag`. Verify that `touchstart`/`touchmove`/`touchend` events are not being prevented by parent elements.
+
+The drag handle must have `touchAction: none` applied via inline style or Tailwind `touch-none` to prevent the browser from intercepting touch gestures for scrolling. The outer sheet div should use `flex flex-col overflow-hidden`, with the scrollable content in the inner div only.
 
 ---
 
