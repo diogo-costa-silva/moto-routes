@@ -62,10 +62,10 @@ export function GeographicFilter({ selectedArea, breadcrumb, onSelectArea }: Geo
       <button
         onClick={handleToggle}
         className={[
-          'w-full flex items-center justify-between text-sm rounded-lg px-3 py-2 transition-colors',
+          'w-full flex items-center justify-between text-sm rounded-lg px-3 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-offset-gray-950 focus:ring-gray-400',
           selectedArea
             ? 'bg-blue-500/15 text-blue-400 border border-blue-500/30'
-            : 'text-gray-400 hover:bg-gray-800 hover:text-white border border-gray-700',
+            : 'text-gray-400 hover:bg-gray-800 hover:text-white border border-transparent',
         ].join(' ')}
       >
         <span className="flex items-center gap-2 truncate">
@@ -125,7 +125,7 @@ export function GeographicFilter({ selectedArea, breadcrumb, onSelectArea }: Geo
                   {(['continent', 'country', 'macro_region', 'historic_province'] as string[]).includes(area.level) && (
                     <button
                       onClick={e => handleDrillDown(area, e)}
-                      className={`px-2 py-2 text-gray-600 hover:text-white transition-opacity ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                      className={`px-3 py-2.5 text-gray-600 hover:text-white transition-opacity ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                       title={t('geo.viewSubareas')}
                     >
                       ›

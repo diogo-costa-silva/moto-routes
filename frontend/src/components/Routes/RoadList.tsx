@@ -32,10 +32,15 @@ export function RoadList({ roads, loading, selectedRoad, selectedAlternative, on
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {showHeader && (
-        <div className="border-b border-gray-800 px-4 py-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
+        <div className="border-b border-gray-800 px-3 py-2">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-300">
             {t('road.heading')}
             {!loading && <span className="ml-2 font-normal text-gray-600">({roads.length})</span>}
+            {hasActiveFilter && (
+              <span className="ml-2 inline-flex items-center rounded-full bg-orange-500/20 px-1.5 py-0.5 text-[10px] font-medium text-orange-400 uppercase tracking-wide">
+                {t('filter.active')}
+              </span>
+            )}
           </h2>
         </div>
       )}
