@@ -72,10 +72,28 @@ export function RoutesPage() {
     })
   }, [geoAreas.selectedArea?.id])
 
-  const filteredRoads = useMemo(
-    () => areaRoadIds ? roads.filter(r => areaRoadIds.has(r.id)) : roads,
-    [roads, areaRoadIds]
+  // Build a slug→landscape_type lookup so we can filter roads by landscape
+  const routeLandscapeBySlug = useMemo(
+    () => new Map<string, string>(
+      routes
+        .filter((r): r is typeof r & { landscape_type: string } => r.landscape_type != null)
+        .map(r => [r.slug, r.landscape_type])
+    ),
+    [routes]
   )
+
+  const filteredRoads = useMemo(() => {
+    let result = areaRoadIds ? roads.filter(r => areaRoadIds.has(r.id)) : roads
+    if (landscapeFilters.length > 0) {
+      result = result.filter(r =>
+        r.alternatives.some(alt => {
+          const lt = alt.route_slug != null ? routeLandscapeBySlug.get(alt.route_slug) : undefined
+          return lt != null && landscapeFilters.includes(lt)
+        })
+      )
+    }
+    return result
+  }, [roads, areaRoadIds, landscapeFilters, routeLandscapeBySlug])
 
   // Landscape filter options from all routes
   const availableTypes = useMemo(
