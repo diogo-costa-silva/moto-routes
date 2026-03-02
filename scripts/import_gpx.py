@@ -46,21 +46,22 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 
 # --- Data definitions ----------------------------------------------------
 
-# (code, slug, name, gpx, landscape, difficulty, parent_code, relationship, trim_south_lat)
+# (code, slug, name, gpx, landscape, difficulty, parent_code, relationship, trim_south_lat, trim_west_lon)
 _RD = [
-    ("pt-n222",               "pt-n222",               "N222 — Vale do Douro",         "pt/pt-n222.gpx",               "river_valley", "intermediate", None,      None,              None),
-    ("pt-n222-ext-mesao-frio","pt-n222-ext-mesao-frio","N222 — Extensão Mesão Frio",   "pt/pt-n222-ext-mesao-frio.gpx","river_valley", "intermediate","pt-n222", "is_extension_of", None),
-    ("pt-n222-ext-pias",      "pt-n222-ext-pias",      "N222 — Extensão Pias",         "pt/pt-n222-ext-pias.gpx",      "river_valley", "intermediate","pt-n222", "is_extension_of", None),
-    ("pt-n222-var-margem-norte","pt-n222-var-margem-norte","N222 — Variante Margem Norte","pt/pt-n222-var-margem-norte.gpx","river_valley","intermediate","pt-n222","is_variant_of",  None),
-    ("pt-n304-alvao",         "pt-n304-alvao",         "N304 — Serra do Alvão",        "pt/pt-n304-alvao.gpx",         "mountain",     "advanced",    None,      None,              None),
-    ("pt-n2",                 "pt-n2",                 "N2 — A Estrada Nacional",      "pt/pt-n2.gpx",                 "mixed",        "beginner",    None,      None,              None),
-    ("es-figueres-cadaques",  "es-figueres-cadaques",  "Figueres — Cadaqués",          "es/es-figueres-cadaques.gpx",  "coast",        "intermediate",None,      None,              None),
-    ("n2-tras-os-montes",     "n2-tras-os-montes",     "N2 — Trás-os-Montes",          "pt/pt-n2.gpx",                 "mountain",     "intermediate","pt-n2",   "is_variant_of",   41.15),
+    ("pt-n222",               "pt-n222",               "N222 — Vale do Douro",         "pt/pt-n222.gpx",               "river_valley", "intermediate", None,      None,              None,  None),
+    ("pt-n222-ext-mesao-frio","pt-n222-ext-mesao-frio","N222 — Extensão Mesão Frio",   "pt/pt-n222-ext-mesao-frio.gpx","river_valley", "intermediate","pt-n222", "is_extension_of", None,  None),
+    ("pt-n222-ext-pias",      "pt-n222-ext-pias",      "N222 — Extensão Pias",         "pt/pt-n222-ext-pias.gpx",      "river_valley", "intermediate","pt-n222", "is_extension_of", None,  None),
+    ("pt-n222-var-margem-norte","pt-n222-var-margem-norte","N222 — Variante Margem Norte","pt/pt-n222-var-margem-norte.gpx","river_valley","intermediate","pt-n222","is_variant_of",  None,  None),
+    ("pt-n304-alvao",         "pt-n304-alvao",         "N304 — Serra do Alvão",        "pt/pt-n304-alvao.gpx",         "mountain",     "advanced",    None,      None,              None,  None),
+    ("pt-n2",                 "pt-n2",                 "N2 — A Estrada Nacional",      "pt/pt-n2.gpx",                 "mixed",        "beginner",    None,      None,              None,  None),
+    ("es-figueres-cadaques",  "es-figueres-cadaques",  "Figueres — Cadaqués",          "es/es-figueres-cadaques.gpx",  "coast",        "intermediate",None,      None,              None,  None),
+    ("n2-tras-os-montes",     "n2-tras-os-montes",     "N2 — Trás-os-Montes",          "pt/pt-n2.gpx",                 "mountain",     "intermediate","pt-n2",   "is_variant_of",   41.15, None),
+    ("pt-n103",               "pt-n103",               "N103 — De Esposende a Chaves", "pt/pt-n103.gpx",               "mountain",     "intermediate", None,      None,              None,  None),
 ]
 ROUTES = [
     {"code": c, "slug": s, "name": n, "gpx": g, "landscape_type": l,
-     "difficulty": d, "parent_code": p, "relationship": r, "trim_south_lat": t}
-    for c, s, n, g, l, d, p, r, t in _RD
+     "difficulty": d, "parent_code": p, "relationship": r, "trim_south_lat": t, "trim_west_lon": w}
+    for c, s, n, g, l, d, p, r, t, w in _RD
 ]
 
 JOURNEYS = [
@@ -84,7 +85,7 @@ DESTINATIONS = [
     {"name": "Trás-os-Montes", "slug": "tras-os-montes",
      "description": "Terra de contrastes, de vinhos e de tradições milenares do nordeste português.",
      "bbox": (-7.5, -6.8, 41.4, 41.9),
-     "featured": ["n2-tras-os-montes", "pt-n304-alvao"]},
+     "featured": ["n2-tras-os-montes", "pt-n304-alvao", "pt-n103"]},
 ]
 
 # (name, type, lon, lat, description, association_type, distance_m, route_code, km_marker)
@@ -94,6 +95,7 @@ POIS = [
     ("Restaurante DOC",                      "restaurant",      -7.5533, 41.1167, "Restaurante do Chef Rui Paula, com estrela Michelin e vista privilegiada sobre o Douro.",       "detour",    800,  "pt-n222",      35.0),
     ("Fisgas de Ermelo",                     "viewpoint",       -7.7167, 41.5000, "Imponente cascata no coração do Parque Natural do Alvão, com queda de 400m.",                  "detour",   2000,  "pt-n304-alvao",18.0),
     ("Posto BP Vila Real",                   "fuel_station",    -7.7400, 41.3010, "Posto de combustível em Vila Real, ideal para reabastecer antes da Serra do Alvão.",            "on_route",  0,    "pt-n304-alvao", 2.0),
+    ("Melhor Troço — Começa Aqui",           "highlight_start", -8.416860, 41.548272, "A partir de Esposende, os melhores 130 km da N103 pelo Parque Nacional Peneda-Gerês.",        "on_route",  0,    "pt-n103",      52.0),
 ]
 
 # Translations: key → {lang: {field: value}}
@@ -114,6 +116,8 @@ ROUTE_TR: dict = {
                                "en": {"name": "N2 — Trás-os-Montes",            "description": "The northern stretch of the historic N2, from Chaves to the Douro Valley, through the heart of the Transmontane mountains."}},
     "es-figueres-cadaques":   {"pt": {"name": "Figueres — Cadaqués",            "description": "Rota costeira pela Costa Brava catalã, passando pelo Cabo de Creus. Paisagens mediterrâneas e curvas sobre o mar."},
                                "en": {"name": "Figueres — Cadaqués",            "description": "Coastal route along the Catalan Costa Brava, passing through Cape Creus. Mediterranean landscapes above the sea."}},
+    "pt-n103":                {"pt": {"name": "N103 — De Esposende a Chaves",   "description": "O eixo rodoviário do norte transmontano, de Esposende a Chaves. Paisagens de montanha e planaltos entre o litoral minhoto e Trás-os-Montes."},
+                               "en": {"name": "N103 — Esposende to Chaves",     "description": "The northern transmontane road axis, from Esposende to Chaves. Mountain landscapes and plateaus between the Minho coast and Trás-os-Montes."}},
 }
 JOURNEY_TR: dict = {
     "rota-do-douro":         {"pt": {"name": "Rota do Douro",          "description": "Uma viagem épica pelo Vale do Douro, percorrendo a lendária N222 e as suas extensões."},
@@ -131,9 +135,17 @@ DEST_TR: dict = {
 }
 
 
+ROUTE_HIGHLIGHT: dict = {
+    "pt-n103": {
+        "pt": "O troço espectacular começa em Esposende. A partir daqui, 130 km de montanha pelo Parque Nacional Peneda-Gerês até Chaves — curvas, altitude e paisagem transmontana.",
+        "en": "The spectacular section starts in Esposende. From here, 130 km of mountain roads through Peneda-Gerês National Park to Chaves — curves, altitude and transmontane scenery.",
+    }
+}
+
+
 # --- GPX parsing & geometry helpers -------------------------------------
 
-def parse_gpx(path: Path, trim_south_lat: float | None = None) -> list[dict]:
+def parse_gpx(path: Path, trim_south_lat: float | None = None, trim_west_lon: float | None = None) -> list[dict]:
     with open(path) as f:
         gpx = gpxpy.parse(f)
     pts = []
@@ -145,6 +157,10 @@ def parse_gpx(path: Path, trim_south_lat: float | None = None) -> list[dict]:
         before = len(pts)
         pts = [p for p in pts if p["lat"] >= trim_south_lat]
         print(f"    Trimmed to lat >= {trim_south_lat}: {before} → {len(pts)} pts")
+    if trim_west_lon is not None:
+        before = len(pts)
+        pts = [p for p in pts if p["lon"] >= trim_west_lon]
+        print(f"    Trimmed to lon >= {trim_west_lon}: {before} → {len(pts)} pts")
     if not pts:
         print(f"  WARNING: no track points in {path.name}")
     return pts
@@ -230,11 +246,12 @@ def insert_routes(db: Client) -> dict[str, str]:
         gpx_path = DATA_DIR / rd["gpx"]
         if not gpx_path.exists():
             print(f"  ERROR: {gpx_path} not found"); sys.exit(1)
-        raw = parse_gpx(gpx_path, rd.get("trim_south_lat"))
+        raw = parse_gpx(gpx_path, rd.get("trim_south_lat"), rd.get("trim_west_lon"))
         if not raw:
             print(f"  ERROR: no points in {gpx_path.name}"); sys.exit(1)
         print(f"    Raw: {len(raw)} pts")
         stored = downsample(raw)
+        highlight = ROUTE_HIGHLIGHT.get(rd["slug"], {})
         row: dict = {
             "code": code, "slug": rd["slug"], "name": rd["name"],
             "landscape_type": rd["landscape_type"], "surface": "asphalt",
@@ -242,6 +259,8 @@ def insert_routes(db: Client) -> dict[str, str]:
             "geometry": ls_ewkt(stored), "geometry_geojson": geojson_ls(stored),
             **calc_metrics(raw), **count_curves(raw),
         }
+        row["highlight_note_pt"] = highlight.get("pt")
+        row["highlight_note_en"] = highlight.get("en")
         if rd["parent_code"] and rd["relationship"]:
             pid = id_map.get(rd["parent_code"])
             if not pid:

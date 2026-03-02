@@ -8,6 +8,35 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [Phase 10 — N103 Zoom + Name Fix] 2026-03-02
+
+### Fixed
+- `RouteMap` `fitBounds` padding: `left: 340 → 320` (matches actual `w-80` sidebar) — N103 now fits at zoom ~9 instead of ~8.5
+- `fitBounds` duration reduced from 1500ms to 1000ms
+- N103 name updated: "De Braga a Chaves" → "De Esposende a Chaves" (PT/EN) across route name, description, POI, and highlight note in `import_gpx.py`
+
+## [Phase 10 — N103 Full Route + Highlight] 2026-03-02
+
+### Changed
+- N103 now imports full route Esposende→Chaves (~174 km) — removed `trim_west_lon` restriction
+- `highlight_note_pt/en` fields populated for N103 with description of spectacular Braga→Chaves section
+
+### Added
+- POI "Melhor Troço — Começa Aqui" (type `highlight_start`) at Braga (km 52.0) for N103
+- `Route` interface and `useRoutes` hook now expose `highlight_note_pt/en` fields
+- `RouteDetails` sidebar shows amber callout when route has a `highlight_note` (language-aware)
+- POI label layer maps `highlight_start` type to ⭐ emoji
+
+## [Phase 10 — N103 Import Fix] 2026-03-02
+
+### Added
+- N103 route imported from `data/pt/pt-n103.gpx` (131 km, 1564 curves, Braga→Chaves)
+
+### Fixed
+- N103 GPX was defined but missing from `import_gpx.py` pipeline — route never existed in DB
+- Added `trim_west_lon` parameter to `parse_gpx()` to cut boring coastal stretch (Esposende→Braga)
+- N103 now shows only the spectacular mountain section from Braga to Chaves (lon >= -8.42)
+
 ## [Phase 10 — Bug Fixes] 2026-03-02
 
 ### Fixed

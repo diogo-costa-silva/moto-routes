@@ -335,9 +335,9 @@ export function RouteMap({
     const bottomPad = isMobile ? (bottomPanelHeight ?? window.innerHeight * 0.55) + 20 : 60
     const padding = isMobile
       ? { top: 40, bottom: bottomPad, left: 40, right: 40 }
-      : { top: 60, bottom: 60, left: 340, right: 60 }
+      : { top: 60, bottom: 60, left: 320, right: 60 }
 
-    map.fitBounds(bounds, { padding, duration: 1500, maxZoom: 13 })
+    map.fitBounds(bounds, { padding, duration: 1000, maxZoom: 13 })
     map.once('moveend', () => setAnimating(true))
   }, [selectedRoute, selectedAlternative, mapReady, isMobile, bottomPanelHeight])
 
