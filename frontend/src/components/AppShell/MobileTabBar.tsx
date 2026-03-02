@@ -1,15 +1,16 @@
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router'
-import { useAuth } from '../../hooks/useAuth'
-import { LoginModal } from '../Auth/LoginModal'
+import type { AuthUser } from '../../hooks/useAuth'
 
-export function MobileTabBar() {
+export interface MobileTabBarProps {
+  user: AuthUser | null
+  onLoginOpen: () => void
+}
+
+export function MobileTabBar({ user, onLoginOpen }: MobileTabBarProps) {
   const { t } = useTranslation()
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const { user } = useAuth()
-  const [loginOpen, setLoginOpen] = useState(false)
 
   const navTabs = [
     {
@@ -53,47 +54,27 @@ export function MobileTabBar() {
   ]
 
   return (
-    <>
-      <nav
-        role="navigation"
-        aria-label="Main navigation"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-950 border-t border-gray-800"
-      >
-        <div className="flex">
-          {navTabs.map(({ path, label, icon }) => {
-            const isActive = pathname === path || pathname.startsWith(path + '/')
-            const isProfile = path === '/profile'
+    <nav
+      role="navigation"
+      aria-label="Main navigation"
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-gray-950 border-t border-gray-800"
+    >
+      <div className="flex">
+        {navTabs.map(({ path, label, icon }) => {
+          const isActive = pathname === path || pathname.startsWith(path + '/')
+          const isProfile = path === '/profile'
 
-            if (isProfile) {
-              return (
-                <button
-                  key={path}
-                  onClick={() => {
-                    if (!user) {
-                      setLoginOpen(true)
-                    } else {
-                      navigate('/profile')
-                    }
-                  }}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={[
-                    'relative flex-1 flex flex-col items-center gap-1 py-2.5 text-xs transition-colors',
-                    isActive ? 'text-white' : 'text-gray-500',
-                  ].join(' ')}
-                >
-                  <div className={`absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full transition-all duration-200 ${
-                    isActive ? 'bg-orange-500' : 'bg-transparent'
-                  }`} />
-                  {icon}
-                  <span className={isActive ? 'font-semibold' : ''}>{label}</span>
-                </button>
-              )
-            }
-
+          if (isProfile) {
             return (
-              <Link
+              <button
                 key={path}
-                to={path}
+                onClick={() => {
+                  if (!user) {
+                    onLoginOpen()
+                  } else {
+                    navigate('/profile')
+                  }
+                }}
                 aria-current={isActive ? 'page' : undefined}
                 className={[
                   'relative flex-1 flex flex-col items-center gap-1 py-2.5 text-xs transition-colors',
@@ -105,13 +86,29 @@ export function MobileTabBar() {
                 }`} />
                 {icon}
                 <span className={isActive ? 'font-semibold' : ''}>{label}</span>
-              </Link>
+              </button>
             )
-          })}
-        </div>
-      </nav>
+          }
 
-      <LoginModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
-    </>
+          return (
+            <Link
+              key={path}
+              to={path}
+              aria-current={isActive ? 'page' : undefined}
+              className={[
+                'relative flex-1 flex flex-col items-center gap-1 py-2.5 text-xs transition-colors',
+                isActive ? 'text-white' : 'text-gray-500',
+              ].join(' ')}
+            >
+              <div className={`absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full transition-all duration-200 ${
+                isActive ? 'bg-orange-500' : 'bg-transparent'
+              }`} />
+              {icon}
+              <span className={isActive ? 'font-semibold' : ''}>{label}</span>
+            </Link>
+          )
+        })}
+      </div>
+    </nav>
   )
 }
