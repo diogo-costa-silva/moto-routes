@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
@@ -19,7 +19,7 @@ import { DestinationList } from '../components/Destinations/DestinationList'
 import { useDestinations } from '../hooks/useDestinations'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { useSheetDrag } from '../hooks/useSheetDrag'
-import type { Destination, DestinationRoute } from '../hooks/useDestinations'
+import type { DestinationRoute } from '../hooks/useDestinations'
 
 function boundsFromRoutes(routes: DestinationRoute[]): mapboxgl.LngLatBounds | null {
   const coords = routes.flatMap((r) => {

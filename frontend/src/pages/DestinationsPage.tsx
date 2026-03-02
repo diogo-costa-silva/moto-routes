@@ -75,7 +75,7 @@ export function DestinationsPage() {
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-gray-950 text-white">
-      <NavHeader />
+      <NavHeader user={null} onLogout={async () => {}} onLoginOpen={() => {}} />
       <div className="flex flex-1 min-h-0">
       {/* Sidebar: visible on lg+, hidden on mobile/tablet */}
       <div className="hidden lg:flex lg:w-80 flex-shrink-0 border-r border-gray-800 flex-col">
@@ -196,7 +196,7 @@ export function DestinationsPage() {
         </div>
       )}
 
-      <MobileTabBar />
+      <MobileTabBar user={null} onLoginOpen={() => {}} />
     </div>
   )
 }

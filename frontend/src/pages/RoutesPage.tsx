@@ -248,7 +248,7 @@ export function RoutesPage() {
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-gray-950 text-white">
-      <NavHeader />
+      <NavHeader user={null} onLogout={async () => {}} onLoginOpen={() => {}} />
       <div className="flex flex-1 min-h-0">
         {/* Desktop sidebar */}
         <div className="hidden lg:flex lg:w-80 flex-shrink-0 border-r border-gray-800 flex-col">
@@ -381,7 +381,7 @@ export function RoutesPage() {
         </div>
       )}
 
-      <MobileTabBar />
+      <MobileTabBar user={null} onLoginOpen={() => {}} />
       <LoginModal isOpen={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
     </div>
   )

@@ -87,7 +87,7 @@ export function ProfilePage() {
 
   return (
     <div className="flex flex-col h-screen w-screen bg-gray-950 text-white">
-      <NavHeader />
+      <NavHeader user={null} onLogout={async () => {}} onLoginOpen={() => {}} />
 
       {/* Main content */}
       <div className="flex-1 overflow-y-auto pb-16 lg:pb-0">
@@ -186,7 +186,7 @@ export function ProfilePage() {
         </div>
       </div>
 
-      <MobileTabBar />
+      <MobileTabBar user={null} onLoginOpen={() => {}} />
     </div>
   )
 }

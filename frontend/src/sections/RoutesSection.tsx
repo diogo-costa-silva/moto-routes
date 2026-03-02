@@ -43,7 +43,7 @@ import type { OutletContextType } from '../components/AppShell/AppLayout'
 export function RoutesSection() {
   const { i18n, t } = useTranslation()
   const { mapRef, mapReady } = useMapContext()
-  const { onLoginOpen, user, isAuthenticated } = useOutletContext<OutletContextType>()
+  const { onLoginOpen, isAuthenticated } = useOutletContext<OutletContextType>()
 
   const { routes, loading: routesLoading, error, selectedRoute, hoveredRouteId, selectRoute, hoverRoute } = useRoutes(i18n.language)
   const { roads, loading: roadsLoading, selectedRoad, selectedAlternative, selectRoad, selectAlternative } = useRoads()
