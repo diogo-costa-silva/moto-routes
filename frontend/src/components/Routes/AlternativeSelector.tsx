@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { RoadAlternative } from '../../types/database'
 
 interface AlternativeSelectorProps {
@@ -7,11 +8,12 @@ interface AlternativeSelectorProps {
 }
 
 export function AlternativeSelector({ alternatives, selected, onSelect }: AlternativeSelectorProps) {
+  const { t } = useTranslation()
   if (alternatives.length <= 1) return null
 
   return (
     <div className="border-b border-gray-800 px-3 py-2">
-      <p className="text-xs text-gray-500 mb-2 px-1">Alternativas</p>
+      <p className="text-xs text-gray-500 mb-2 px-1">{t('road.alternatives')}</p>
       <div className="flex flex-col gap-1">
         {alternatives.map((alt) => {
           const isActive = selected?.id === alt.id
@@ -29,7 +31,7 @@ export function AlternativeSelector({ alternatives, selected, onSelect }: Altern
               <div className="flex items-center justify-between gap-2">
                 <span className="leading-tight">{alt.name}</span>
                 {alt.is_default && !isActive && (
-                  <span className="text-xs text-gray-600 flex-shrink-0">padrão</span>
+                  <span className="text-xs text-gray-600 flex-shrink-0">{t('road.default')}</span>
                 )}
               </div>
               {(alt.distance_km != null || alt.elevation_gain != null) && (

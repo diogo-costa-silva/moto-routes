@@ -113,6 +113,21 @@
     "mixed": "Misto",
     "plains": "Planícies"
   },
+  "road": {
+    "heading": "Estradas",
+    "noRoads": "Nenhuma estrada disponível.",
+    "alternatives": "Alternativas",
+    "alternativesCount": "{{count}} alternativas",
+    "default": "padrão",
+    "showList": "Mostrar lista de estradas"
+  },
+  "geo": {
+    "filterByArea": "Filtrar por área",
+    "clearFilter": "Limpar filtro",
+    "root": "Raiz",
+    "noSubareas": "Sem subáreas",
+    "viewSubareas": "Ver subáreas"
+  },
   "filter": {
     "allTypes": "Todos",
     "filterBy": "Filtrar",
@@ -121,6 +136,7 @@
   "common": {
     "close": "Fechar",
     "back": "Voltar",
-    "loading": "A carregar…"
+    "loading": "A carregar…",
+    "retry": "Tentar novamente"
   }
 }

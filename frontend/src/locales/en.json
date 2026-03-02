@@ -113,6 +113,21 @@
     "mixed": "Mixed",
     "plains": "Plains"
   },
+  "road": {
+    "heading": "Roads",
+    "noRoads": "No roads available.",
+    "alternatives": "Alternatives",
+    "alternativesCount": "{{count}} alternatives",
+    "default": "default",
+    "showList": "Show roads list"
+  },
+  "geo": {
+    "filterByArea": "Filter by area",
+    "clearFilter": "Clear filter",
+    "root": "Root",
+    "noSubareas": "No subareas",
+    "viewSubareas": "View subareas"
+  },
   "filter": {
     "allTypes": "All",
     "filterBy": "Filter",
@@ -121,6 +136,7 @@
   "common": {
     "close": "Close",
     "back": "Back",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "retry": "Try again"
   }
 }
