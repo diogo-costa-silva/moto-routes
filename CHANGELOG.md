@@ -8,6 +8,40 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [Phase 10 — UX/UI Corrections] 2026-03-02
+
+### Fixed
+- i18n: added `road.*` and `geo.*` namespaces to locale files; replaced 13 hardcoded strings in AlternativeSelector, RoadList, GeographicFilter, RoutesPage
+- Bridge: selecting a road alternative now opens RouteDetails with full stats and GPX download (via `route_slug` column on `road_alternatives` + `handleSelectAlternative` in RoutesPage)
+- DB: added `route_slug` column to `road_alternatives`; updated `get_roads_with_alternatives()` RPC to return `alt_route_slug`; populated mappings for N222/N304/ES routes
+- Mobile: LandscapeFilter + GeographicFilter now appear in the mobile bottom sheet; drill-down chevron always visible on touch (`useIsMobile`)
+- Destinations: featured routes are now clickable buttons that navigate to `/routes/:slug`
+- Touch targets: close buttons in DestinationDetails and RouteDetails are now ≥ 44px
+- RoadList: contextual empty state with "Clear filter" button when filters are active
+- Error states: retry button added to RoutesPage and JourneysPage error displays
+- Polish: amber accent replaced with orange in JourneyDetails, LoginModal, UserMenu
+- LanguageSwitcher: moved from MobileTabBar fixed overlay to bottom-sheet header (avoids overlap)
+- GeographicFilter clear button is now a semantic `<button>` with aria-label
+- NavHeader: added focus-visible ring to all navigation links and buttons
+- ProfilePage: history tab shows count when entries exist
+- useSheetDrag: respects `prefers-reduced-motion`
+
+### UX Improvements (Phase 10)
+
+- **M3** — Featured routes in `DestinationDetails` are now navigable: each item is a `<button>` that calls `navigate('/routes/:slug')`. Added `slug` field to `DestinationRoute` interface and included it in the Supabase featured routes query.
+- **M4** — Close buttons in `DestinationDetails` and `RouteDetails` now meet 44px touch target minimum: padding changed from `p-1.5` to `p-2.5` with `min-w-[44px] min-h-[44px] flex items-center justify-center`.
+- **M5** — `RoadList` accepts optional `hasActiveFilter` and `onClearFilter` props. When the road list is empty and a filter is active, a "Clear" link is shown below the empty message. Both desktop and mobile `RoadList` instances in `RoutesPage` pass these props.
+- **M6** — Error states in `RoutesPage` and `JourneysPage` now include a "Try again" retry button that calls `window.location.reload()`. Added `common.retry` key to both `en.json` and `pt.json` locale files.
+
+### Polish & Accessibility (Phase 10)
+
+- **B1** — Standardized accent color to orange across `JourneyDetails`, `LoginModal`, `UserMenu` (replaced all `amber-400/500` with `orange-400/500`; `DestinationDetails` intentionally left with amber)
+- **B2** — Moved `LanguageSwitcher` out of `MobileTabBar` fixed overlay into the bottom sheet headers of `RoutesPage`, `JourneysPage`, and `DestinationsPage` — eliminates overlap with tab bar and floating pills
+- **B3** — Replaced `<span onClick>` clear button in `GeographicFilter` with a semantic `<button>` element with `aria-label`
+- **B4** — Added `focus-visible:ring-2 focus-visible:ring-orange-500` to logo link, nav links, and sign-in button in `NavHeader`
+- **B5** — History tab in `ProfilePage` now shows entry count when non-zero: `History (N)`
+- **B7** — `useSheetDrag` respects `prefers-reduced-motion`: snap transition is `none` for users who prefer reduced motion
+
 ### REFORM Phase 11 — Roads → Alternatives → Geographic Areas
 
 #### Sprint A — Database Schema + Data
