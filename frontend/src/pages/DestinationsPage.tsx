@@ -6,7 +6,6 @@ import { useIsMobile } from '../hooks/useIsMobile'
 import { useSheetDrag } from '../hooks/useSheetDrag'
 import { NavHeader } from '../components/AppShell/NavHeader'
 import { MobileTabBar } from '../components/AppShell/MobileTabBar'
-import { LanguageSwitcher } from '../components/AppShell/LanguageSwitcher'
 import { DestinationMap } from '../components/Map/DestinationMap'
 import { DestinationDetails, DestinationDetailsMobile } from '../components/Destinations/DestinationDetails'
 import { DestinationList } from '../components/Destinations/DestinationList'
@@ -161,9 +160,11 @@ export function DestinationsPage() {
           </div>
 
           <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-800 flex-shrink-0">
-            <span className="text-sm font-semibold text-gray-300">{t('destination.heading')}</span>
+            <span className="text-sm font-semibold text-gray-300">
+              {t('destination.heading')}
+              {!loadingDestinations && <span className="ml-1.5 font-normal text-gray-500">({destinations.length})</span>}
+            </span>
             <div className="flex items-center gap-2">
-              <LanguageSwitcher />
               <button
                 onClick={() => setShowList(false)}
                 className="rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"

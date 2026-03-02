@@ -102,7 +102,8 @@
     "hoursAgo_other": "{{count}}h ago",
     "daysAgo_one": "{{count}}d ago",
     "daysAgo_other": "{{count}}d ago",
-    "sections": "Profile sections"
+    "sections": "Profile sections",
+    "language": "Language"
   },
   "landscape": {
     "coast": "Coast",
@@ -131,7 +132,8 @@
   "filter": {
     "allTypes": "All",
     "filterBy": "Filter",
-    "clearAll": "Clear"
+    "clearAll": "Clear",
+    "active": "filtered"
   },
   "common": {
     "close": "Close",

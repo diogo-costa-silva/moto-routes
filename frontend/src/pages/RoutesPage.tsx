@@ -6,7 +6,6 @@ import { useIsMobile } from '../hooks/useIsMobile'
 import { useSheetDrag } from '../hooks/useSheetDrag'
 import { NavHeader } from '../components/AppShell/NavHeader'
 import { MobileTabBar } from '../components/AppShell/MobileTabBar'
-import { LanguageSwitcher } from '../components/AppShell/LanguageSwitcher'
 import { RouteMap } from '../components/Map/RouteMap'
 import { DetailsContent, RouteDetails } from '../components/Routes/RouteDetails'
 import { AlternativeSelector } from '../components/Routes/AlternativeSelector'
@@ -315,7 +314,6 @@ export function RoutesPage() {
               {!loading && <span className="ml-1.5 font-normal text-gray-500">({filteredRoads.length})</span>}
             </span>
             <div className="flex items-center gap-2">
-              <LanguageSwitcher />
               <button
                 onClick={() => setShowList(false)}
                 className="rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"

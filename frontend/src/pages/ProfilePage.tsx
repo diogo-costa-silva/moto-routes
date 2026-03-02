@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { NavHeader } from '../components/AppShell/NavHeader'
 import { MobileTabBar } from '../components/AppShell/MobileTabBar'
+import { LanguageSwitcher } from '../components/AppShell/LanguageSwitcher'
 import { useAuth } from '../hooks/useAuth'
 import { useFavorites } from '../hooks/useFavorites'
 import { useHistory } from '../hooks/useHistory'
@@ -174,6 +175,13 @@ export function ProfilePage() {
                 ))
               )}
             </div>
+          </div>
+          {/* Language preference */}
+          <div className="mt-4 border-t border-gray-800 pt-4">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">
+              {t('profile.language')}
+            </h3>
+            <LanguageSwitcher />
           </div>
         </div>
       </div>

@@ -6,7 +6,6 @@ import { useIsMobile } from '../hooks/useIsMobile'
 import { useSheetDrag } from '../hooks/useSheetDrag'
 import { NavHeader } from '../components/AppShell/NavHeader'
 import { MobileTabBar } from '../components/AppShell/MobileTabBar'
-import { LanguageSwitcher } from '../components/AppShell/LanguageSwitcher'
 import { JourneyMap } from '../components/Map/JourneyMap'
 import { JourneyDetails, JourneyDetailsMobile } from '../components/Journeys/JourneyDetails'
 import { JourneyList } from '../components/Journeys/JourneyList'
@@ -174,9 +173,11 @@ export function JourneysPage() {
           </div>
 
           <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-800 flex-shrink-0">
-            <span className="text-sm font-semibold text-gray-300">{t('journey.heading')}</span>
+            <span className="text-sm font-semibold text-gray-300">
+              {t('journey.heading')}
+              {!loadingJourneys && <span className="ml-1.5 font-normal text-gray-500">({journeys.length})</span>}
+            </span>
             <div className="flex items-center gap-2">
-              <LanguageSwitcher />
               <button
                 onClick={() => setShowList(false)}
                 className="rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
