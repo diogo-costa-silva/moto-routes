@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useGeographicAreas } from '../../hooks/useGeographicAreas'
+import { useIsMobile } from '../../hooks/useIsMobile'
 import type { GeographicArea } from '../../types/database'
 
 interface GeographicFilterProps {
@@ -9,6 +11,8 @@ interface GeographicFilterProps {
 }
 
 export function GeographicFilter({ selectedArea, breadcrumb, onSelectArea }: GeographicFilterProps) {
+  const { t } = useTranslation()
+  const isMobile = useIsMobile()
   const [open, setOpen] = useState(false)
   const [browsedParent, setBrowsedParent] = useState<GeographicArea | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -69,18 +73,18 @@ export function GeographicFilter({ selectedArea, breadcrumb, onSelectArea }: Geo
           {selectedArea ? (
             <span className="truncate">{breadcrumb.map(a => a.name).join(' › ')}</span>
           ) : (
-            <span>Filtrar por área</span>
+            <span>{t('geo.filterByArea')}</span>
           )}
         </span>
         <span className="flex items-center gap-1 flex-shrink-0">
           {selectedArea && (
-            <span
+            <button
               onClick={handleClear}
-              className="text-gray-500 hover:text-white cursor-pointer p-0.5 rounded"
-              title="Limpar filtro"
+              aria-label={t('geo.clearFilter')}
+              className="rounded-full p-0.5 text-gray-500 hover:bg-gray-700 hover:text-white transition-colors"
             >
               ×
-            </span>
+            </button>
           )}
           <svg className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -94,7 +98,7 @@ export function GeographicFilter({ selectedArea, breadcrumb, onSelectArea }: Geo
           {/* Breadcrumb nav */}
           {browsedParent && (
             <div className="px-3 py-2 border-b border-gray-700 flex items-center gap-1 text-xs text-gray-400">
-              <button onClick={() => setBrowsedParent(null)} className="hover:text-white">Raiz</button>
+              <button onClick={() => setBrowsedParent(null)} className="hover:text-white">{t('geo.root')}</button>
               <span>›</span>
               <span className="text-gray-300">{browsedParent.name}</span>
             </div>
@@ -102,9 +106,9 @@ export function GeographicFilter({ selectedArea, breadcrumb, onSelectArea }: Geo
 
           <div className="max-h-52 overflow-y-auto">
             {loading ? (
-              <div className="px-4 py-3 text-sm text-gray-500">A carregar...</div>
+              <div className="px-4 py-3 text-sm text-gray-500">{t('common.loading')}</div>
             ) : areas.length === 0 ? (
-              <div className="px-4 py-3 text-sm text-gray-500">Sem subáreas</div>
+              <div className="px-4 py-3 text-sm text-gray-500">{t('geo.noSubareas')}</div>
             ) : (
               areas.map(area => (
                 <div key={area.id} className="flex items-center group">
@@ -121,8 +125,8 @@ export function GeographicFilter({ selectedArea, breadcrumb, onSelectArea }: Geo
                   {(['continent', 'country', 'macro_region', 'historic_province'] as string[]).includes(area.level) && (
                     <button
                       onClick={e => handleDrillDown(area, e)}
-                      className="px-2 py-2 text-gray-600 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="Ver subáreas"
+                      className={`px-2 py-2 text-gray-600 hover:text-white transition-opacity ${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                      title={t('geo.viewSubareas')}
                     >
                       ›
                     </button>

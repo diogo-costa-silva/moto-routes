@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router'
 import type { Destination, DestinationRoute } from '../../hooks/useDestinations'
 import { useSheetDrag } from '../../hooks/useSheetDrag'
 
@@ -29,6 +30,7 @@ export function DestinationDetails({
   onClose,
 }: DestinationDetailsProps) {
   const { t } = useTranslation()
+  const navigate = useNavigate()
 
   return (
     <div className="p-6 flex flex-col gap-5">
@@ -42,7 +44,7 @@ export function DestinationDetails({
         </div>
         <button
           onClick={onClose}
-          className="ml-4 flex-shrink-0 rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+          className="ml-4 flex-shrink-0 rounded-full p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
           aria-label={t('common.back')}
         >
           <svg
@@ -77,9 +79,10 @@ export function DestinationDetails({
             : featuredRoutes.length === 0
               ? <p className="text-xs text-gray-400 italic">{t('destination.noFeaturedRoutes')}</p>
               : featuredRoutes.map((route) => (
-                  <div
+                  <button
                     key={route.id}
-                    className="flex items-center gap-3 p-3 rounded-lg bg-gray-900"
+                    onClick={() => navigate(`/routes/${route.slug}`)}
+                    className="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
                   >
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate">{route.name}</p>
@@ -96,7 +99,7 @@ export function DestinationDetails({
                         )}
                       </div>
                     </div>
-                  </div>
+                  </button>
                 ))}
         </div>
       </section>

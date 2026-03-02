@@ -16,6 +16,7 @@ export interface DestinationRoute {
   id: string
   name: string
   code: string
+  slug: string
   distance_km: number | null
   elevation_gain: number | null
   landscape_type: LandscapeType | null
@@ -110,7 +111,7 @@ export function useDestinations(lang: string = 'pt'): UseDestinationsState {
       supabase
         .from('destination_featured_routes')
         .select(
-          'display_order, routes(id, name, code, distance_km, elevation_gain, landscape_type, geometry_geojson)',
+          'display_order, routes(id, name, code, slug, distance_km, elevation_gain, landscape_type, geometry_geojson)',
         )
         .eq('destination_id', selectedDestination.id)
         .order('display_order'),
@@ -128,6 +129,7 @@ export function useDestinations(lang: string = 'pt'): UseDestinationsState {
           id: string
           name: string
           code: string
+          slug: string
           distance_km: number | null
           elevation_gain: number | null
           landscape_type: LandscapeType | null
@@ -144,6 +146,7 @@ export function useDestinations(lang: string = 'pt'): UseDestinationsState {
           id: r.id,
           name: rt['name'] ?? r.name,
           code: r.code,
+          slug: r.slug,
           distance_km: r.distance_km,
           elevation_gain: r.elevation_gain,
           landscape_type: r.landscape_type,

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import type { RoadAlternative, RoadWithAlternatives } from '../../types/database'
 
 interface RoadListProps {
@@ -7,6 +8,8 @@ interface RoadListProps {
   selectedAlternative: RoadAlternative | null
   onSelectRoad: (road: RoadWithAlternatives) => void
   showHeader?: boolean
+  hasActiveFilter?: boolean
+  onClearFilter?: () => void
 }
 
 function SkeletonCard() {
@@ -24,13 +27,14 @@ function SkeletonCard() {
   )
 }
 
-export function RoadList({ roads, loading, selectedRoad, selectedAlternative, onSelectRoad, showHeader = true }: RoadListProps) {
+export function RoadList({ roads, loading, selectedRoad, selectedAlternative, onSelectRoad, showHeader = true, hasActiveFilter, onClearFilter }: RoadListProps) {
+  const { t } = useTranslation()
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {showHeader && (
         <div className="border-b border-gray-800 px-4 py-3">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-400">
-            Estradas
+            {t('road.heading')}
             {!loading && <span className="ml-2 font-normal text-gray-600">({roads.length})</span>}
           </h2>
         </div>
@@ -40,7 +44,19 @@ export function RoadList({ roads, loading, selectedRoad, selectedAlternative, on
         {loading
           ? Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)
           : roads.length === 0
-            ? <p className="p-4 text-sm text-gray-500">Nenhuma estrada disponível.</p>
+            ? (
+              <div className="p-4 flex flex-col gap-2">
+                <p className="text-sm text-gray-500">{t('road.noRoads')}</p>
+                {hasActiveFilter && onClearFilter && (
+                  <button
+                    onClick={onClearFilter}
+                    className="text-xs text-orange-400 hover:text-orange-300 underline text-left"
+                  >
+                    {t('filter.clearAll')}
+                  </button>
+                )}
+              </div>
+            )
             : roads.map((road) => {
                 const isSelected = selectedRoad?.id === road.id
                 const displayAlt = isSelected ? selectedAlternative : road.defaultAlternative
@@ -72,7 +88,7 @@ export function RoadList({ roads, loading, selectedRoad, selectedAlternative, on
                       {elevGain != null && <span>↑ {elevGain.toFixed(0)} m</span>}
                       {road.alt_count > 1 && (
                         <span className="ml-auto rounded-full bg-blue-500/15 px-2 py-0.5 text-blue-400 font-medium">
-                          {road.alt_count} alternativas
+                          {t('road.alternativesCount', { count: road.alt_count })}
                         </span>
                       )}
                     </div>

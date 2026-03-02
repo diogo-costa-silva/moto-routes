@@ -6,6 +6,7 @@ import { useIsMobile } from '../hooks/useIsMobile'
 import { useSheetDrag } from '../hooks/useSheetDrag'
 import { NavHeader } from '../components/AppShell/NavHeader'
 import { MobileTabBar } from '../components/AppShell/MobileTabBar'
+import { LanguageSwitcher } from '../components/AppShell/LanguageSwitcher'
 import { DestinationMap } from '../components/Map/DestinationMap'
 import { DestinationDetails, DestinationDetailsMobile } from '../components/Destinations/DestinationDetails'
 import { DestinationList } from '../components/Destinations/DestinationList'
@@ -161,15 +162,18 @@ export function DestinationsPage() {
 
           <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-800 flex-shrink-0">
             <span className="text-sm font-semibold text-gray-300">{t('destination.heading')}</span>
-            <button
-              onClick={() => setShowList(false)}
-              className="rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
-              aria-label={t('common.close')}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher />
+              <button
+                onClick={() => setShowList(false)}
+                className="rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+                aria-label={t('common.close')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto pb-16">

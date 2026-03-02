@@ -195,7 +195,7 @@ function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthentica
           )}
           <button
             onClick={onClose}
-            className="flex-shrink-0 rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+            className="flex-shrink-0 rounded-full p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
             aria-label={t('common.back')}
           >
             <svg
