@@ -22,7 +22,7 @@ export function NavHeader() {
     <>
       <div className="hidden lg:flex items-center justify-between border-b border-gray-800 px-4 py-3 min-w-0">
         <div className="flex items-center gap-3 min-w-0">
-          <Link to="/" aria-label="Moto Routes home">
+          <Link to="/" aria-label="Moto Routes home" className="rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950">
             <svg
               className="h-6 w-6 text-gray-400 hover:text-white transition-colors"
               viewBox="0 0 24 24"
@@ -48,7 +48,7 @@ export function NavHeader() {
                   key={path}
                   to={path}
                   className={[
-                    'text-sm transition-colors whitespace-nowrap',
+                    'rounded text-sm transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950',
                     isActive ? 'font-semibold text-white' : 'text-gray-500 hover:text-gray-300',
                   ].join(' ')}
                 >
@@ -66,7 +66,7 @@ export function NavHeader() {
           ) : (
             <button
               onClick={() => setLoginOpen(true)}
-              className="text-xs font-medium text-gray-400 hover:text-white transition-colors whitespace-nowrap"
+              className="rounded text-xs font-medium text-gray-400 hover:text-white transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950"
             >
               {t('nav.signIn')}
             </button>

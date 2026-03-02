@@ -30,7 +30,10 @@ export function useSheetDrag({ snapPoints, onDismiss }: UseSheetDragOptions): Us
 
   function snapTo(index: 0 | 1) {
     if (!sheetRef.current) return
-    sheetRef.current.style.transition = 'height 0.35s cubic-bezier(0.32, 0.72, 0, 1)'
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    sheetRef.current.style.transition = prefersReducedMotion
+      ? 'none'
+      : 'height 0.35s cubic-bezier(0.32, 0.72, 0, 1)'
     sheetRef.current.style.height = `${snapPoints[index]}vh`
     setSnapIndex(index)
   }

@@ -123,7 +123,7 @@ export function ProfilePage() {
                 tab === 'history' ? 'bg-gray-800 text-white' : 'text-gray-500 hover:text-gray-300',
               ].join(' ')}
             >
-              {t('profile.history')}
+              {t('profile.history')}{entries.length > 0 && ` (${entries.length})`}
             </button>
           </div>
 

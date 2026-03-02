@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router'
-import { LanguageSwitcher } from './LanguageSwitcher'
 import { useAuth } from '../../hooks/useAuth'
 import { LoginModal } from '../Auth/LoginModal'
 
@@ -55,11 +54,6 @@ export function MobileTabBar() {
 
   return (
     <>
-      {/* Floating language switcher above tab bar */}
-      <div className="lg:hidden fixed bottom-16 right-3 z-40">
-        <LanguageSwitcher />
-      </div>
-
       <nav
         role="navigation"
         aria-label="Main navigation"

@@ -62,7 +62,7 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={t('userMenu.accountMenu')}
-        className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+        className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
       >
         {avatarUrl ? (
           <img
@@ -71,7 +71,7 @@ export function UserMenu({ user, onLogout }: UserMenuProps) {
             className="h-7 w-7 rounded-full object-cover ring-1 ring-gray-700"
           />
         ) : (
-          <div className="h-7 w-7 rounded-full bg-amber-500 flex items-center justify-center text-xs font-bold text-gray-900">
+          <div className="h-7 w-7 rounded-full bg-orange-500 flex items-center justify-center text-xs font-bold text-gray-900">
             {getInitials(user)}
           </div>
         )}

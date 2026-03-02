@@ -126,7 +126,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           <button
             onClick={onClose}
             aria-label={t('auth.closeDialog')}
-            className="rounded-full p-1.5 text-gray-500 hover:bg-gray-800 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+            className="rounded-full p-1.5 text-gray-500 hover:bg-gray-800 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -138,7 +138,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         <button
           onClick={handleGoogle}
           disabled={googleLoading}
-          className="w-full flex items-center justify-center gap-3 rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mb-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+          className="w-full flex items-center justify-center gap-3 rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mb-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
         >
           {googleLoading ? (
             <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -174,7 +174,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
               placeholder={t('auth.email')}
               required
               autoComplete="email"
-              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-amber-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-orange-500 focus:outline-none"
             />
           </div>
           <div>
@@ -188,7 +188,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
               required
               minLength={6}
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-amber-500 focus:outline-none"
+              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-4 py-2.5 text-sm text-white placeholder:text-gray-500 focus:border-orange-500 focus:outline-none"
             />
           </div>
 
@@ -201,7 +201,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           <button
             type="submit"
             disabled={submitting}
-            className="flex items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 py-2.5 text-sm font-semibold text-gray-900 hover:bg-amber-400 disabled:opacity-60 disabled:cursor-not-allowed transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
+            className="flex items-center justify-center gap-2 rounded-lg bg-orange-500 px-4 py-2.5 text-sm font-semibold text-gray-900 hover:bg-orange-400 disabled:opacity-60 disabled:cursor-not-allowed transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
           >
             {submitting ? (
               <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -218,7 +218,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           {mode === 'login' ? t('auth.noAccount') : t('auth.alreadyAccount')}{' '}
           <button
             onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(null) }}
-            className="text-amber-500 hover:text-amber-400 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+            className="text-orange-500 hover:text-orange-400 font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-500"
           >
             {mode === 'login' ? t('auth.signUp') : t('auth.signIn')}
           </button>
