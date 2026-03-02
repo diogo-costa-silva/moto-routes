@@ -14,7 +14,7 @@ interface DestinationDetailsProps {
 
 function SkeletonRoute() {
   return (
-    <div className="animate-pulse flex items-center gap-3 p-3 rounded-lg bg-gray-900">
+    <div className="animate-pulse flex items-center gap-3 p-4 rounded-lg border border-gray-800 bg-gray-900">
       <div className="flex-1">
         <div className="h-3 w-2/3 rounded bg-gray-700 mb-1.5" />
         <div className="h-2.5 w-1/3 rounded bg-gray-800" />
@@ -37,7 +37,7 @@ export function DestinationDetails({
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-mono text-amber-400 uppercase tracking-widest mb-1">
+          <p className="text-xs font-mono text-orange-400 uppercase tracking-widest mb-1">
             {t('destination.destination')}
           </p>
           <h2 className="text-lg font-bold text-white leading-tight">{destination.name}</h2>
@@ -69,7 +69,7 @@ export function DestinationDetails({
 
       {/* Featured routes */}
       <section>
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
           {t('destination.featuredRoutes')}
         </h3>
 
@@ -82,7 +82,7 @@ export function DestinationDetails({
                   <button
                     key={route.id}
                     onClick={() => navigate(`/routes/${route.slug}`)}
-                    className="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
+                    className="w-full text-left p-3 rounded-lg border border-gray-800 hover:border-orange-500/40 hover:bg-gray-800 transition-all cursor-pointer"
                   >
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white truncate">{route.name}</p>
@@ -93,7 +93,7 @@ export function DestinationDetails({
                           </span>
                         )}
                         {route.landscape_type && (
-                          <span className="text-xs bg-gray-800 text-amber-400 px-2 py-0.5 rounded-full">
+                          <span className="text-xs bg-gray-800 text-orange-400 px-2 py-0.5 rounded-full">
                             {t(`landscape.${route.landscape_type}`, { defaultValue: route.landscape_type })}
                           </span>
                         )}

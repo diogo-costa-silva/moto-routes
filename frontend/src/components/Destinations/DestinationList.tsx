@@ -47,9 +47,9 @@ export function DestinationList({
                   key={dest.id}
                   onClick={() => onSelect(dest)}
                   className={[
-                    'w-full text-left p-4 rounded-lg border-l-4 transition-colors',
+                    'w-full text-left p-4 rounded-lg border-l-4 transition-all duration-150',
                     isSelected
-                      ? 'border-amber-500 bg-gray-800'
+                      ? 'border-orange-500 bg-gray-800'
                       : 'border-gray-800 bg-gray-900 hover:bg-gray-800 hover:border-gray-600',
                   ].join(' ')}
                 >

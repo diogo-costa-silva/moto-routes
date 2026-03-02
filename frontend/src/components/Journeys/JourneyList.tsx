@@ -53,7 +53,7 @@ export function JourneyList({ journeys, loading, selectedJourney, onSelect }: Jo
                   className={[
                     'w-full rounded-lg border text-left transition-all duration-150 p-4',
                     isSelected
-                      ? 'border-amber-500 bg-gray-800 border-l-4'
+                      ? 'border-orange-500 bg-gray-800 border-l-4'
                       : 'border-gray-800 bg-gray-900 hover:border-gray-700 hover:bg-gray-800',
                   ].join(' ')}
                   onClick={() => onSelect(journey)}
@@ -67,7 +67,7 @@ export function JourneyList({ journeys, loading, selectedJourney, onSelect }: Jo
                       </span>
                     )}
                     {journey.suggested_days != null && (
-                      <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 text-xs text-amber-400">
+                      <span className="rounded-full bg-orange-500/10 border border-orange-500/30 px-2 py-0.5 text-xs text-orange-400">
                         {journey.suggested_days} {journey.suggested_days !== 1 ? t('journey.days_plural') : t('journey.day')}
                       </span>
                     )}

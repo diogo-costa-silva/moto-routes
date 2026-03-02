@@ -68,7 +68,7 @@ ${tracks}
 
 function SkeletonStage() {
   return (
-    <div className="animate-pulse flex items-center gap-3 p-3 rounded-lg bg-gray-900">
+    <div className="animate-pulse flex items-center gap-3 p-4 rounded-lg border border-gray-800 bg-gray-900">
       <div className="h-3 w-3 rounded-full bg-gray-700 flex-shrink-0" />
       <div className="flex-1">
         <div className="h-3 w-2/3 rounded bg-gray-700 mb-1.5" />
@@ -140,7 +140,7 @@ export function JourneyDetails({
       {stages.length > 0 && (
         <button
           onClick={() => generateMergedGpx(journey, stages)}
-          className="w-full flex items-center justify-center gap-2 rounded-lg bg-orange-500 hover:bg-orange-400 active:bg-orange-600 text-gray-950 font-semibold text-sm px-4 py-2.5 transition-colors whitespace-nowrap"
+          className="w-full flex items-center justify-center gap-2 rounded-lg bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-semibold text-sm px-4 py-2.5 transition-colors whitespace-nowrap"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
             <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -151,7 +151,7 @@ export function JourneyDetails({
 
       {/* Stages */}
       <section>
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-3">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
           {t('journey.stages')}
         </h3>
 
