@@ -42,7 +42,7 @@ export function addRouteLayers(map: MapboxMap): void {
     id: LAYER_BASE,
     type: 'line',
     source: SOURCE_ALL,
-    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    layout: { 'line-join': 'round', 'line-cap': 'round', 'visibility': 'none' },
     paint: {
       'line-color': '#6b7280',
       'line-width': 2,
@@ -55,7 +55,7 @@ export function addRouteLayers(map: MapboxMap): void {
     id: LAYER_HOVER,
     type: 'line',
     source: SOURCE_ALL,
-    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    layout: { 'line-join': 'round', 'line-cap': 'round', 'visibility': 'none' },
     filter: ['==', ['get', 'id'], ''],
     paint: {
       'line-color': '#fb923c',
@@ -69,7 +69,7 @@ export function addRouteLayers(map: MapboxMap): void {
     id: LAYER_SELECTED,
     type: 'line',
     source: SOURCE_SELECTED,
-    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    layout: { 'line-join': 'round', 'line-cap': 'round', 'visibility': 'none' },
     paint: {
       'line-color': '#f97316',
       'line-width': 5,
@@ -114,6 +114,7 @@ export function addPOILayers(map: MapboxMap): void {
     id: LAYER_POI_CIRCLES,
     type: 'circle',
     source: SOURCE_POIS,
+    layout: { 'visibility': 'none' },
     paint: {
       'circle-radius': 10,
       'circle-color': [
@@ -135,6 +136,7 @@ export function addPOILayers(map: MapboxMap): void {
     type: 'symbol',
     source: SOURCE_POIS,
     layout: {
+      'visibility': 'none',
       'text-field': [
         'match',
         ['get', 'type'],
@@ -176,7 +178,7 @@ export function addSubRouteLayers(map: MapboxMap): void {
     id: LAYER_SUB_ROUTES,
     type: 'line',
     source: SOURCE_SUB_ROUTES,
-    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    layout: { 'line-join': 'round', 'line-cap': 'round', 'visibility': 'none' },
     paint: {
       'line-color': '#f97316',
       'line-width': 3,
@@ -211,7 +213,7 @@ export function addContextDimLayer(map: MapboxMap): void {
     id: LAYER_CONTEXT_DIM,
     type: 'line',
     source: SOURCE_CONTEXT_SEGMENTS,
-    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    layout: { 'line-join': 'round', 'line-cap': 'round', 'visibility': 'none' },
     paint: {
       'line-color': '#7c2d12',
       'line-width': 3,
@@ -243,6 +245,7 @@ export function addGeoBoundaryLayers(map: MapboxMap): void {
     id: LAYER_GEO_BOUNDARY_FILL,
     type: 'fill',
     source: SOURCE_GEO_BOUNDARY,
+    layout: { 'visibility': 'none' },
     paint: {
       'fill-color': '#3b82f6',
       'fill-opacity': 0.06,
@@ -252,7 +255,7 @@ export function addGeoBoundaryLayers(map: MapboxMap): void {
     id: LAYER_GEO_BOUNDARY_OUTLINE,
     type: 'line',
     source: SOURCE_GEO_BOUNDARY,
-    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    layout: { 'line-join': 'round', 'line-cap': 'round', 'visibility': 'none' },
     paint: {
       'line-color': '#3b82f6',
       'line-width': 2,
@@ -318,7 +321,7 @@ export function addJourneyLayers(map: MapboxMap): void {
     id: LAYER_JOURNEY_STAGES,
     type: 'line',
     source: SOURCE_JOURNEY_STAGES,
-    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    layout: { 'line-join': 'round', 'line-cap': 'round', 'visibility': 'none' },
     paint: {
       'line-color': [
         'match',
@@ -340,7 +343,7 @@ export function addJourneyLayers(map: MapboxMap): void {
     id: LAYER_JOURNEY_STAGE_HOVER,
     type: 'line',
     source: SOURCE_JOURNEY_STAGES,
-    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    layout: { 'line-join': 'round', 'line-cap': 'round', 'visibility': 'none' },
     filter: ['==', ['get', 'stage_id'], ''],
     paint: {
       'line-color': '#ffffff',
@@ -354,7 +357,7 @@ export function addJourneyLayers(map: MapboxMap): void {
     id: LAYER_JOURNEY_SELECTED,
     type: 'line',
     source: SOURCE_JOURNEY_SELECTED,
-    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    layout: { 'line-join': 'round', 'line-cap': 'round', 'visibility': 'none' },
     paint: {
       'line-color': '#ffffff',
       'line-width': 5,
@@ -397,6 +400,7 @@ export function addDestinationLayers(map: MapboxMap): void {
     id: LAYER_DESTINATION_FILL,
     type: 'fill',
     source: SOURCE_DESTINATION_BBOX,
+    layout: { 'visibility': 'none' },
     paint: {
       'fill-color': '#f59e0b',
       'fill-opacity': 0.2,
@@ -408,7 +412,7 @@ export function addDestinationLayers(map: MapboxMap): void {
     id: LAYER_DESTINATION_OUTLINE,
     type: 'line',
     source: SOURCE_DESTINATION_BBOX,
-    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    layout: { 'line-join': 'round', 'line-cap': 'round', 'visibility': 'none' },
     paint: {
       'line-color': '#f59e0b',
       'line-width': 3,
@@ -422,7 +426,7 @@ export function addDestinationLayers(map: MapboxMap): void {
     id: LAYER_DESTINATION_ROUTES,
     type: 'line',
     source: SOURCE_DESTINATION_ROUTES,
-    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    layout: { 'line-join': 'round', 'line-cap': 'round', 'visibility': 'none' },
     paint: {
       'line-color': '#f97316',
       'line-width': 3,
@@ -468,4 +472,54 @@ export function updateJourneySelectedSource(
   } else {
     source.setData({ type: 'Feature', properties: {}, geometry })
   }
+}
+
+// --- Layer group constants for section visibility management ---
+
+export const ROUTES_LAYERS = [
+  LAYER_GEO_BOUNDARY_FILL,
+  LAYER_GEO_BOUNDARY_OUTLINE,
+  LAYER_CONTEXT_DIM,
+  LAYER_SUB_ROUTES,
+  LAYER_BASE,
+  LAYER_HOVER,
+  LAYER_SELECTED,
+  LAYER_POI_CIRCLES,
+  LAYER_POI_LABELS,
+] as const
+
+export const JOURNEY_LAYERS = [
+  LAYER_JOURNEY_STAGES,
+  LAYER_JOURNEY_STAGE_HOVER,
+  LAYER_JOURNEY_SELECTED,
+] as const
+
+export const DESTINATION_LAYERS = [
+  LAYER_DESTINATION_FILL,
+  LAYER_DESTINATION_OUTLINE,
+  LAYER_DESTINATION_ROUTES,
+] as const
+
+export const ALL_LAYERS = [
+  ...ROUTES_LAYERS,
+  ...JOURNEY_LAYERS,
+  ...DESTINATION_LAYERS,
+] as const
+
+// --- Visibility helpers ---
+
+export function showLayers(map: MapboxMap, layerIds: readonly string[]): void {
+  for (const id of layerIds) {
+    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', 'visible')
+  }
+}
+
+export function hideLayers(map: MapboxMap, layerIds: readonly string[]): void {
+  for (const id of layerIds) {
+    if (map.getLayer(id)) map.setLayoutProperty(id, 'visibility', 'none')
+  }
+}
+
+export function hideAllLayers(map: MapboxMap): void {
+  hideLayers(map, ALL_LAYERS)
 }
