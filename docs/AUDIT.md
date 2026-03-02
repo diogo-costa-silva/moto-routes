@@ -23,6 +23,7 @@
 | A-11 | Skeleton loading components: duplicated 6× | 🟢 Low | Open | List components |
 | A-12 | Sheet snap points: inconsistent values across files | 🟢 Low | Open | Pages + Detail components |
 | A-13 | Back/close button SVG: duplicated 3× | 🟢 Low | Open | Detail components |
+| A-14 | RoutesPage: hybrid Roads + Routes state (REFORM migration incomplete) | 🟡 Medium | Open | RoutesPage, useRoutes, useRoads |
 
 ---
 
@@ -296,6 +297,30 @@ export const SHEET_SNAP_LIST = [65, 95]
 - `DestinationDetails.tsx:45`
 
 **Fix**: `frontend/src/components/AppShell/BackButton.tsx` — 10-line component. Trivial but clean.
+
+---
+
+---
+
+## A-14 — RoutesPage: hybrid Roads + Routes state
+
+**Severity**: 🟡 Medium
+
+**Problem**: `RoutesPage.tsx` imports and uses both `useRoutes` (legacy) and `useRoads` (REFORM) simultaneously. The component orchestrates two parallel data models — individual routes for hierarchy/details, and roads with alternatives for the new UI. This creates:
+- Dual loading states (`routesLoading` + `roadsLoading`)
+- State synchronisation between `selectedRoute` (Route model) and `selectedRoad`/`selectedAlternative` (Road model)
+- `RouteDetails` still receives a `Route` object — not a `RoadAlternative`
+
+This is a **migration artefact**: the REFORM frontend was implemented without completing the transition, leaving the page in a hybrid state.
+
+**Affected files**:
+- `frontend/src/pages/RoutesPage.tsx` (dual hook usage)
+- `frontend/src/hooks/useRoutes.ts` (still active, should eventually be absorbed or scoped)
+- `frontend/src/hooks/useRoads.ts` (new model, not yet the single source of truth)
+
+**Fix**: Complete Phase 14 (REFORM Frontend) — resolve the hybrid state by making `useRoads` + `road_alternatives` the single source of truth for the Routes page. `useRoutes` can be retained for Journeys/Destinations which depend on raw Route geometry.
+
+**Note**: Do not attempt to fix this before Phase 11 (Shared Map) and Phase 12 (data populated) are complete. The hybrid state is intentional during migration.
 
 ---
 

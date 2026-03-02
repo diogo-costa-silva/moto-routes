@@ -353,6 +353,82 @@ React Router v7 layout routes (`<Route element={<AppLayout />}>`) ensure `AppLay
 
 ---
 
+## DEC-015: Road Alternatives — Curatorial Combinations Architecture
+
+**Date**: 2026-03-02
+**Status**: Accepted (implemented silently during Phase 10, formalised 2026-03-02)
+
+**Context**
+Routes are individual GPX segments. A single road like N222 has multiple named combinations (base only, base + Mesão Frio, base + Margem Norte, all combined). Users want to select a curated "N222 + Mesão Frio" experience without knowing which raw route segments compose it.
+
+**Decision**
+Introduce a `road_alternatives` table linking roads to curated ordered sets of route segments (`alternative_segments`). Each alternative pre-calculates `distance_km`, `elevation_gain`, and `geometry_geojson` (via `ST_LineMerge`) so the frontend receives merged geometry without runtime joins. `created_by = NULL` means curator-defined; future support for user-created alternatives via UUID reference.
+
+**Rejected Alternatives**
+- Add more self-referential FKs on routes: Already used for is_extension_of / is_variant_of. Does not model "named combination" concept cleanly.
+- Compute merged geometry at query time: Expensive with ST_LineMerge per request. Pre-calculation is correct.
+- Frontend-side merging of GeoJSON: No PostGIS available client-side; coordinate arrays need explicit ordering logic.
+
+**Consequences**
+- (+) Frontend receives a single merged GeoJSON per alternative — no assembly required
+- (+) Pre-calculated stats per alternative (distance, elevation) without runtime aggregation
+- (+) `created_by` field enables future user-created alternatives without schema change
+- (-) Stats must be recalculated when component routes change
+- (-) Schema complexity: roads → road_alternatives → alternative_segments → routes (4-level join)
+
+---
+
+## DEC-016: Geographic Areas — 6-Level Navigable Hierarchy
+
+**Date**: 2026-03-02
+**Status**: Accepted (implemented silently during Phase 10, formalised 2026-03-02)
+
+**Context**
+`destinations` table supports 3 editorial regions. Users need structured geographic discovery: find routes in Gerês, Northern Portugal, or all of Portugal. A flat list of editorial destinations does not scale.
+
+**Decision**
+Add a `geographic_areas` table with a `geo_level` ENUM (continent, country, macro_region, historic_province, natural_park, district, municipality) and a self-referential `parent_id` for hierarchy traversal. Real polygon geometries (MultiPolygon, 4326) stored in PostGIS. Route-to-area assignment is automatic via `ST_Intersects` (RPC `populate_route_geographic_areas`), with an `is_auto` flag for manual overrides. `destinations` table is preserved for editorial highlights with hero images and descriptions.
+
+**Rejected Alternatives**
+- Extend `destinations` table: Would mix editorial curation with geographic hierarchy — different concerns, different update cadences.
+- Tags/labels on routes: Flat, no hierarchy, no polygon boundaries on map.
+- OSM-based dynamic query: Requires real-time Overpass API calls, adds latency and external dependency.
+
+**Consequences**
+- (+) Full hierarchy: breadcrumb navigation (Portugal > Norte > Gerês)
+- (+) Automatic route assignment via ST_Intersects — no manual tagging needed
+- (+) Map can show polygon boundaries when user filters by area
+- (+) Portugal (CAOP 2024.1) and Spain (GADM 4.1) can be imported with existing Python pipeline pattern
+- (-) Geographic data import is complex (CAOP, Overpass API, GADM — 3 sources)
+- (-) Historic provinces require manual polygon aggregation from municipal boundaries
+- (-) `destinations` and `geographic_areas` are parallel systems — must be kept consistent
+
+---
+
+## DEC-017: is_featured Flag + Highlight Notes per Route
+
+**Date**: 2026-03-02
+**Status**: Accepted (implemented during Phase 10)
+
+**Context**
+Some routes contain a standout segment that should be highlighted visually and textually. N103 runs Esposende→Chaves but the spectacular section is only Braga→Chaves. Users see the full 174km route but miss the key message: "the best part starts at Braga".
+
+**Decision**
+Add `is_featured BOOLEAN DEFAULT true` and `highlight_note_pt / highlight_note_en TEXT` columns to `routes`. Routes with `is_featured = false` are shown on the map but de-emphasised. `highlight_note` renders as an amber callout in `RouteDetails` sidebar. A POI of type `highlight_start` marks the exact start point on the map with a ⭐ emoji.
+
+**Rejected Alternatives**
+- Journey stages for sub-highlighting: Overkill for a single-road highlight. Journeys are multi-road compositions.
+- Frontend-only computed highlighting: Would require hardcoded logic per route — not scalable.
+
+**Consequences**
+- (+) Editorial control per route without schema changes for new highlights
+- (+) Bilingual support built-in (pt + en)
+- (+) Visual callout in sidebar draws attention to the key message
+- (+) POI type `highlight_start` integrates with existing POI layer on map
+- (-) is_featured=false routes still appear in the list — UI must communicate "full route, but best part starts at X"
+
+---
+
 ## Template for New Decisions
 
 ```markdown

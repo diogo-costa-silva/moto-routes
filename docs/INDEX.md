@@ -42,6 +42,7 @@ For new developers joining the project:
 | [Schema](./SCHEMA.md) | Database structure and queries |
 | [Data](./DATA.md) | Available GPX files and test data |
 | [Patterns](./PATTERNS.md) | Best practices and lessons learned |
+| [Reform Plan](./REFORM.md) | Phases 12-14: Roads + Alternatives + Geographic hierarchy |
 | [Deployment](./DEPLOYMENT.md) | Vercel deploy guide and environment setup |
 
 ---
@@ -52,6 +53,16 @@ For new developers joining the project:
 |----------|-------------|
 | [Changelog](../CHANGELOG.md) | Version history |
 | [Decisions](./DECISIONS.md) | Architecture Decision Records (ADRs) |
+
+---
+
+## Future Phases
+
+| Document | Description |
+|----------|-------------|
+| [Reform Plan](./REFORM.md) | Phases 12-14: Roads curadas, Alternativas, Hierarquia geográfica |
+| [Audit](./AUDIT.md) | Known architectural issues (A-01 to A-14) |
+| [Workflow](./WORKFLOW.md) | Mandatory pre-coding protocol |
 
 ---
 

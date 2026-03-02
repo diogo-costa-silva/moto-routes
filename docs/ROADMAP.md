@@ -19,6 +19,10 @@
 | 8 | i18n | Portuguese + English ✓ |
 | 9 | Filters | Landscape type tags ✓ |
 | 10 | Deploy | Polish and launch |
+| 11 | Shared Map Architecture | Refactor do mapa |
+| 12 | Roads & Alternatives | DB populada + roads curadas |
+| 13 | Geographic Data | Import CAOP/Overpass/GADM |
+| 14 | Geographic Frontend | Filtro geográfico + dim rendering |
 
 ---
 
@@ -334,6 +338,74 @@ Note: `POIMarkers.tsx` and `POIPopup.tsx` were not created as separate component
 - [ ] `npm run build` passes without errors
 - [ ] No console errors on tab switch
 - [ ] Single LoginModal instance in DOM (inspect with DevTools)
+
+---
+
+## Phase 12: Roads & Alternatives (Data Sprint)
+
+**Objective**: Popular a base de dados com Roads curadas e Alternativas. O schema já existe — falta apenas os dados.
+
+**Context**: Schema implementado silenciosamente durante Phase 10. Ver `docs/REFORM.md` para detalhe técnico.
+
+### Tasks
+- [ ] Popular tabela `roads` com N222, N304, N2, N103, Figueres-Cadaqués (ligar via `routes.road_id`)
+- [ ] Criar alternativas da N222: "N222 Oficial", "N222 + Mesão Frio", "N222 Margem Norte", "N222 Completa"
+- [ ] Criar alternativas da N103: "N103 Oficial", "N103 — Melhor Troço" (Braga→Chaves)
+- [ ] Calcular stats pré-calculados (`distance_km`, `elevation_gain`) por alternativa
+- [ ] Validar RPC `get_roads_with_alternatives` devolve dados correctos
+
+### Validation Criteria
+- [ ] `SELECT COUNT(*) FROM roads;` → 5
+- [ ] `SELECT COUNT(*) FROM road_alternatives;` → mínimo 6 (2 N103 + 4 N222)
+- [ ] RPC `get_roads_with_alternatives` devolve N222 com `alt_count = 4`
+- [ ] Frontend `useRoads()` hook devolve dados reais (não lista vazia)
+
+---
+
+## Phase 13: Geographic Data Pipeline
+
+**Objective**: Importar hierarquia geográfica real (Portugal + Espanha) via script Python.
+
+**Context**: Tabela `geographic_areas` e RPC `populate_route_geographic_areas` já existem. Falta o script de importação.
+
+### Tasks
+- [ ] Criar `scripts/import_geographic_areas.py`
+- [ ] Importar Portugal distritos + concelhos (CAOP 2024.1)
+- [ ] Importar Parques Naturais PT (Overpass API: Peneda-Gerês, Serra da Estrela, Serra do Alvão)
+- [ ] Importar Espanha Comunidades Autónomas + Províncias (GADM 4.1)
+- [ ] Criar hierarquia manual: Continente > País > Macro-região > Províncias históricas
+- [ ] Correr RPC `populate_route_geographic_areas` (ST_Intersects automático)
+
+### Validation Criteria
+- [ ] `SELECT COUNT(*) FROM geographic_areas;` → mínimo 30 (18 distritos PT + parques + ES regiões)
+- [ ] `SELECT COUNT(*) FROM route_geographic_areas;` → mínimo 15 (cada route em 2-3 áreas)
+- [ ] RPC `get_geographic_areas` devolve hierarquia navegável
+- [ ] N222 aparece ligada a "Vale do Douro", "Norte", "Portugal"
+
+---
+
+## Phase 14: Geographic Frontend (Final Polish)
+
+**Objective**: Finalizar o frontend da REFORM — dim rendering geográfico e filtro hierárquico completo.
+
+**Dependencies**: Phase 11 (Shared Map) deve estar completa antes desta fase.
+
+**Context**: ~90% do frontend já implementado. Falta integração com shared map para dim rendering.
+
+### Tasks
+- [ ] Integrar `GeographicFilter.tsx` com dados reais de Phase 13
+- [ ] Dim rendering: segmentos fora da área geográfica seleccionada em opacity 0.3
+- [ ] Layer de fronteira geográfica (polygon outline) quando user filtra por área
+- [ ] `fitBounds` da área geográfica quando seleccionada
+- [ ] Breadcrumb de navegação (Portugal > Norte > Gerês)
+- [ ] Resolução do estado híbrido em `RoutesPage.tsx` (Roads + Routes) — A-14 em AUDIT.md
+
+### Validation Criteria
+- [ ] Filtrar "Norte > Gerês" → só N304 troço Gerês visível em destaque
+- [ ] Fazer zoom out → restantes troços da N304 em dim (opacity 0.3)
+- [ ] Layer de fronteira do Gerês visível no mapa
+- [ ] Navegação breadcrumb funcional: clicar "Norte" → mostra todas as routes do Norte
+- [ ] `npm run build` sem erros TypeScript
 
 ---
 

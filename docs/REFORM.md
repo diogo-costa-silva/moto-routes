@@ -11,6 +11,26 @@ A UI passa de "lista plana de Routes" para "Roads com Alternativas + filtro geog
 
 ---
 
+## Status: Parcialmente Implementado
+
+**Última revisão**: 2026-03-02
+
+| Componente | Estado |
+|---|---|
+| Schema BD (tabelas + RPCs) | ✅ Implementado em `schema.sql` |
+| Tipos TypeScript (`database.ts`) | ✅ Implementado |
+| Hooks (`useRoads`, `useGeographicAreas`) | ✅ Implementado |
+| Componentes frontend (`RoadList`, `AlternativeSelector`, `GeographicFilter`) | ✅ Implementado |
+| `RoutesPage.tsx` redesenhada (estado híbrido Roads + Routes) | ✅ Implementado |
+| Dados em `roads` + `road_alternatives` | ❌ Falta popular |
+| Script Python `import_geographic_areas.py` | ❌ Por fazer |
+| Dados em `geographic_areas` | ❌ Falta popular |
+| Dim rendering geográfico no mapa | ⏳ Aguarda Phase 11 (Shared Map) |
+
+**Nota**: Este plano foi implementado silenciosamente sem estar no ROADMAP. Foi integrado formalmente em 2026-03-02 como Phases 12-14.
+
+---
+
 ## Decisões de Arquitectura
 
 ### Road → Alternativas → Segmentos
@@ -44,9 +64,9 @@ Quando user navega Gerês e selecciona N304:
 
 ---
 
-## Fase 11: Database Redesign
+## Phase 12: Database Redesign (✅ Implementado)
 
-### Fase 11a — Tabela `roads` (popular + estender)
+### Phase 12a — Tabela `roads` (popular + estender)
 
 ```sql
 ALTER TABLE roads ADD COLUMN hero_image_url TEXT;
@@ -58,7 +78,7 @@ ALTER TABLE roads ADD COLUMN total_distance_km NUMERIC(8,2);
 
 Ligar routes existentes a roads via `routes.road_id`.
 
-### Fase 11b — Tabela `road_alternatives`
+### Phase 12b — Tabela `road_alternatives`
 
 ```sql
 CREATE TABLE road_alternatives (
@@ -79,7 +99,7 @@ CREATE TABLE road_alternatives (
 );
 ```
 
-### Fase 11c — Tabela `alternative_segments`
+### Phase 12c — Tabela `alternative_segments`
 
 ```sql
 CREATE TABLE alternative_segments (
@@ -92,7 +112,7 @@ CREATE TABLE alternative_segments (
 );
 ```
 
-### Fase 11d — Campo `is_featured` nas routes
+### Phase 12d — Campo `is_featured` nas routes
 
 ```sql
 ALTER TABLE routes ADD COLUMN is_featured BOOLEAN DEFAULT true;
@@ -103,7 +123,7 @@ ALTER TABLE routes ADD COLUMN highlight_note_en TEXT;
 N103 Esposende→Braga: `is_featured = false` (está presente mas não é o foco)
 N103 Braga→Chaves: `is_featured = true`
 
-### Fase 11e — Tabela `geographic_areas`
+### Phase 12e — Tabela `geographic_areas`
 
 ```sql
 CREATE TYPE geo_level AS ENUM (
@@ -132,7 +152,7 @@ CREATE INDEX ON geographic_areas(level);
 CREATE INDEX ON geographic_areas(country_code);
 ```
 
-### Fase 11f — Tabela `route_geographic_areas`
+### Phase 12f — Tabela `route_geographic_areas`
 
 ```sql
 CREATE TABLE route_geographic_areas (
@@ -159,7 +179,7 @@ ON CONFLICT DO NOTHING;
 
 ---
 
-## Fase 12: Aquisição de Dados Geográficos
+## Phase 13: Aquisição de Dados Geográficos
 
 ### Fontes
 
@@ -188,7 +208,7 @@ Novo script `scripts/import_geographic_areas.py`:
 
 ---
 
-## Fase 13: Frontend Redesign
+## Phase 14: Frontend Redesign (✅ ~90% Implementado)
 
 ### Mudanças na página Routes (`RoutesPage.tsx`)
 
@@ -223,13 +243,15 @@ Novo script `scripts/import_geographic_areas.py`:
 
 ## Faseamento de Implementação
 
-### Sprint A: DB Schema + Dados (sem quebrar app actual)
+> **Sequência recomendada (2026-03-02)**: REFORM DB (popular dados) → Phase 11 (Shared Map) → REFORM Frontend (Phase 14 restante) → Phase 13 (geographic_areas Python script)
+
+### Sprint A: DB Schema (✅ Feito) + Dados (❌ Falta popular)
 1. Aplicar migrations novas (additive — não remove nada)
 2. Popular tabela `roads` (N222, N304, N2, N103, Figueres-Cadaqués)
 3. Criar alternativas da N222 (as 4 combinações)
 4. Criar alternativas da N103 (Oficial + Melhor Troço)
 
-### Sprint B: Frontend Roads + Alternativas
+### Sprint B: Frontend Roads + Alternativas (✅ ~90% Feito)
 1. `useRoads` hook
 2. `RoadList.tsx` + `AlternativeSelector.tsx`
 3. Actualizar `RouteMap.tsx` para merged geometry das alternativas
@@ -241,7 +263,7 @@ Novo script `scripts/import_geographic_areas.py`:
 3. Script Python para GADM (Espanha)
 4. RPC para popular `route_geographic_areas` automaticamente
 
-### Sprint D: Frontend Geográfico
+### Sprint D: Frontend Geográfico (⏳ Aguarda Phase 11)
 1. Filtro geográfico na sidebar de Routes
 2. `useGeographicAreas` hook
 3. Breadcrumb de navegação (Portugal > Norte > Gerês)

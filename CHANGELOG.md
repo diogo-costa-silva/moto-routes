@@ -8,6 +8,17 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [REFORM.md Formalizado no Roadmap] 2026-03-02
+
+### Added
+- `docs/DECISIONS.md` — DEC-015 (Road Alternatives), DEC-016 (Geographic Areas 6-level hierarchy), DEC-017 (is_featured + highlight notes)
+- `docs/AUDIT.md` — A-14: RoutesPage hybrid Roads+Routes state (migration artefact)
+- `docs/ROADMAP.md` — Phases 12, 13, 14 (Roads & Alternatives, Geographic Data, Geographic Frontend) com tasks e validation criteria
+- `docs/INDEX.md` — secção "Future Phases" com referência a REFORM.md, AUDIT.md, WORKFLOW.md
+
+### Changed
+- `docs/REFORM.md` — fases renumeradas (11→12, 12→13, 13→14) para evitar conflito com ROADMAP Phase 11; header de status adicionado com estado de implementação por componente; sequência recomendada documentada
+
 ## [Tooling — Hooks, Rules, Workflow Enforcement] 2026-03-02
 
 ### Added
