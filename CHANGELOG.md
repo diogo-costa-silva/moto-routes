@@ -8,6 +8,18 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [Phase 10 — Bug Fixes] 2026-03-02
+
+### Fixed
+- RoutesPage: landscape filter now also filters road list count (previously only filtered the map)
+- RouteAnimation: clamp line-dasharray values with Math.max(0, ...) to prevent negative values
+- LandscapeFilter: replaced overflow-x-auto with flex-wrap so all pills are visible in narrow sidebar
+
+## [Phase 10 — Bug Fix: landscape filter now applies to road list] 2026-03-02
+
+### Fixed
+- `RoutesPage`: `filteredRoads` now respects `landscapeFilters` in addition to the geographic filter. Built a `slug→landscape_type` lookup from `routes` and filter roads whose alternatives link to a route with a matching landscape type.
+
 ## [Phase 10 — Visual Unification Desktop↔Mobile] 2026-03-02
 
 ### Changed
