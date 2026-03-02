@@ -16,7 +16,7 @@ codegraph_impact("SymbolYouPlanToChange")
 ### 2. Check existing decisions and debt
 - Read `docs/AUDIT.md` — are the files you're about to touch flagged?
 - Read `docs/DECISIONS.md` — does a DEC-XXX already cover this pattern?
-- Read `docs/ROADMAP.md` — what do future phases need from this code?
+- Read `.planning/ROADMAP.md` — what do future phases need from this code?
 
 ### 3. Look up current library docs (always — APIs change)
 Use Context7 before implementing anything with an external library:
@@ -49,7 +49,14 @@ Run independent subtasks **in parallel** using specialized agents:
 | Pre-commit review | `code-reviewer` |
 | Unit/integration tests | `test-writer` |
 
-### 6. For changes touching 5+ files: use a worktree
+### 6. For complete phases (5+ files): use GSD
+
+Instead of manual agents, use GSD for full phase execution:
+- `/gsd:plan-phase N` — research + creates atomic PLAN.md
+- `/gsd:execute-phase N` — executes with fresh contexts + parallel waves
+- `/gsd:verify-work` — post-execution validation
+
+For direct worktree isolation:
 ```
 EnterWorktree(name="descriptive-name")
 ```

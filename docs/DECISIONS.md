@@ -322,7 +322,7 @@ Define a PostgreSQL ENUM `landscape_type` with values: `mountain`, `coast`, `val
 ## DEC-014: Shared Mapbox instance via layout route (supersedes implicit Phase 3 decision)
 
 **Date**: 2026-03-02
-**Status**: Accepted (pending implementation — see `docs/PLAN_SHARED_MAP.md`)
+**Status**: Accepted (pending implementation — see `.planning/phases/11-shared-map/SPEC.md`)
 
 **Context**
 In Phase 3, a `RouteMap` component was created that initialises a `mapboxgl.Map` instance in a `useEffect([])` and destroys it with `map.remove()` on unmount. This pattern was repeated without review in Phase 5 (JourneyMap) and Phase 6 (DestinationMap).
@@ -426,6 +426,31 @@ Add `is_featured BOOLEAN DEFAULT true` and `highlight_note_pt / highlight_note_e
 - (+) Visual callout in sidebar draws attention to the key message
 - (+) POI type `highlight_start` integrates with existing POI layer on map
 - (-) is_featured=false routes still appear in the list — UI must communicate "full route, but best part starts at X"
+
+---
+
+## DEC-018: GSD as execution layer
+
+**Date**: 2026-03-02
+**Status**: Accepted
+
+**Context**
+Long development sessions cause context rot: the main conversation accumulates state from all previous tasks, degrading planning quality. GSD v1.22.0 was already installed in `.claude/` with commands, agents, hooks, and workflows. The project had `docs/ROADMAP.md`, `docs/VISION.md`, `state.md`, and `docs/INDEX.md` — four files that partially overlapped with what GSD's `.planning/` directory provides.
+
+**Decision**
+Adopt GSD as the execution layer. `.planning/` (local only, not committed) handles phase tracking, execution state, and GSD context. `docs/` remains the permanent knowledge layer (DECISIONS, AUDIT, PATTERNS, phase specs). Redundant files (`docs/ROADMAP.md`, `docs/VISION.md`, `state.md`, `docs/INDEX.md`) are deleted; their content migrated to `.planning/`.
+
+**Rejected Alternatives**
+- Keep both systems in parallel: Creates two sources of truth for phase status — inevitable drift.
+- Use GSD exclusively (delete `docs/`): `docs/DECISIONS.md`, `AUDIT.md`, `PATTERNS.md` are permanent architectural knowledge, not session state. They belong in version control.
+
+**Consequences**
+- (+) Phase tracking lives in `.planning/ROADMAP.md` — GSD reads it natively
+- (+) `/gsd:plan-phase N` → `/gsd:execute-phase N` → `/gsd:verify-work` for complete phases
+- (+) Context rot reduced: fresh agents per phase, not accumulated session state
+- (+) `/status` skill writes to `.planning/STATE.md` (GSD-compatible)
+- (-) `.planning/` is local only — team members must run `/status` to regenerate STATE.md
+- (-) `docs/ROADMAP.md` no longer exists — references in older docs may be stale
 
 ---
 

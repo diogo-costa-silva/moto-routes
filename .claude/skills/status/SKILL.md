@@ -18,9 +18,10 @@ Dar uma visão precisa do projecto. Usa múltiplas fontes ordenadas por fiabilid
 
 Ler em paralelo:
 
-1. **`docs/ROADMAP.md`** → fase actual e critérios de validação (fonte estável)
-2. **`CHANGELOG.md`** → últimas entradas, o que foi shipped (fiável)
-3. **`git log --oneline -10`** → ground truth dos commits recentes (sempre correcto)
+1. **`.planning/ROADMAP.md`** → tabela de status, fase actual, dependências entre fases
+2. **`docs/phases/phase-{N}.md`** → critérios de validação detalhados da fase actual (determinar N a partir do ROADMAP primeiro)
+3. **`CHANGELOG.md`** → últimas entradas, o que foi shipped (fiável)
+4. **`git log --oneline -10`** → ground truth dos commits recentes (sempre correcto)
 
 ## Passo 2 — Reconciliar e determinar estado real
 
@@ -52,9 +53,9 @@ Com base nas 3 fontes, determinar:
 [Descrição concreta do que falta fazer]
 ```
 
-## Passo 4 — Gerar/actualizar `state.md`
+## Passo 4 — Gerar/actualizar `.planning/STATE.md`
 
-Escrever o ficheiro `state.md` na raiz do projecto:
+Escrever o ficheiro `.planning/STATE.md` na raiz do projecto:
 
 ```markdown
 # Project State
@@ -72,4 +73,6 @@ Phase [N] — [Nome] ([X]/[Y] criteria)
 - [mensagem commit 2]
 - [mensagem commit 3]
 ```
+
+**Nota**: escrever em `.planning/STATE.md` (não `state.md` na raiz — esse ficheiro foi eliminado).
 

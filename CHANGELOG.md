@@ -8,6 +8,50 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [GSD Migration] 2026-03-02
+
+### Added
+- `.planning/` directory (local only, not committed) — GSD execution layer
+- `.planning/PROJECT.md` — project mission, stack, and constraints for GSD context
+- `.planning/REQUIREMENTS.md` — MVP scope with acceptance criteria (V1 done, V2 current)
+- `.planning/ROADMAP.md` — phase tracking in GSD format (replaces `docs/ROADMAP.md`)
+- `.planning/STATE.md` — current session state (replaces `state.md` at root)
+- `.planning/config.json` — GSD workflow configuration
+- `docs/DECISIONS.md` — DEC-018: GSD as execution layer
+
+### Changed
+- `CLAUDE.md` — added GSD Workflow section; Key Docs now references `.planning/ROADMAP.md`
+- `docs/WORKFLOW.md` — Step 2 references `.planning/ROADMAP.md`; Step 6 adds GSD commands for full phases
+- `.claude/skills/status/SKILL.md` — reads `.planning/ROADMAP.md`; writes `.planning/STATE.md`
+- `.gitignore` — added `.planning/`
+
+### Deleted
+- `docs/ROADMAP.md` — migrated to `.planning/ROADMAP.md`
+- `docs/VISION.md` — migrated to `.planning/PROJECT.md`
+- `state.md` (root) — migrated to `.planning/STATE.md`
+- `docs/INDEX.md` — redundant; references live in `CLAUDE.md` and `WORKFLOW.md`
+
+## [Federated Roadmap Architecture] 2026-03-02
+
+### Changed
+- `docs/ROADMAP.md` — rewritten as lean 73-line overview + status table; phases 0-9 collapsed to one row; active/future phases link to individual files
+- `docs/DECISIONS.md` — DEC-014 reference updated to `docs/phases/phase-11-shared-map.md`
+- `docs/AUDIT.md` — A-01 reference updated to `docs/phases/phase-11-shared-map.md`
+- `CLAUDE.md` — Key Docs updated to reference `docs/phases/phase-11-shared-map.md`
+- `.claude/skills/status/SKILL.md` — Passo 1 now also reads `docs/phases/phase-{N}.md` for detailed criteria
+
+### Added
+- `docs/phases/phase-10-deploy.md` — Polish & Deploy tasks + validation criteria
+- `docs/phases/phase-11-shared-map.md` — Shared Map Architecture plan (absorbs PLAN_SHARED_MAP.md)
+- `docs/phases/phase-12-roads-data.md` — Roads & Alternatives data sprint (from REFORM.md Sprint A+B)
+- `docs/phases/phase-13-geo-data.md` — Geographic Data Pipeline (from REFORM.md Sprint C)
+- `docs/phases/phase-14-geo-frontend.md` — Geographic Frontend (from REFORM.md Sprint D)
+- `docs/INDEX.md` — "Active & Future Phases" section with links to phase files
+
+### Deleted
+- `docs/PLAN_SHARED_MAP.md` — content migrated to `docs/phases/phase-11-shared-map.md`
+- `docs/REFORM.md` — content split across `docs/phases/phase-12/13/14-*.md`
+
 ## [REFORM.md Formalizado no Roadmap] 2026-03-02
 
 ### Added
