@@ -306,6 +306,37 @@ Note: `POIMarkers.tsx` and `POIPopup.tsx` were not created as separate component
 
 ---
 
+## Phase 11: Shared Map Architecture (Refactor)
+
+**Objective**: Replace 3 independent Mapbox instances with a single persistent instance shared via React Router layout route. Eliminates ~500ms tab switch reload and camera state loss.
+
+**Context**: This architectural issue was identified in Phase 10 (March 2026). It should have been designed in Phase 3. Documented in `docs/DECISIONS.md` as DEC-014.
+
+**Full implementation plan**: `docs/PLAN_SHARED_MAP.md`
+
+### Tasks
+- [ ] Create `src/contexts/MapContext.tsx` — mapRef + mapReady context
+- [ ] Update `src/components/Map/mapLayers.ts` — all layers default to `visibility: 'none'`, export `showLayers()`/`hideLayers()` helpers
+- [ ] Create `src/components/Map/SharedMap.tsx` — single `mapboxgl.Map` instance, all sources+layers added once
+- [ ] Create `src/components/AppShell/AppLayout.tsx` — layout route with NavHeader + map container + Outlet + MobileTabBar + single LoginModal
+- [ ] Refactor `NavHeader.tsx` and `MobileTabBar.tsx` — remove LoginModal, accept `onLoginOpen` prop
+- [ ] Create `src/sections/RoutesSection.tsx` — replaces RoutesPage, uses shared map via context
+- [ ] Create `src/sections/JourneysSection.tsx` — replaces JourneysPage
+- [ ] Create `src/sections/DestinationsSection.tsx` — replaces DestinationsPage
+- [ ] Update `App.tsx` — nested routes with AppLayout as layout route
+- [ ] Handle `/profile` route — hide map layers on mount
+- [ ] Delete `RouteMap.tsx`, `JourneyMap.tsx`, `DestinationMap.tsx`, `RoutesPage.tsx`, `JourneysPage.tsx`, `DestinationsPage.tsx`
+
+### Validation Criteria
+- [ ] Tab switch (Routes ↔ Journeys ↔ Destinations) does not reload the map (no white flash)
+- [ ] Camera position (zoom/pan) is preserved when returning to a previously visited tab
+- [ ] All existing features work identically (route selection, animations, POIs, filters, auth)
+- [ ] `npm run build` passes without errors
+- [ ] No console errors on tab switch
+- [ ] Single LoginModal instance in DOM (inspect with DevTools)
+
+---
+
 ## Phase 10: Polish & Deploy
 
 **Objective**: Public MVP launch.

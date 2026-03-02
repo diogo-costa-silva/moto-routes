@@ -319,6 +319,40 @@ Define a PostgreSQL ENUM `landscape_type` with values: `mountain`, `coast`, `val
 
 ---
 
+## DEC-014: Shared Mapbox instance via layout route (supersedes implicit Phase 3 decision)
+
+**Date**: 2026-03-02
+**Status**: Accepted (pending implementation — see `docs/PLAN_SHARED_MAP.md`)
+
+**Context**
+In Phase 3, a `RouteMap` component was created that initialises a `mapboxgl.Map` instance in a `useEffect([])` and destroys it with `map.remove()` on unmount. This pattern was repeated without review in Phase 5 (JourneyMap) and Phase 6 (DestinationMap).
+
+Because React Router renders each page as an independent component, switching tabs causes the current page to unmount (destroying the map) and the new page to mount (creating a new map). This results in ~500ms of visible reload on every tab switch, and the camera position (zoom/pan) is lost between tabs.
+
+This decision should have been made and documented in Phase 3, before JourneyMap and DestinationMap were ever created.
+
+**Decision**
+Refactor to a single persistent `mapboxgl.Map` instance held in a `MapContext`, initialised in a `SharedMap` component inside an `AppLayout` layout route. All sources and layers for all sections are added once on `map.on('load')` with `visibility: 'none'`. Each section shows/hides its own layers on mount/unmount via `showLayers()`/`hideLayers()` helpers in `mapLayers.ts`.
+
+React Router v7 layout routes (`<Route element={<AppLayout />}>`) ensure `AppLayout` never unmounts during tab navigation, so the map instance persists for the full session.
+
+**Rejected Alternatives**
+- **Per-page Map components (current)**: Each section owns its `mapboxgl.Map`. Simple to implement per phase, but causes full map reload (~500ms) on every tab switch. Camera state lost. Not appropriate for a tab-based SPA.
+- **CSS `display: none` toggle**: Hide/show map containers without unmounting. Avoids map reload but keeps all three Map component trees in memory simultaneously (~3x memory). Does not fix the architecture.
+- **react-map-gl with `reuseMaps={true}`**: Valid library-based alternative, but introduces a dependency and wrapping layer around the raw Mapbox GL JS API. Given the direct Mapbox usage throughout the codebase, the shared context approach is more consistent.
+
+**Consequences**
+- (+) Tab switch latency: ~500ms → ~50ms
+- (+) Camera position preserved when switching tabs and returning
+- (+) Single LoginModal instance (currently duplicated in 3 places)
+- (+) ~800 lines of code deleted (3 Map components + 3 Page components replaced by 3 leaner Section components)
+- (-) Initial setup more complex: requires MapContext, SharedMap, AppLayout, layer visibility helpers
+- (-) All layer `add*` functions in `mapLayers.ts` must default to `visibility: 'none'`
+- (-) Event listeners must be registered/unregistered per section (not at map init time)
+- (-) DestinationMap's click listener (currently inside `map.on('load')`) must be moved to a proper useEffect with cleanup
+
+---
+
 ## Template for New Decisions
 
 ```markdown

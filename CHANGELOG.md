@@ -8,6 +8,25 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [Tooling — Hooks, Rules, Workflow Enforcement] 2026-03-02
+
+### Added
+- `.claude/hooks/block-env-edit.sh` — `PreToolUse` hook: blocks any `Edit`/`Write` on `.env` files (exit 2 with explanation)
+- `.claude/hooks/notify-done.sh` — `Stop` hook: macOS desktop notification when Claude finishes a response
+- `.claude/hooks/typecheck-reminder.sh` — advisory reminder to run `npm run build` after TS changes
+- `.claude/rules/frontend.md` — auto-loaded path rules for `frontend/src/**/*.{ts,tsx}`: imports, Supabase casts, component constraints
+- `.claude/rules/map.md` — auto-loaded rules for `components/Map/**`: layer architecture, coordinate order, popup pattern
+- `.claude/rules/database.md` — auto-loaded rules for hooks/lib/scripts: PostGIS geometry, WKT format, auth/translation anti-patterns
+- Hooks wired in `.claude/settings.json`: `PreToolUse` for env protection, `Stop` for notification
+- `docs/WORKFLOW.md` — mandatory pre-coding protocol (codegraph → audit → decisions → context7 → DEC-XXX → agents → worktree)
+- `docs/AUDIT.md` — 13 architectural issues A-01 to A-13 with severity, fix plan, affected files
+- `docs/DECISIONS.md` — DEC-014: Shared Mapbox instance via layout route (Phase 11)
+- `docs/PLAN_SHARED_MAP.md` — detailed 12-step implementation plan for Phase 11
+
+### Changed
+- `CLAUDE.md` rewritten from 229 → 62 lines using `@docs/WORKFLOW.md` import
+- `docs/ROADMAP.md` — Phase 11 (Shared Map Architecture) added before Phase 10
+
 ## [Phase 10 — N103 Zoom + Name Fix] 2026-03-02
 
 ### Fixed
