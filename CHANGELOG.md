@@ -8,6 +8,23 @@ O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Unreleased]
 
+## [Phase 10 — Visual Unification Desktop↔Mobile] 2026-03-02
+
+### Changed
+- Colors: unified amber → orange across JourneyList (border, days badge), DestinationList (border), DestinationDetails (DESTINATION label, landscape badge)
+- JourneyDetails: GPX button text `text-gray-950` → `text-white`; hover/active states unified with RouteDetails
+- DestinationDetails: featured route cards now have `border border-gray-800 hover:border-orange-500/40` (matches SubRoutes in RouteDetails)
+- DestinationList: transition `transition-colors` → `transition-all duration-150`
+- Section headers: `mb-3` → `mb-2` in JourneyDetails and DestinationDetails (matches RouteDetails)
+- Skeleton cards: `p-3 bg-gray-900` → `p-4 border border-gray-800 bg-gray-900` in JourneyDetails and DestinationDetails
+- LandscapeFilter: container padding `px-4` → `px-3`; inactive chips use `border-transparent`; chip padding `py-1` → `py-1.5` (better touch target)
+- GeographicFilter: inactive trigger border `border-gray-700` → `border-transparent`; added focus ring; drill-down arrow `px-2 py-2` → `px-3 py-2.5`
+- AlternativeSelector: added focus rings to all buttons; title label `px-1` → `px-3`
+- RoadList: header `px-4 py-3` → `px-3 py-2`; heading `text-gray-400` → `text-gray-300`; shows "FILTERED" badge when filter is active
+- LanguageSwitcher: moved from mobile sheet headers → ProfilePage (language preference section); sheet headers now cleaner (title + count + close only)
+- JourneysPage + DestinationsPage sheet headers: added item count display
+- i18n: added `filter.active` and `profile.language` keys to PT and EN locales
+
 ## [Phase 10 — UX/UI Corrections] 2026-03-02
 
 ### Fixed
