@@ -30,6 +30,8 @@ export interface Route {
   is_segment_of: string | null
   is_extension_of: string | null
   is_variant_of: string | null
+  highlight_note_pt: string | null
+  highlight_note_en: string | null
 }
 
 export type RouteRelationType = 'extension' | 'variant' | 'segment' | null
@@ -117,6 +119,8 @@ export function useRoutes(lang: string = 'pt'): UseRoutesState {
           is_segment_of: row.is_segment_of,
           is_extension_of: row.is_extension_of,
           is_variant_of: row.is_variant_of,
+          highlight_note_pt: row.highlight_note_pt ?? null,
+          highlight_note_en: row.highlight_note_en ?? null,
         })
       }
 

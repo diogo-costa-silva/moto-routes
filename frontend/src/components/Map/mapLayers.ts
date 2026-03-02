@@ -144,6 +144,7 @@ export function addPOILayers(map: MapboxMap): void {
         'waterfall', '💧',
         'village', '🏘',
         'historical_site', '🏛',
+        'highlight_start', '⭐',
         '📍', // fallback
       ],
       'text-size': 12,

@@ -136,7 +136,7 @@ function SubRouteSection({ label, routes, onSelect }: SubRouteSectionProps) {
 }
 
 function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthenticated = false, onToggleFavorite, onLoginRequired, children = [], parentRoute, onSelectSubRoute, onBackToParent }: RouteDetailsProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [gpxLoading, setGpxLoading] = useState(false)
 
   const extensions = useMemo(
@@ -250,6 +250,17 @@ function DetailsContent({ route, onClose, pois, isFavorite = false, isAuthentica
           value={route.curve_count_total != null ? String(route.curve_count_total) : null}
         />
       </div>
+
+      {(route.highlight_note_pt || route.highlight_note_en) && (
+        <div className="rounded-lg border-l-4 border-amber-500 bg-amber-500/10 px-4 py-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-amber-400 mb-1">
+            {t('route.bestSection', { defaultValue: 'Melhor Troço' })}
+          </p>
+          <p className="text-sm text-amber-100 leading-relaxed">
+            {i18n.language === 'pt' ? route.highlight_note_pt : route.highlight_note_en}
+          </p>
+        </div>
+      )}
 
       {/* Sub-routes section: extensions, variants, segments */}
       {extensions.length > 0 && onSelectSubRoute && (
