@@ -48,6 +48,7 @@ export interface RoadAlternative {
   road_id: string
   name: string
   slug: string
+  route_slug: string | null
   description: string | null
   is_default: boolean
   display_order: number
@@ -471,6 +472,7 @@ export interface Database {
           alt_id: string | null
           alt_name: string | null
           alt_slug: string | null
+          alt_route_slug: string | null
           alt_is_default: boolean | null
           alt_display_order: number | null
           alt_distance_km: number | null

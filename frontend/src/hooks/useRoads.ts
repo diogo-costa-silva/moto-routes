@@ -75,6 +75,7 @@ export function useRoads(): UseRoadsState {
         road_id: roadId,
         name: row['alt_name'] as string,
         slug: row['alt_slug'] as string,
+        route_slug: (row['alt_route_slug'] as string | null) ?? null,
         description: (row['alt_description'] as string | null) ?? null,
         is_default: Boolean(row['alt_is_default']),
         display_order: Number(row['alt_display_order'] ?? 0),

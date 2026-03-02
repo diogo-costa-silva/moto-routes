@@ -6,6 +6,7 @@ import { useIsMobile } from '../hooks/useIsMobile'
 import { useSheetDrag } from '../hooks/useSheetDrag'
 import { NavHeader } from '../components/AppShell/NavHeader'
 import { MobileTabBar } from '../components/AppShell/MobileTabBar'
+import { LanguageSwitcher } from '../components/AppShell/LanguageSwitcher'
 import { RouteMap } from '../components/Map/RouteMap'
 import { DetailsContent, RouteDetails } from '../components/Routes/RouteDetails'
 import { AlternativeSelector } from '../components/Routes/AlternativeSelector'
@@ -16,6 +17,7 @@ import { LoginModal } from '../components/Auth/LoginModal'
 import { useRoutePOIs } from '../hooks/useRoutePOIs'
 import { useRoads } from '../hooks/useRoads'
 import { useRoutes, type Route } from '../hooks/useRoutes'
+import type { RoadAlternative } from '../types/database'
 import { useGeographicAreas } from '../hooks/useGeographicAreas'
 import { useAuth } from '../hooks/useAuth'
 import { useFavorites } from '../hooks/useFavorites'
@@ -163,6 +165,12 @@ export function RoutesPage() {
     if (isMobile) setShowList(true)
   }
 
+  function handleSelectAlternative(alt: RoadAlternative) {
+    selectAlternative(alt)
+    const match = alt.route_slug ? routes.find(r => r.slug === alt.route_slug) : null
+    if (match) selectRoute(match)
+  }
+
   const sidebarContent = effectiveRoute ? (
     <div className="flex-1 overflow-y-auto">
       <DetailsContent
@@ -181,7 +189,17 @@ export function RoutesPage() {
     </div>
   ) : (
     <>
-      {error && <div className="p-4 text-sm text-red-400">{t('route.unableToLoad')}</div>}
+      {error && (
+        <div className="flex items-center gap-3 p-4 text-sm text-red-400">
+          <span>{t('route.unableToLoad')}</span>
+          <button
+            onClick={() => window.location.reload()}
+            className="flex-shrink-0 text-xs text-orange-400 hover:text-orange-300 underline"
+          >
+            {t('common.retry')}
+          </button>
+        </div>
+      )}
       <LandscapeFilter
         availableTypes={availableTypes}
         selected={landscapeFilters}
@@ -196,7 +214,7 @@ export function RoutesPage() {
         <AlternativeSelector
           alternatives={selectedRoad.alternatives}
           selected={selectedAlternative}
-          onSelect={selectAlternative}
+          onSelect={handleSelectAlternative}
         />
       ) : null}
       <RoadList
@@ -205,6 +223,8 @@ export function RoutesPage() {
         selectedRoad={selectedRoad}
         selectedAlternative={selectedAlternative}
         onSelectRoad={selectRoad}
+        hasActiveFilter={!!geoAreas.selectedArea || landscapeFilters.length > 0}
+        onClearFilter={() => { geoAreas.selectArea(null); setLandscapeFilters([]) }}
       />
     </>
   )
@@ -261,10 +281,10 @@ export function RoutesPage() {
       {isMobile && !showList && !effectiveRoute && (
         <button
           onClick={() => setShowList(true)}
-          aria-label={t('route.showList')}
+          aria-label={t('road.showList')}
           className="fixed bottom-16 left-1/2 -translate-x-1/2 z-30 bg-gray-900 text-white px-5 py-2 rounded-full shadow-lg text-sm font-medium flex items-center gap-2"
         >
-          Estradas ({loading ? '…' : filteredRoads.length})
+          {t('road.heading')} ({loading ? '…' : filteredRoads.length})
           {landscapeFilters.length > 0 && (
             <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-xs text-white">
               {landscapeFilters.length}
@@ -291,25 +311,42 @@ export function RoutesPage() {
 
           <div className="flex items-center justify-between px-4 pb-2 border-b border-gray-800 flex-shrink-0">
             <span className="text-sm font-semibold text-gray-300">
-              Estradas
+              {t('road.heading')}
               {!loading && <span className="ml-1.5 font-normal text-gray-500">({filteredRoads.length})</span>}
             </span>
-            <button
-              onClick={() => setShowList(false)}
-              className="rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
-              aria-label={t('common.close')}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-2">
+              <LanguageSwitcher />
+              <button
+                onClick={() => setShowList(false)}
+                className="rounded-full p-1.5 text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
+                aria-label={t('common.close')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Filters */}
+          <div className="flex-shrink-0 border-b border-gray-800 pb-2">
+            <LandscapeFilter
+              availableTypes={availableTypes}
+              selected={landscapeFilters}
+              onChange={setLandscapeFilters}
+            />
+            <GeographicFilter
+              selectedArea={geoAreas.selectedArea}
+              breadcrumb={geoAreas.breadcrumb}
+              onSelectArea={geoAreas.selectArea}
+            />
           </div>
 
           {selectedRoad && (
             <AlternativeSelector
               alternatives={selectedRoad.alternatives}
               selected={selectedAlternative}
-              onSelect={selectAlternative}
+              onSelect={handleSelectAlternative}
             />
           )}
 
@@ -321,6 +358,8 @@ export function RoutesPage() {
               selectedAlternative={selectedAlternative}
               onSelectRoad={selectRoad}
               showHeader={false}
+              hasActiveFilter={!!geoAreas.selectedArea || landscapeFilters.length > 0}
+              onClearFilter={() => { geoAreas.selectArea(null); setLandscapeFilters([]) }}
             />
           </div>
         </div>
