@@ -15,7 +15,7 @@ export type OutletContextType = {
 }
 
 export function AppLayout() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [loginOpen, setLoginOpen] = useState(false)
 
   function openLogin() {
@@ -25,12 +25,12 @@ export function AppLayout() {
   return (
     <MapProvider>
       <div className="flex flex-col h-screen w-screen overflow-hidden bg-gray-950 text-white">
-        <NavHeader />
+        <NavHeader user={user} onLogout={logout} onLoginOpen={openLogin} />
         <div className="flex flex-1 min-h-0 relative">
           <SharedMap />
           <Outlet context={{ onLoginOpen: openLogin, user, isAuthenticated: !!user } satisfies OutletContextType} />
         </div>
-        <MobileTabBar />
+        <MobileTabBar user={user} onLoginOpen={openLogin} />
         {/* Single LoginModal instance — eliminates A-03 (3 duplicate modals) */}
         <LoginModal
           isOpen={loginOpen}
