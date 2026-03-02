@@ -21,7 +21,7 @@ export function LandscapeFilter({ availableTypes, selected, onChange }: Landscap
   }
 
   return (
-    <div className="overflow-x-auto flex gap-2 px-3 py-2 scrollbar-none">
+    <div className="flex flex-wrap gap-2 px-3 py-2">
       {availableTypes.map(type => {
         const style = LANDSCAPE_STYLES[type] ?? { icon: '', pill: 'border-gray-500 text-gray-300', badge: 'bg-gray-500/20 text-gray-300' }
         const isActive = selected.includes(type)
