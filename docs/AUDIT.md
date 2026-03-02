@@ -31,7 +31,7 @@
 
 **Severity**: 🔴 Critical
 **Decision**: DEC-014 in `docs/DECISIONS.md`
-**Fix plan**: `docs/PLAN_SHARED_MAP.md` (Phase 11 in ROADMAP)
+**Fix plan**: `.planning/phases/11-shared-map/SPEC.md` (Phase 11 in ROADMAP)
 
 **Problem**: `RouteMap`, `JourneyMap`, and `DestinationMap` each create `new mapboxgl.Map()` in a `useEffect([])` and destroy it with `map.remove()` on unmount. Because React Router renders each page independently, switching tabs destroys the old map and creates a new one — ~500ms visible reload, camera state lost.
 

@@ -336,6 +336,54 @@ mcp__supabase__get_advisors
 
 ---
 
+## Google OAuth Configuration
+
+### Project References
+
+| Item | Value |
+|------|-------|
+| App name | Moto Routes |
+| Google Cloud project ID | `astute-synapse-368017` |
+| Supabase callback URL | `https://epaxdcbvbysjrnwuffay.supabase.co/auth/v1/callback` |
+| Frontend dev URL | `http://localhost:5174` |
+| Frontend prod URL | `https://moto-routes.vercel.app` |
+
+### Google Cloud Console
+
+1. Navigate to [console.cloud.google.com](https://console.cloud.google.com) → project `astute-synapse-368017`
+2. **APIs & Services** → **Credentials** → OAuth 2.0 Client ID "Moto Routes"
+3. Authorized redirect URI: `https://epaxdcbvbysjrnwuffay.supabase.co/auth/v1/callback`
+4. OAuth consent screen: **External**, **Published** (any Gmail account can sign in)
+
+### Supabase Dashboard
+
+1. **Authentication** → **Providers** → **Google**: enabled with Client ID + Secret from Google Cloud
+2. **Authentication** → **URL Configuration** → **Redirect URLs**: `http://localhost:5174`, `https://moto-routes.vercel.app`
+
+### OAuth Code
+
+The flow is triggered from `frontend/src/hooks/useAuth.ts`:
+
+```typescript
+await supabase.auth.signInWithOAuth({
+  provider: 'google',
+  options: {
+    redirectTo: window.location.origin + window.location.pathname,
+  },
+})
+```
+
+> **Why include `pathname`**: React Router intercepts navigation to the root path before Supabase can process the `?code=` callback parameter. Including `pathname` preserves the OAuth code.
+
+### Maintenance
+
+**If consent screen reverts to Testing mode** (only listed test users can sign in):
+1. Go to Google Cloud Console → project `astute-synapse-368017`
+2. **APIs & Services** → **OAuth consent screen** → **Publish app**
+3. Test users (only relevant in Testing mode): `dccsilva98@gmail.com`, `dipedilans@gmail.com`
+
+---
+
 ## Common Issues
 
 ### "Missing Supabase URL"
