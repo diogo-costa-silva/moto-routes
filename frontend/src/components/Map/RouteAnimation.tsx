@@ -19,7 +19,7 @@ export function RouteAnimation({ map, layerId, onComplete }: RouteAnimationProps
       const elapsed = now - startTime
       const progress = Math.min(elapsed / DURATION_MS, 1)
 
-      map.setPaintProperty(layerId, 'line-dasharray', [progress * 2, (1 - progress) * 2])
+      map.setPaintProperty(layerId, 'line-dasharray', [Math.max(0, progress * 2), Math.max(0, (1 - progress) * 2)])
 
       if (progress < 1) {
         rafRef.current = requestAnimationFrame(frame)
